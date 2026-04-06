@@ -6,10 +6,9 @@ COPY bristol-application ./bristol-application
 COPY bristol-domain ./bristol-domain
 COPY bristol-infrastructure ./bristol-infrastructure
 RUN mvn clean package -DskipTests
-RUN find /app -name "*.jar" -not -path "*/repository/*"
 
 FROM eclipse-temurin:17-alpine
 WORKDIR /app
-COPY --from=build /app/bristol-api/target/bristol-api-3.0.0.jar app.jar
+COPY --from=build /app/bristol-application/target/bristol-application-3.0.0.jar app.jar
 EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "app.jar"]
