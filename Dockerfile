@@ -6,6 +6,7 @@ COPY bristol-application ./bristol-application
 COPY bristol-domain ./bristol-domain
 COPY bristol-infrastructure ./bristol-infrastructure
 RUN mvn clean package -DskipTests
+RUN find /app -name "*.jar" -not -path "*/repository/*"
 
 FROM eclipse-temurin:17-alpine
 WORKDIR /app
