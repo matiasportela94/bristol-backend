@@ -7,8 +7,8 @@ COPY bristol-domain ./bristol-domain
 COPY bristol-infrastructure ./bristol-infrastructure
 RUN mvn clean package -DskipTests
 
-FROM eclipse-temurin:17-jre
+FROM eclipse-temurin:17-alpine
 WORKDIR /app
-COPY --from=build /app/bristol-api/target/bristol-api-3.0.0.jar app.jar
+COPY --from=build ./bristol-api/target/bristol-api-3.0.0.jar app.jar
 EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "app.jar"]
