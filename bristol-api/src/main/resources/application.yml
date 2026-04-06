@@ -1,0 +1,132 @@
+spring:
+  application:
+    name: bristol-backend
+
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:bristol}
+    username: ${DB_USER:admin}
+    password: ${DB_PASSWORD:secret}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: none
+    show-sql: ${SHOW_SQL:false}
+    properties:
+      hibernate:
+        format_sql: true
+        jdbc:
+          batch_size: 20
+        order_inserts: true
+        order_updates: true
+
+  flyway:
+    enabled: true
+    baseline-on-migrate: ${FLYWAY_BASELINE_ON_MIGRATE:false}
+    baseline-version: ${FLYWAY_BASELINE_VERSION:1}
+    locations: classpath:db/migration
+    validate-on-migrate: ${FLYWAY_VALIDATE_ON_MIGRATE:true}
+
+  security:
+    user:
+      name: admin
+      password: ${ADMIN_PASSWORD:changeme}
+
+  mail:
+    host: ${MAIL_HOST:}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: ${MAIL_SMTP_AUTH:true}
+          starttls:
+            enable: ${MAIL_SMTP_STARTTLS_ENABLE:true}
+
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 10MB
+
+server:
+  port: ${SERVER_PORT:8080}
+  servlet:
+    context-path: /
+  error:
+    include-message: always
+    include-stacktrace: on_param
+    include-exception: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: when-authorized
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+
+logging:
+  level:
+    root: INFO
+    com.bristol: ${LOG_LEVEL:DEBUG}
+    org.springframework.web: ${SPRING_WEB_LOG_LEVEL:INFO}
+    org.hibernate.SQL: ${SQL_LOG_LEVEL:INFO}
+    org.hibernate.type.descriptor.sql.BasicBinder: ${SQL_BINDER_LOG_LEVEL:TRACE}
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+
+# Application specific properties
+bristol:
+  jwt:
+    secret: ${JWT_SECRET:bristol-backend-jwt-secret-key-hs512-minimum-512-bits-required-for-secure-signing-operations-2024}
+    expiration: ${JWT_EXPIRATION:86400000} # 24 hours in milliseconds
+    refresh-expiration: ${JWT_REFRESH_EXPIRATION:604800000} # 7 days
+
+  mercadopago:
+    access-token: ${MP_ACCESS_TOKEN:your-mercadopago-token}
+    public-key: ${MP_PUBLIC_KEY:your-mercadopago-public-key}
+    webhook-secret: ${MP_WEBHOOK_SECRET:your-webhook-secret}
+
+  afip:
+    cuit: ${AFIP_CUIT:20123456789}
+    certificate-path: ${AFIP_CERT_PATH:/path/to/cert.pem}
+    private-key-path: ${AFIP_KEY_PATH:/path/to/private.key}
+    environment: ${AFIP_ENV:testing} # testing or production
+
+  cors:
+    allowed-origins: ${CORS_ORIGINS:http://localhost:4200,http://localhost:3000}
+    allowed-methods: GET,POST,PUT,DELETE,PATCH,OPTIONS
+    allowed-headers: "*"
+    allow-credentials: true
+
+  bootstrap:
+    demo-data: ${BOOTSTRAP_DEMO_DATA:false}
+    admin:
+      email: ${ADMIN_EMAIL:admin@bristol.com}
+      password: ${ADMIN_PASSWORD:Admin123!}
+      first-name: ${ADMIN_FIRST_NAME:Super}
+      last-name: ${ADMIN_LAST_NAME:Admin}
+    demo-user:
+      email: ${DEMO_USER_EMAIL:demo.user@bristol.com}
+      password: ${DEMO_USER_PASSWORD:User123!}
+    demo-distributor:
+      email: ${DEMO_DISTRIBUTOR_EMAIL:demo.distributor@bristol.com}
+      password: ${DEMO_DISTRIBUTOR_PASSWORD:Distributor123!}
+
+  notifications:
+    from-email: ${MAIL_FROM_EMAIL:no-reply@bristol.local}

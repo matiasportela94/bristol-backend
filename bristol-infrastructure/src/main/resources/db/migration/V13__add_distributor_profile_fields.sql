@@ -1,0 +1,4 @@
+ALTER TABLE distributors
+    ADD COLUMN IF NOT EXISTS address VARCHAR(255),
+    ADD COLUMN IF NOT EXISTS phone VARCHAR(20),
+    ADD COLUMN IF NOT EXISTS delivery_zone_id UUID;

@@ -1,0 +1,734 @@
+{
+  "info": {
+    "_postman_id": "e59ca947-0d3b-4c68-b4c3-c75eb3a4c001",
+    "name": "Bristol Backend",
+    "description": "Collection based on the controllers and DTOs currently available in the project. Public endpoints can run as-is. Protected endpoints require a valid JWT in {{jwt}}; admin-only routes require logging in with an existing ADMIN user. Product create/update requests accept an optional images array where each image is sent as base64 and stored directly in the database.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080" },
+    { "key": "jwt", "value": "" },
+    { "key": "loginEmail", "value": "admin@bristol.com" },
+    { "key": "loginPassword", "value": "Admin123!" },
+    { "key": "userEmail", "value": "new.user@example.com" },
+    { "key": "userPassword", "value": "User123!" },
+    { "key": "userId", "value": "88888888-8888-8888-8888-888888888888" },
+    { "key": "productId", "value": "44444444-4444-4444-4444-444444444444" },
+    { "key": "productVariantId", "value": "55555555-5555-5555-5555-555555555555" },
+    { "key": "deliveryZoneId", "value": "11111111-1111-1111-1111-111111111111" },
+    { "key": "addressId", "value": "" },
+    { "key": "orderId", "value": "" },
+    { "key": "couponId", "value": "" },
+    { "key": "distributorId", "value": "77777777-7777-7777-7777-777777777777" },
+    { "key": "deliveryId", "value": "" },
+    { "key": "registrationId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "API Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/health"
+          }
+        },
+        {
+          "name": "Auth Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/auth/health"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register User",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\":\"{{userEmail}}\",\"password\":\"{{userPassword}}\",\"firstName\":\"Test\",\"lastName\":\"User\",\"phone\":\"1133221100\",\"dateOfBirth\":\"1995-05-20\"}"
+            },
+            "url": "{{baseUrl}}/api/auth/register"
+          }
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  const data = pm.response.json();",
+                  "  if (data.token) pm.collectionVariables.set('jwt', data.token);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\":\"{{loginEmail}}\",\"password\":\"{{loginPassword}}\"}"
+            },
+            "url": "{{baseUrl}}/api/auth/login"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Public Catalog",
+      "item": [
+        {
+          "name": "List Products",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/products"
+          }
+        },
+        {
+          "name": "Get Featured Products",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/products/featured"
+          }
+        },
+        {
+          "name": "Get Products By Category",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/products/category/PRODUCTOS"
+          }
+        },
+        {
+          "name": "Get Product By Id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/products/{{productId}}"
+          }
+        },
+        {
+          "name": "Get Variant By Id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/product-variants/{{productVariantId}}"
+          }
+        },
+        {
+          "name": "Get Variants By Product",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/product-variants/product/{{productId}}"
+          }
+        },
+        {
+          "name": "Get Active Coupons",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/coupons/active"
+          }
+        },
+        {
+          "name": "Validate Coupon",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"code\":\"BIENVENIDA10\",\"orderTotal\":15000,\"userId\":\"{{userId}}\"}"
+            },
+            "url": "{{baseUrl}}/api/coupons/validate"
+          }
+        },
+        {
+          "name": "Register Distributor Request",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"razonSocial\":\"Distribuidora Demo SRL\",\"cuit\":\"20-12345678-9\",\"email\":\"dist.demo@example.com\",\"telefono\":\"1122334455\",\"provincia\":\"Buenos Aires\",\"ciudad\":\"La Plata\",\"direccion\":\"Calle 123 456\",\"codigoPostal\":\"1900\",\"provinciaEnvio\":\"Buenos Aires\",\"ciudadEnvio\":\"La Plata\",\"direccionEnvio\":\"Deposito 789\",\"codigoPostalEnvio\":\"1900\",\"deliveryZone\":\"sur\"}"
+            },
+            "url": "{{baseUrl}}/api/distributors/register"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Products Admin",
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          { "key": "token", "value": "{{jwt}}", "type": "string" }
+        ]
+      },
+      "item": [
+        {
+          "name": "Create Product",
+          "request": {
+            "method": "POST",
+            "description": "Creates a product. To persist images in the database, send them in the optional images array with fileName, contentType, dataBase64, displayOrder, and primary.",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"name\":\"Bristol IPA 473\",\"description\":\"Lata IPA de prueba\",\"category\":\"PRODUCTOS\",\"subcategory\":\"SIX_PACK\",\"beerType\":\"IPA\",\"price\":3500,\"stockQuantity\":24,\"lowStockThreshold\":5,\"images\":[{\"fileName\":\"ipa-1x1.png\",\"contentType\":\"image/png\",\"dataBase64\":\"iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO7Zx1EAAAAASUVORK5CYII=\",\"displayOrder\":0,\"primary\":true}]}"
+            },
+            "url": "{{baseUrl}}/api/products"
+          }
+        },
+        {
+          "name": "Update Product",
+          "request": {
+            "method": "PUT",
+            "description": "Updates a product. If images is included, the backend replaces the product's full image set with the provided array. If images is omitted, existing images remain unchanged.",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"name\":\"Bristol IPA 473 Updated\",\"description\":\"Actualizado desde Postman\",\"category\":\"PRODUCTOS\",\"subcategory\":\"SIX_PACK\",\"beerType\":\"IPA\",\"price\":3600,\"images\":[{\"fileName\":\"ipa-front.png\",\"contentType\":\"image/png\",\"dataBase64\":\"iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO7Zx1EAAAAASUVORK5CYII=\",\"displayOrder\":0,\"primary\":true},{\"fileName\":\"ipa-back.png\",\"contentType\":\"image/png\",\"dataBase64\":\"iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO7Zx1EAAAAASUVORK5CYII=\",\"displayOrder\":1,\"primary\":false}]}"
+            },
+            "url": "{{baseUrl}}/api/products/{{productId}}"
+          }
+        },
+        {
+          "name": "Update Product Stock",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"stockQuantity\":40}"
+            },
+            "url": "{{baseUrl}}/api/products/{{productId}}/stock"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Product Variants Admin",
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          { "key": "token", "value": "{{jwt}}", "type": "string" }
+        ]
+      },
+      "item": [
+        {
+          "name": "Create Product Variant",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"productId\":\"{{productId}}\",\"sku\":\"IPA-473-6PK\",\"size\":\"473ml\",\"color\":\"amber\",\"additionalPrice\":0,\"stockQuantity\":18,\"imageUrl\":\"https://example.com/ipa.png\"}"
+            },
+            "url": "{{baseUrl}}/api/product-variants"
+          }
+        },
+        {
+          "name": "Update Product Variant",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"sku\":\"IPA-473-6PK-V2\",\"size\":\"473ml\",\"color\":\"gold\",\"additionalPrice\":250,\"stockQuantity\":20,\"imageUrl\":\"https://example.com/ipa-v2.png\"}"
+            },
+            "url": "{{baseUrl}}/api/product-variants/{{productVariantId}}"
+          }
+        },
+        {
+          "name": "Update Product Variant Stock",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"stockQuantity\":25}"
+            },
+            "url": "{{baseUrl}}/api/product-variants/{{productVariantId}}/stock"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          { "key": "token", "value": "{{jwt}}", "type": "string" }
+        ]
+      },
+      "item": [
+        {
+          "name": "Get User By Id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/users/{{userId}}"
+          }
+        },
+        {
+          "name": "Update User Profile",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"firstName\":\"Updated\",\"lastName\":\"User\"}"
+            },
+            "url": "{{baseUrl}}/api/users/{{userId}}/profile"
+          }
+        },
+        {
+          "name": "Change Password",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"currentPassword\":\"{{loginPassword}}\",\"newPassword\":\"newSecret123\"}"
+            },
+            "url": "{{baseUrl}}/api/users/{{userId}}/password"
+          }
+        }
+      ]
+    },
+    {
+      "name": "User Addresses",
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          { "key": "token", "value": "{{jwt}}", "type": "string" }
+        ]
+      },
+      "item": [
+        {
+          "name": "Get User Addresses",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/user-addresses/user/{{userId}}"
+          }
+        },
+        {
+          "name": "Create User Address",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"userId\":\"{{userId}}\",\"addressLine1\":\"Calle 1 123\",\"addressLine2\":\"Depto 4\",\"city\":\"La Plata\",\"province\":\"Buenos Aires\",\"postalCode\":\"1900\",\"deliveryZoneId\":\"{{deliveryZoneId}}\",\"isDefault\":true}"
+            },
+            "url": "{{baseUrl}}/api/user-addresses"
+          }
+        },
+        {
+          "name": "Update User Address",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"addressLine1\":\"Calle 2 456\",\"addressLine2\":\"Casa\",\"city\":\"La Plata\",\"province\":\"Buenos Aires\",\"postalCode\":\"1900\",\"deliveryZoneId\":\"{{deliveryZoneId}}\"}"
+            },
+            "url": "{{baseUrl}}/api/user-addresses/{{addressId}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Delivery Zones",
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          { "key": "token", "value": "{{jwt}}", "type": "string" }
+        ]
+      },
+      "item": [
+        {
+          "name": "List Delivery Zones",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/delivery-zones"
+          }
+        },
+        {
+          "name": "Create Delivery Zone",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"name\":\"Zona Demo\",\"description\":\"Zona creada desde Postman\",\"baseCost\":1200,\"costPerKm\":80,\"maxDistanceKm\":25}"
+            },
+            "url": "{{baseUrl}}/api/delivery-zones"
+          }
+        },
+        {
+          "name": "Update Delivery Zone",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"name\":\"Zona Demo Actualizada\",\"description\":\"Descripcion nueva\"}"
+            },
+            "url": "{{baseUrl}}/api/delivery-zones/{{deliveryZoneId}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Orders",
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          { "key": "token", "value": "{{jwt}}", "type": "string" }
+        ]
+      },
+      "item": [
+        {
+          "name": "Create Order",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"userId\":\"{{userId}}\",\"items\":[{\"productId\":\"{{productId}}\",\"productVariantId\":\"{{productVariantId}}\",\"quantity\":2,\"itemDiscountCouponCode\":null}],\"shippingAddress\":{\"addressLine1\":\"Calle 1 123\",\"addressLine2\":\"Depto 4\",\"city\":\"La Plata\",\"province\":\"Buenos Aires\",\"postalCode\":\"1900\",\"deliveryZoneId\":\"{{deliveryZoneId}}\"},\"shippingCost\":1500,\"orderDiscountCouponCode\":null,\"shippingDiscountCouponCode\":null,\"notes\":\"Pedido de prueba\"}"
+            },
+            "url": "{{baseUrl}}/api/orders"
+          }
+        },
+        {
+          "name": "Get Order By Id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/orders/{{orderId}}"
+          }
+        },
+        {
+          "name": "Get User Orders",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/orders/user/{{userId}}"
+          }
+        },
+        {
+          "name": "List Orders With Filters",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/orders?status=PENDING_PAYMENT&userId={{userId}}"
+          }
+        },
+        {
+          "name": "Update Order Status",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"status\":\"PAID\"}"
+            },
+            "url": "{{baseUrl}}/api/orders/{{orderId}}/status"
+          }
+        },
+        {
+          "name": "Apply Order Coupon",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"couponCode\":\"BIENVENIDA10\"}"
+            },
+            "url": "{{baseUrl}}/api/orders/{{orderId}}/apply-coupon"
+          }
+        },
+        {
+          "name": "Apply Shipping Coupon",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"couponCode\":\"ENVIOFREE\"}"
+            },
+            "url": "{{baseUrl}}/api/orders/{{orderId}}/apply-shipping-coupon"
+          }
+        },
+        {
+          "name": "Assign Distributor",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"distributorId\":\"{{distributorId}}\"}"
+            },
+            "url": "{{baseUrl}}/api/orders/{{orderId}}/assign-distributor"
+          }
+        },
+        {
+          "name": "Cancel Order",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{baseUrl}}/api/orders/{{orderId}}/cancel"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Coupons Admin",
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          { "key": "token", "value": "{{jwt}}", "type": "string" }
+        ]
+      },
+      "item": [
+        {
+          "name": "List Coupons",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/coupons"
+          }
+        },
+        {
+          "name": "Get Coupon By Id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/coupons/{{couponId}}"
+          }
+        },
+        {
+          "name": "Create Coupon",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"title\":\"Bienvenida 10\",\"code\":\"BIENVENIDA10\",\"description\":\"10% off en el pedido\",\"method\":\"CODE\",\"discountType\":\"ORDER\",\"valueType\":\"PERCENTAGE\",\"value\":10,\"appliesTo\":\"ENTIRE_ORDER\",\"startDate\":\"2026-04-01\",\"startTime\":\"00:00:00\",\"createdBy\":\"admin\"}"
+            },
+            "url": "{{baseUrl}}/api/coupons"
+          }
+        },
+        {
+          "name": "Update Coupon",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"title\":\"Bienvenida 15\",\"description\":\"15% off en el pedido\",\"value\":15}"
+            },
+            "url": "{{baseUrl}}/api/coupons/{{couponId}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Distributors Admin",
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          { "key": "token", "value": "{{jwt}}", "type": "string" }
+        ]
+      },
+      "item": [
+        {
+          "name": "List Distributors",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/distributors"
+          }
+        },
+        {
+          "name": "Get Distributor By Id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/distributors/{{distributorId}}"
+          }
+        },
+        {
+          "name": "Create Distributor",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"userId\":\"{{userId}}\",\"address\":\"Calle 50 100\",\"phone\":\"1122334455\",\"dni\":\"30111222\",\"cuit\":\"20-30111222-3\",\"razonSocial\":\"Distribuidor Demo\",\"dateOfBirth\":\"1990-10-10\",\"deliveryZoneId\":\"{{deliveryZoneId}}\"}"
+            },
+            "url": "{{baseUrl}}/api/distributors"
+          }
+        },
+        {
+          "name": "Pending Registrations",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/distributors/registrations/pending"
+          }
+        },
+        {
+          "name": "Approve Registration",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{baseUrl}}/api/distributors/registrations/{{registrationId}}/approve"
+          }
+        },
+        {
+          "name": "Reject Registration",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"reason\":\"Documentacion incompleta\"}"
+            },
+            "url": "{{baseUrl}}/api/distributors/registrations/{{registrationId}}/reject"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Deliveries",
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          { "key": "token", "value": "{{jwt}}", "type": "string" }
+        ]
+      },
+      "item": [
+        {
+          "name": "Get Delivery By Id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/deliveries/{{deliveryId}}"
+          }
+        },
+        {
+          "name": "Start Transit",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"driverNotes\":\"Salio del deposito\"}"
+            },
+            "url": "{{baseUrl}}/api/deliveries/{{deliveryId}}/start-transit"
+          }
+        },
+        {
+          "name": "Complete Delivery",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"actualDeliveryDate\":\"2026-04-01\",\"driverNotes\":\"Entregado sin novedades\"}"
+            },
+            "url": "{{baseUrl}}/api/deliveries/{{deliveryId}}/complete"
+          }
+        },
+        {
+          "name": "Mark Delivery Failed",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"driverNotes\":\"Cliente ausente\"}"
+            },
+            "url": "{{baseUrl}}/api/deliveries/{{deliveryId}}/mark-failed"
+          }
+        }
+      ]
+    }
+  ]
+}

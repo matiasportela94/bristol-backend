@@ -1,0 +1,30 @@
+package com.bristol.application.coupon.usecase;
+
+import com.bristol.application.coupon.dto.CouponDto;
+import com.bristol.domain.coupon.Coupon;
+import com.bristol.domain.coupon.CouponRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+/**
+ * Use case to get all coupons.
+ */
+@Service
+@RequiredArgsConstructor
+public class GetAllCouponsUseCase {
+
+    private final CouponRepository couponRepository;
+    private final CouponMapper couponMapper;
+
+    @Transactional(readOnly = true)
+    public List<CouponDto> execute() {
+        List<Coupon> coupons = couponRepository.findAll();
+        return coupons.stream()
+                .map(couponMapper::toDto)
+                .collect(Collectors.toList());
+    }
+}

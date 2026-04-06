@@ -1,0 +1,237 @@
+﻿[
+  {
+    "name": "Six Pack Bristol Lager",
+    "externalProductId": "71665544",
+    "sourceUrl": "https://cervezabristol.mitiendanube.com/productos/six-pack-bristol-lager/",
+    "category": "PRODUCTOS",
+    "subcategory": "SIX_PACK",
+    "beerType": "LAGER",
+    "price": 11060,
+    "stockQuantity": 1,
+    "lowStockThreshold": 1,
+    "description": "Importado desde la tienda Bristol. Producto visible como disponible al 2026-03-31. Fuente: https://cervezabristol.mitiendanube.com/productos/six-pack-bristol-lager/",
+    "variants": []
+  },
+  {
+    "name": "Six pack Bristol Pale Ale",
+    "externalProductId": "71665605",
+    "sourceUrl": "https://cervezabristol.mitiendanube.com/productos/six-pack-bristol-pale-ale/",
+    "category": "PRODUCTOS",
+    "subcategory": "SIX_PACK",
+    "beerType": "APA",
+    "price": 11500,
+    "stockQuantity": 1,
+    "lowStockThreshold": 1,
+    "description": "Importado desde la tienda Bristol. Producto visible como disponible al 2026-03-31. Fuente: https://cervezabristol.mitiendanube.com/productos/six-pack-bristol-pale-ale/",
+    "variants": []
+  },
+  {
+    "name": "Six Pack Bristol IPA",
+    "externalProductId": "62443173",
+    "sourceUrl": "https://cervezabristol.mitiendanube.com/productos/six-pack-bristol-ipa/",
+    "category": "PRODUCTOS",
+    "subcategory": "SIX_PACK",
+    "beerType": "IPA",
+    "price": 13770,
+    "stockQuantity": 1,
+    "lowStockThreshold": 1,
+    "description": "Importado desde la tienda Bristol. Producto visible como disponible al 2026-03-31. Fuente: https://cervezabristol.mitiendanube.com/productos/six-pack-bristol-ipa/",
+    "variants": []
+  },
+  {
+    "name": "BUZO BRISTOL FEAT LUYS",
+    "externalProductId": "285439096",
+    "sourceUrl": "https://cervezabristol.mitiendanube.com/productos/buzo-bristol-feat-luys/",
+    "category": "MERCHANDISING",
+    "subcategory": "BUZO",
+    "beerType": null,
+    "price": 75000,
+    "stockQuantity": 1,
+    "lowStockThreshold": 1,
+    "description": "Importado desde la tienda Bristol. Fuente: https://cervezabristol.mitiendanube.com/productos/buzo-bristol-feat-luys/",
+    "variants": [
+      {
+        "sku": "TN-285439096-1277876403",
+        "size": "XL",
+        "color": null,
+        "additionalPrice": 0,
+        "stockQuantity": 1
+      },
+      {
+        "sku": "TN-285439096-1277876407",
+        "size": "XXL",
+        "color": null,
+        "additionalPrice": 0,
+        "stockQuantity": 0
+      }
+    ]
+  },
+  {
+    "name": "REMERA BRISTOL AMANECER",
+    "externalProductId": "285435789",
+    "sourceUrl": "https://cervezabristol.mitiendanube.com/productos/remera-bristol-amanecer/",
+    "category": "MERCHANDISING",
+    "subcategory": "REMERA",
+    "beerType": null,
+    "price": 45000,
+    "stockQuantity": 14,
+    "lowStockThreshold": 2,
+    "description": "Importado desde la tienda Bristol. Fuente: https://cervezabristol.mitiendanube.com/productos/remera-bristol-amanecer/",
+    "variants": [
+      {
+        "sku": "TN-285435789-1277864559",
+        "size": "S",
+        "color": null,
+        "additionalPrice": 0,
+        "stockQuantity": 0
+      },
+      {
+        "sku": "TN-285435789-1277864562",
+        "size": "L",
+        "color": null,
+        "additionalPrice": 0,
+        "stockQuantity": 2
+      },
+      {
+        "sku": "TN-285435789-1277864564",
+        "size": "XL",
+        "color": null,
+        "additionalPrice": 0,
+        "stockQuantity": 6
+      },
+      {
+        "sku": "TN-285435789-1277864567",
+        "size": "XXL",
+        "color": null,
+        "additionalPrice": 0,
+        "stockQuantity": 6
+      }
+    ]
+  },
+  {
+    "name": "REMERA BRISTOL COPA",
+    "externalProductId": "285436373",
+    "sourceUrl": "https://cervezabristol.mitiendanube.com/productos/remera-bristol-copa/",
+    "category": "MERCHANDISING",
+    "subcategory": "REMERA",
+    "beerType": null,
+    "price": 45000,
+    "stockQuantity": 14,
+    "lowStockThreshold": 2,
+    "description": "Importado desde la tienda Bristol. Fuente: https://cervezabristol.mitiendanube.com/productos/remera-bristol-copa/",
+    "variants": [
+      {
+        "sku": "TN-285436373-1277867043",
+        "size": "S",
+        "color": null,
+        "additionalPrice": 0,
+        "stockQuantity": 1
+      },
+      {
+        "sku": "TN-285436373-1277867047",
+        "size": "L",
+        "color": null,
+        "additionalPrice": 0,
+        "stockQuantity": 1
+      },
+      {
+        "sku": "TN-285436373-1277867051",
+        "size": "XL",
+        "color": null,
+        "additionalPrice": 0,
+        "stockQuantity": 6
+      },
+      {
+        "sku": "TN-285436373-1277867054",
+        "size": "XXL",
+        "color": null,
+        "additionalPrice": 0,
+        "stockQuantity": 6
+      }
+    ]
+  },
+  {
+    "name": "REMERA BRISTOL OLA",
+    "externalProductId": "285436045",
+    "sourceUrl": "https://cervezabristol.mitiendanube.com/productos/remera-bristol-ola/",
+    "category": "MERCHANDISING",
+    "subcategory": "REMERA",
+    "beerType": null,
+    "price": 45000,
+    "stockQuantity": 14,
+    "lowStockThreshold": 2,
+    "description": "Importado desde la tienda Bristol. Fuente: https://cervezabristol.mitiendanube.com/productos/remera-bristol-ola/",
+    "variants": [
+      {
+        "sku": "TN-285436045-1277865638",
+        "size": "S",
+        "color": null,
+        "additionalPrice": 0,
+        "stockQuantity": 1
+      },
+      {
+        "sku": "TN-285436045-1277865641",
+        "size": "L",
+        "color": null,
+        "additionalPrice": 0,
+        "stockQuantity": 3
+      },
+      {
+        "sku": "TN-285436045-1277865643",
+        "size": "XL",
+        "color": null,
+        "additionalPrice": 0,
+        "stockQuantity": 5
+      },
+      {
+        "sku": "TN-285436045-1277865644",
+        "size": "XXL",
+        "color": null,
+        "additionalPrice": 0,
+        "stockQuantity": 5
+      }
+    ]
+  },
+  {
+    "name": "REMERA BRISTOL LATITA",
+    "externalProductId": "285435296",
+    "sourceUrl": "https://cervezabristol.mitiendanube.com/productos/remera-bristol-latita/",
+    "category": "MERCHANDISING",
+    "subcategory": "REMERA",
+    "beerType": null,
+    "price": 45000,
+    "stockQuantity": 10,
+    "lowStockThreshold": 2,
+    "description": "Importado desde la tienda Bristol. Fuente: https://cervezabristol.mitiendanube.com/productos/remera-bristol-latita/",
+    "variants": [
+      {
+        "sku": "TN-285435296-1277862882",
+        "size": "L",
+        "color": null,
+        "additionalPrice": 0,
+        "stockQuantity": 1
+      },
+      {
+        "sku": "TN-285435296-1277862886",
+        "size": "XL",
+        "color": null,
+        "additionalPrice": 0,
+        "stockQuantity": 4
+      },
+      {
+        "sku": "TN-285435296-1277862889",
+        "size": "XXL",
+        "color": null,
+        "additionalPrice": 0,
+        "stockQuantity": 4
+      },
+      {
+        "sku": "TN-285435296-1277862892",
+        "size": "S",
+        "color": null,
+        "additionalPrice": 0,
+        "stockQuantity": 1
+      }
+    ]
+  }
+]

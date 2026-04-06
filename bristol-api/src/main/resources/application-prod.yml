@@ -1,0 +1,11 @@
+# Production profile
+spring:
+  jpa:
+    show-sql: false
+
+logging:
+  level:
+    root: WARN
+    com.bristol: INFO
+    org.springframework.web: WARN
+    org.hibernate.SQL: WARN

@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pg_isready:*)",
+      "Bash(mvn spring-boot:run:*)",
+      "Bash(mvn clean install:*)",
+      "Bash(psql:*)",
+      "Bash(taskkill:*)",
+      "Bash(netstat:*)",
+      "Bash(xargs:*)",
+      "Bash(curl:*)",
+      "Bash(findstr:*)",
+      "Bash(bash:*)",
+      "Bash(mvn clean compile:*)",
+      "Bash(test:*)",
+      "Bash(mvn compile:*)",
+      "Bash(\")",
+      "Bash(mvn clean package:*)",
+      "Bash(java:*)",
+      "Bash(timeout 30 java:*)"
+    ]
+  }
+}
