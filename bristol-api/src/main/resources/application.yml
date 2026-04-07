@@ -109,7 +109,7 @@ bristol:
     environment: ${AFIP_ENV:testing} # testing or production
 
   cors:
-    allowed-origins: ${CORS_ORIGINS:http://localhost:4200,http://localhost:3000}
+    allowed-origins: ${CORS_ORIGINS:http://localhost:4200,https://bristol-platform.web.app}
     allowed-methods: GET,POST,PUT,DELETE,PATCH,OPTIONS
     allowed-headers: "*"
     allow-credentials: true

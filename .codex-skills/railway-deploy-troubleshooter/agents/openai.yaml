@@ -1,0 +1,4 @@
+interface:
+  display_name: "Railway Deploy Troubleshooter"
+  short_description: "Debug Railway deploy and startup failures."
+  default_prompt: "Use $railway-deploy-troubleshooter to diagnose a Railway deployment failure and preserve the working fix."
