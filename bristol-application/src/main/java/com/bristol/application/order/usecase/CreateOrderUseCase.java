@@ -27,6 +27,7 @@ public class CreateOrderUseCase {
     private final OrderRepository orderRepository;
     private final ProductRepository productRepository;
     private final OrderMapper orderMapper;
+    private final OrderPromotionApplicationService orderPromotionApplicationService;
 
     @Transactional
     public OrderDto execute(CreateOrderRequest request) {
@@ -52,6 +53,12 @@ public class CreateOrderUseCase {
                 shippingCost,
                 request.getNotes(),
                 now
+        );
+
+        order = orderPromotionApplicationService.applyRequestedPromotions(
+                order,
+                request.getOrderDiscountCouponCode(),
+                request.getShippingDiscountCouponCode()
         );
 
         // Save order
@@ -124,6 +131,8 @@ public class CreateOrderUseCase {
                     product.getName(),
                     productType,
                     product.getBeerType(),
+                    product.getCategory(),
+                    product.getSubcategory(),
                     itemRequest.getQuantity(),
                     product.getBasePrice()
             );

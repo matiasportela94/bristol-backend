@@ -3,6 +3,7 @@ package com.bristol.application.coupon.dto;
 import com.bristol.domain.coupon.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -85,6 +86,10 @@ public class CreateCouponRequest {
 
     private CouponStatus status;
 
+    @PositiveOrZero(message = "Priority must be zero or positive")
+    @Builder.Default
+    private Integer priority = 0;
+
     @Builder.Default
     private CouponTriggerType triggerType = CouponTriggerType.NONE;
 
@@ -98,6 +103,10 @@ public class CreateCouponRequest {
     private String specificCustomers;
 
     private String ruleConfig;
+
+    private CouponScopePayload scope;
+
+    private CouponBenefitPayload benefit;
 
     private String createdBy;
 }

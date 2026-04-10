@@ -46,6 +46,7 @@ public class CouponDto {
     private LocalDate endDate;
     private LocalTime endTime;
     private CouponStatus status;
+    private Integer priority;
     private Integer usedCount;
     private CouponTriggerType triggerType;
     private String triggerProductId;
@@ -53,6 +54,8 @@ public class CouponDto {
     private boolean appliesToFutureOrders;
     private String specificCustomers;
     private String ruleConfig;
+    private CouponScopePayload scope;
+    private CouponBenefitPayload benefit;
     private Instant createdAt;
     private Instant updatedAt;
 }

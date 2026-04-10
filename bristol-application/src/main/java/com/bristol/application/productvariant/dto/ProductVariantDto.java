@@ -20,6 +20,7 @@ public class ProductVariantDto {
     private String productId;
     private String sku;
     private String size;
+    private Integer sizeMl;
     private String color;
     private BigDecimal additionalPrice;
     private Integer stockQuantity;

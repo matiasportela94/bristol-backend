@@ -26,6 +26,8 @@ public class CreateCouponUseCase {
 
     private final CouponRepository couponRepository;
     private final CouponMapper couponMapper;
+    private final CouponAdminPayloadResolver couponAdminPayloadResolver;
+    private final CouponDefinitionValidator couponDefinitionValidator;
 
     @Transactional
     public CouponDto execute(CreateCouponRequest request) {
@@ -34,6 +36,19 @@ public class CreateCouponUseCase {
         UserId createdBy = request.getCreatedBy() != null ? new UserId(request.getCreatedBy()) : null;
         String normalizedCode = normalizeCode(request.getCode());
         String normalizedTitle = normalizeTitle(request.getTitle(), normalizedCode);
+        var resolvedAppliesTo = couponAdminPayloadResolver.resolveAppliesTo(request.getAppliesTo(), request.getScope());
+        var resolvedTriggerType = couponAdminPayloadResolver.resolveTriggerType(request.getTriggerType(), request.getBenefit());
+        String resolvedSelectedItems = couponAdminPayloadResolver.resolveSelectedItems(request.getSelectedItems(), request.getScope());
+        String resolvedRuleConfig = couponAdminPayloadResolver.resolveRuleConfig(request.getRuleConfig(), request.getBenefit());
+        couponDefinitionValidator.validate(
+                request.getDiscountType(),
+                request.getValueType(),
+                request.getValue(),
+                resolvedAppliesTo,
+                resolvedSelectedItems,
+                resolvedTriggerType,
+                resolvedRuleConfig
+        );
 
         Coupon coupon = Coupon.create(
                 normalizedTitle,
@@ -43,7 +58,7 @@ public class CreateCouponUseCase {
                 request.getDiscountType(),
                 request.getValueType(),
                 request.getValue(),
-                request.getAppliesTo(),
+                resolvedAppliesTo,
                 request.getStartDate(),
                 startTime,
                 createdBy,
@@ -56,8 +71,8 @@ public class CreateCouponUseCase {
                 request.getDiscountType(),
                 request.getValueType(),
                 request.getValue(),
-                request.getAppliesTo(),
-                normalizeJsonPayload(request.getSelectedItems()),
+                resolvedAppliesTo,
+                resolvedSelectedItems,
                 request.getCustomerEligibility() != null ? request.getCustomerEligibility() : CouponCustomerEligibility.EVERYONE,
                 toMoney(request.getMinAmount()),
                 request.getMinQuantity(),
@@ -74,12 +89,13 @@ public class CreateCouponUseCase {
                 request.getEndDate(),
                 request.getEndTime(),
                 resolveStatus(request.getStatus()),
-                request.getTriggerType() != null ? request.getTriggerType() : CouponTriggerType.NONE,
+                request.getPriority(),
+                resolvedTriggerType,
                 request.getTriggerProductId(),
                 request.getTriggerProductName(),
                 request.isAppliesToFutureOrders(),
                 normalizeJsonPayload(request.getSpecificCustomers()),
-                normalizeRuleConfig(request.getRuleConfig()),
+                resolvedRuleConfig,
                 now
         );
 
@@ -112,7 +128,9 @@ public class CreateCouponUseCase {
         if (requestedStatus == null) {
             return CouponStatus.ACTIVE;
         }
-        return requestedStatus == CouponStatus.PAUSED || requestedStatus == CouponStatus.EXPIRED
+        return requestedStatus == CouponStatus.DRAFT
+                || requestedStatus == CouponStatus.PAUSED
+                || requestedStatus == CouponStatus.EXPIRED
                 ? requestedStatus
                 : CouponStatus.ACTIVE;
     }
@@ -123,9 +141,5 @@ public class CreateCouponUseCase {
 
     private String normalizeJsonPayload(String value) {
         return value != null && !value.isBlank() ? value : "[]";
-    }
-
-    private String normalizeRuleConfig(String value) {
-        return value != null && !value.isBlank() ? value : "{}";
     }
 }

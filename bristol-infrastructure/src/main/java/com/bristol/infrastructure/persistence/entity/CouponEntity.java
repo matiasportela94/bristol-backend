@@ -69,6 +69,9 @@ public class CouponEntity {
     @Column(nullable = false)
     private CouponStatusEnum status;
 
+    @Column(nullable = false)
+    private Integer priority;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "minimum_requirement_type")
     private MinimumRequirementTypeEnum minimumRequirementType;
@@ -147,6 +150,9 @@ public class CouponEntity {
         if (timesUsed == null) {
             timesUsed = 0;
         }
+        if (priority == null) {
+            priority = 0;
+        }
         if (isCustomerSpecific == null) {
             isCustomerSpecific = false;
         }
@@ -205,7 +211,7 @@ public class CouponEntity {
     }
 
     public enum CouponStatusEnum {
-        ACTIVE, INACTIVE, EXPIRED
+        DRAFT, ACTIVE, INACTIVE, EXPIRED
     }
 
     public enum MinimumRequirementTypeEnum {

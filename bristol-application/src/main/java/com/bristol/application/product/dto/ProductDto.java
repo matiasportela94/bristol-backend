@@ -3,6 +3,7 @@ package com.bristol.application.product.dto;
 import com.bristol.domain.product.ProductCategory;
 import com.bristol.domain.product.BeerType;
 import com.bristol.domain.product.ProductSubcategory;
+import com.bristol.application.productvariant.dto.ProductVariantDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -26,12 +27,17 @@ public class ProductDto {
     private ProductCategory category;
     private ProductSubcategory subcategory;
     private BeerType beerType;
+    private BigDecimal abv;
+    private BigDecimal ibu;
+    private BigDecimal srm;
     private BigDecimal price;
     private Integer stockQuantity;
     private Integer minStockLevel;
+    private List<ProductVariantDto> variants;
     private List<ProductImageDto> images;
     private boolean active;
     private boolean featured;
     private Double averageRating;
     private Integer reviewCount;
+    private List<ProductPromotionDto> promotions;
 }

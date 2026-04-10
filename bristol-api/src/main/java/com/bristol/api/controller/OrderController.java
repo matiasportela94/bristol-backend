@@ -35,6 +35,7 @@ public class OrderController {
     private final CancelOrderUseCase cancelOrderUseCase;
     private final ApplyOrderCouponUseCase applyOrderCouponUseCase;
     private final ApplyShippingCouponUseCase applyShippingCouponUseCase;
+    private final RepriceOrderPromotionsUseCase repriceOrderPromotionsUseCase;
     private final AssignOrderToDistributorUseCase assignOrderToDistributorUseCase;
 
     /**
@@ -144,6 +145,17 @@ public class OrderController {
             @Valid @RequestBody ApplyCouponRequest request
     ) {
         OrderDto order = applyShippingCouponUseCase.execute(id, request);
+        return ResponseEntity.ok(order);
+    }
+
+    /**
+     * Reprice promotions for an order.
+     */
+    @PostMapping("/{id}/reprice-promotions")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    @Operation(summary = "Reprice order promotions", description = "Re-evaluate manual and automatic promotions for an order")
+    public ResponseEntity<OrderDto> repriceOrderPromotions(@PathVariable String id) {
+        OrderDto order = repriceOrderPromotionsUseCase.execute(id);
         return ResponseEntity.ok(order);
     }
 

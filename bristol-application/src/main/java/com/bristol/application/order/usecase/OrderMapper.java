@@ -45,6 +45,8 @@ public class OrderMapper {
                 .productName(item.getProductName())
                 .productType(item.getProductType())
                 .beerType(item.getBeerType())
+                .productCategory(item.getProductCategory())
+                .productSubcategory(item.getProductSubcategory())
                 .quantity(item.getQuantity())
                 .pricePerUnit(item.getPricePerUnit().getAmount())
                 .itemDiscountAmount(item.getItemDiscountAmount().getAmount())

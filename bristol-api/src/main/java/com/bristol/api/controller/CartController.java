@@ -25,6 +25,7 @@ public class CartController {
     private final UpdateCartItemQuantityUseCase updateCartItemQuantityUseCase;
     private final RemoveCartItemUseCase removeCartItemUseCase;
     private final ClearCartUseCase clearCartUseCase;
+    private final PreviewCartUseCase previewCartUseCase;
     private final CheckoutCartUseCase checkoutCartUseCase;
 
     @GetMapping
@@ -32,6 +33,16 @@ public class CartController {
     @Operation(summary = "Get current cart", description = "Retrieve the authenticated user's cart")
     public ResponseEntity<CartDto> getMyCart(Authentication authentication) {
         return ResponseEntity.ok(getMyCartUseCase.execute(authentication.getName()));
+    }
+
+    @PostMapping("/preview")
+    @PreAuthorize("hasRole('USER')")
+    @Operation(summary = "Preview current cart", description = "Preview the authenticated user's cart with an optional coupon applied")
+    public ResponseEntity<CartDto> previewCart(
+            @RequestBody(required = false) PreviewCartRequest request,
+            Authentication authentication
+    ) {
+        return ResponseEntity.ok(previewCartUseCase.execute(authentication.getName(), request));
     }
 
     @PostMapping("/items")

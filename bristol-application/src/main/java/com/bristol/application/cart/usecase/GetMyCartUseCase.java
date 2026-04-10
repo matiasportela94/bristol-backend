@@ -18,12 +18,18 @@ public class GetMyCartUseCase extends CartCommandSupport {
     private final ShoppingCartRepository shoppingCartRepository;
     private final UserRepository userRepository;
     private final CartMapper cartMapper;
+    private final CartReconciliationService cartReconciliationService;
 
     @Transactional
     public CartDto execute(String userEmail) {
         User user = resolveUserByEmail(userEmail, userRepository);
         ShoppingCart cart = shoppingCartRepository.findByUserId(user.getId())
                 .orElseGet(() -> shoppingCartRepository.save(ShoppingCart.create(user.getId(), Instant.now())));
-        return cartMapper.toDto(cart);
+        CartReconciliationService.ReconciliationResult reconciliation =
+                cartReconciliationService.reconcile(cart, Instant.now());
+        ShoppingCart effectiveCart = reconciliation.hasChanges()
+                ? shoppingCartRepository.save(reconciliation.cart())
+                : cart;
+        return cartMapper.toDto(effectiveCart);
     }
 }

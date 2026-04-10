@@ -17,8 +17,13 @@ public class CartDto {
     private String id;
     private String userId;
     private List<CartItemDto> items;
+    private BigDecimal originalSubtotal;
+    private BigDecimal productDiscountAmount;
     private BigDecimal subtotal;
+    private BigDecimal orderDiscountAmount;
+    private BigDecimal total;
     private Integer totalItems;
+    private CartAppliedPromotionDto appliedOrderPromotion;
     private Instant createdAt;
     private Instant updatedAt;
 }

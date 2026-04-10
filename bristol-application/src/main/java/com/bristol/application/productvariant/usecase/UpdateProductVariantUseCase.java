@@ -38,6 +38,7 @@ public class UpdateProductVariantUseCase {
         }
         if (request.getSize() != null) {
             builder.size(request.getSize());
+            builder.sizeMl(parseSizeMl(request.getSize()));
         }
         if (request.getColor() != null) {
             builder.color(request.getColor());
@@ -56,5 +57,22 @@ public class UpdateProductVariantUseCase {
 
         ProductVariant updatedVariant = productVariantRepository.save(builder.build());
         return productVariantMapper.toDto(updatedVariant);
+    }
+
+    private Integer parseSizeMl(String size) {
+        if (size == null || size.isBlank()) {
+            return null;
+        }
+
+        String digitsOnly = size.replaceAll("[^0-9]", "");
+        if (digitsOnly.isBlank()) {
+            return null;
+        }
+
+        try {
+            return Integer.parseInt(digitsOnly);
+        } catch (NumberFormatException ignored) {
+            return null;
+        }
     }
 }

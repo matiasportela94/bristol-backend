@@ -58,6 +58,7 @@ public class CouponMapper {
                 .endDate(toLocalDate(entity.getEndDate()))
                 .endTime(toLocalTime(entity.getEndDate()))
                 .status(toDomainStatus(entity.getStatus()))
+                .priority(entity.getPriority() != null ? entity.getPriority() : 0)
                 .usedCount(entity.getTimesUsed())
                 .deletedAt(entity.getDeletedAt())
                 .triggerType(toDomainTriggerType(entity.getTriggerType()))
@@ -93,6 +94,7 @@ public class CouponMapper {
                 .startDate(toLocalDateTime(domain.getStartDate(), domain.getStartTime()))
                 .endDate(toLocalDateTime(domain.getEndDate(), domain.getEndTime()))
                 .status(toEntityStatus(domain.getStatus()))
+                .priority(domain.getPriority())
                 .minimumRequirementType(resolveMinimumRequirementType(domain))
                 .minimumPurchaseAmount(toBigDecimal(domain.getMinimumAmount()))
                 .minimumItemQuantity(domain.getMinimumQuantity())
@@ -199,6 +201,7 @@ public class CouponMapper {
             return null;
         }
         return switch (status) {
+            case DRAFT -> CouponStatus.DRAFT;
             case ACTIVE -> CouponStatus.ACTIVE;
             case INACTIVE -> CouponStatus.PAUSED;
             case EXPIRED -> CouponStatus.EXPIRED;
@@ -210,6 +213,7 @@ public class CouponMapper {
             return null;
         }
         return switch (status) {
+            case DRAFT -> CouponEntity.CouponStatusEnum.DRAFT;
             case ACTIVE -> CouponEntity.CouponStatusEnum.ACTIVE;
             case PAUSED -> CouponEntity.CouponStatusEnum.INACTIVE;
             case EXPIRED -> CouponEntity.CouponStatusEnum.EXPIRED;

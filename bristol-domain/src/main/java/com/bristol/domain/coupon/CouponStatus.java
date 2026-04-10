@@ -5,6 +5,7 @@ package com.bristol.domain.coupon;
  * Matches the coupon_status ENUM in the database schema.
  */
 public enum CouponStatus {
+    DRAFT,
     ACTIVE,
     PAUSED,
     EXPIRED

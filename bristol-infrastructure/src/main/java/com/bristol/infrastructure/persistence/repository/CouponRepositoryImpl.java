@@ -61,6 +61,7 @@ public class CouponRepositoryImpl implements CouponRepository {
     @Override
     public List<Coupon> findByStatus(CouponStatus status) {
         var entityStatus = switch (status) {
+            case DRAFT -> CouponEntity.CouponStatusEnum.DRAFT;
             case ACTIVE -> CouponEntity.CouponStatusEnum.ACTIVE;
             case PAUSED -> CouponEntity.CouponStatusEnum.INACTIVE;
             case EXPIRED -> CouponEntity.CouponStatusEnum.EXPIRED;

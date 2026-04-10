@@ -1,6 +1,8 @@
 package com.bristol.application.coupon.usecase;
 
 import com.bristol.application.coupon.dto.CouponDto;
+import com.bristol.application.coupon.dto.CouponBenefitPayload;
+import com.bristol.application.coupon.dto.CouponScopePayload;
 import com.bristol.domain.coupon.Coupon;
 import org.springframework.stereotype.Component;
 
@@ -38,6 +40,7 @@ public class CouponMapper {
                 .endDate(coupon.getEndDate())
                 .endTime(coupon.getEndTime())
                 .status(coupon.getStatus())
+                .priority(coupon.getPriority())
                 .usedCount(coupon.getUsedCount())
                 .triggerType(coupon.getTriggerType())
                 .triggerProductId(coupon.getTriggerProductId())
@@ -45,8 +48,33 @@ public class CouponMapper {
                 .appliesToFutureOrders(coupon.isAppliesToFutureOrders())
                 .specificCustomers(coupon.getSpecificCustomers())
                 .ruleConfig(coupon.getRuleConfig())
+                .scope(toScopePayload(coupon))
+                .benefit(toBenefitPayload(coupon))
                 .createdAt(coupon.getCreatedAt())
                 .updatedAt(coupon.getUpdatedAt())
+                .build();
+    }
+
+    private CouponScopePayload toScopePayload(Coupon coupon) {
+        return CouponScopePayload.builder()
+                .type(coupon.getScope().getType())
+                .productIds(coupon.getScope().getProductIds())
+                .variantIds(coupon.getScope().getVariantIds())
+                .categories(coupon.getScope().getCategories())
+                .subcategories(coupon.getScope().getSubcategories())
+                .beerTypes(coupon.getScope().getBeerTypes())
+                .build();
+    }
+
+    private CouponBenefitPayload toBenefitPayload(Coupon coupon) {
+        return CouponBenefitPayload.builder()
+                .type(coupon.getBenefit().getType())
+                .buyQuantity(coupon.getBenefit().getBuyQuantity())
+                .freeQuantity(coupon.getBenefit().getFreeQuantity())
+                .payQuantity(coupon.getBenefit().getPayQuantity())
+                .thresholdQuantity(coupon.getBenefit().getThresholdQuantity())
+                .triggerQuantity(coupon.getBenefit().getTriggerQuantity())
+                .advanced(coupon.getBenefit().isAdvancedBenefit())
                 .build();
     }
 }

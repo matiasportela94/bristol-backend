@@ -19,6 +19,8 @@ public class GetProductByIdUseCase {
     private final ProductRepository productRepository;
     private final ProductMapper productMapper;
     private final ProductImageService productImageService;
+    private final ProductVariantCatalogService productVariantCatalogService;
+    private final ProductCatalogPromotionService productCatalogPromotionService;
 
     @Transactional(readOnly = true)
     public ProductDto execute(String productId) {
@@ -26,10 +28,13 @@ public class GetProductByIdUseCase {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Product", productId));
         var images = productImageService.getImages(id);
+        var variants = productVariantCatalogService.getVariants(id);
         return productMapper.toDto(
                 product,
+                variants,
                 productImageService.toDtos(images),
-                productImageService.toPrimaryImageDataUrl(images)
+                productImageService.toPrimaryImageDataUrl(images),
+                productCatalogPromotionService.resolveForProduct(product)
         );
     }
 }

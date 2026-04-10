@@ -23,6 +23,7 @@ public class UpdateOrderStatusUseCase {
 
     private final OrderRepository orderRepository;
     private final StockManagementService stockManagementService;
+    private final CouponRedemptionApplicationService couponRedemptionApplicationService;
     private final OrderMapper orderMapper;
 
     @Transactional
@@ -37,6 +38,7 @@ public class UpdateOrderStatusUseCase {
         Order updatedOrder = updateOrderToStatus(order, targetStatus, now);
 
         Order savedOrder = orderRepository.save(updatedOrder);
+        synchronizeCouponRedemptions(savedOrder, targetStatus, now);
         return orderMapper.toDto(savedOrder);
     }
 
@@ -64,5 +66,14 @@ public class UpdateOrderStatusUseCase {
             case PENDING_PAYMENT -> throw new ValidationException(
                     "Cannot manually set order to pending payment status");
         };
+    }
+
+    private void synchronizeCouponRedemptions(Order order, OrderStatus targetStatus, Instant now) {
+        switch (targetStatus) {
+            case PAID -> couponRedemptionApplicationService.recordPaidOrderRedemptions(order, now);
+            case CANCELLED, PAYMENT_FAILED -> couponRedemptionApplicationService.clearOrderRedemptions(order, now);
+            default -> {
+            }
+        }
     }
 }

@@ -69,6 +69,36 @@ class ProductMapperTest {
     }
 
     @Test
+    void toDomainShouldExposeBeerMetrics() {
+        ProductEntity entity = ProductEntity.builder()
+                .id(UUID.randomUUID())
+                .name("Lata Bristol IPA")
+                .description("IPA")
+                .category(ProductEntity.ProductCategoryEnum.PRODUCTOS)
+                .subcategory(ProductEntity.ProductSubcategoryEnum.CAN)
+                .beerType(ProductEntity.BeerTypeEnum.IPA)
+                .abv(BigDecimal.valueOf(6.5))
+                .ibu(BigDecimal.valueOf(55.0))
+                .srm(BigDecimal.valueOf(8.0))
+                .basePrice(BigDecimal.valueOf(1600))
+                .stockQuantity(5)
+                .lowStockThreshold(1)
+                .isActive(true)
+                .isFeatured(false)
+                .totalReviews(0L)
+                .discountPercentage(BigDecimal.ZERO)
+                .createdAt(Instant.parse("2026-03-31T12:00:00Z"))
+                .updatedAt(Instant.parse("2026-03-31T12:00:00Z"))
+                .build();
+
+        Product product = mapper.toDomain(entity);
+
+        assertThat(product.getAbv()).isEqualByComparingTo("6.5");
+        assertThat(product.getIbu()).isEqualByComparingTo("55.0");
+        assertThat(product.getSrm()).isEqualByComparingTo("8.0");
+    }
+
+    @Test
     void toEntityShouldMapPaleAleBeerType() {
         Product product = Product.create(
                 "Pale Ale",

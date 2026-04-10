@@ -18,6 +18,7 @@ public class UpdateProductStockUseCase {
     private final ProductRepository productRepository;
     private final ProductMapper productMapper;
     private final ProductImageService productImageService;
+    private final ProductVariantCatalogService productVariantCatalogService;
 
     @Transactional
     public ProductDto execute(String productId, UpdateProductStockRequest request) {
@@ -33,6 +34,7 @@ public class UpdateProductStockUseCase {
         var images = productImageService.getImages(savedProduct.getId());
         return productMapper.toDto(
                 savedProduct,
+                productVariantCatalogService.getVariants(savedProduct.getId()),
                 productImageService.toDtos(images),
                 productImageService.toPrimaryImageDataUrl(images)
         );

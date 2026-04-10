@@ -16,6 +16,7 @@ public class ProductVariantMapper {
                 .productId(variant.getProductId().getValue().toString())
                 .sku(variant.getSku())
                 .size(variant.getSize())
+                .sizeMl(variant.getSizeMl())
                 .color(variant.getColor())
                 .additionalPrice(variant.getAdditionalPrice().getAmount())
                 .stockQuantity(variant.getStockQuantity())

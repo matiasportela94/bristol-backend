@@ -2,7 +2,9 @@ package com.bristol.domain.order;
 
 import com.bristol.domain.coupon.CouponId;
 import com.bristol.domain.product.BeerType;
+import com.bristol.domain.product.ProductCategory;
 import com.bristol.domain.product.ProductId;
+import com.bristol.domain.product.ProductSubcategory;
 import com.bristol.domain.product.ProductVariantId;
 import com.bristol.domain.shared.exception.ValidationException;
 import com.bristol.domain.shared.valueobject.Money;
@@ -24,6 +26,8 @@ public class OrderItem {
     private final String productName;
     private final ProductType productType;
     private final BeerType beerType; // nullable, only for BEER type products
+    private final ProductCategory productCategory; // nullable legacy orders
+    private final ProductSubcategory productSubcategory; // nullable legacy orders
     private final Integer quantity;
     private final Money pricePerUnit;
     private final CouponId itemDiscountCouponId; // nullable
@@ -43,6 +47,35 @@ public class OrderItem {
             Integer quantity,
             Money pricePerUnit
     ) {
+        return create(
+                orderId,
+                productId,
+                productVariantId,
+                productName,
+                productType,
+                beerType,
+                null,
+                null,
+                quantity,
+                pricePerUnit
+        );
+    }
+
+    /**
+     * Create a new order item with full product snapshot.
+     */
+    public static OrderItem create(
+            OrderId orderId,
+            ProductId productId,
+            ProductVariantId productVariantId,
+            String productName,
+            ProductType productType,
+            BeerType beerType,
+            ProductCategory productCategory,
+            ProductSubcategory productSubcategory,
+            Integer quantity,
+            Money pricePerUnit
+    ) {
         validate(orderId, productId, productName, productType, quantity, pricePerUnit);
 
         OrderItemId id = OrderItemId.generate();
@@ -57,6 +90,8 @@ public class OrderItem {
                 .productName(productName)
                 .productType(productType)
                 .beerType(beerType)
+                .productCategory(productCategory)
+                .productSubcategory(productSubcategory)
                 .quantity(quantity)
                 .pricePerUnit(pricePerUnit)
                 .itemDiscountCouponId(null)
@@ -84,6 +119,17 @@ public class OrderItem {
                 .itemDiscountCouponId(couponId)
                 .itemDiscountAmount(discountAmount)
                 .subtotal(newSubtotal)
+                .build();
+    }
+
+    /**
+     * Clear any previously applied item-level promotion.
+     */
+    public OrderItem clearItemDiscount() {
+        return this.toBuilder()
+                .itemDiscountCouponId(null)
+                .itemDiscountAmount(Money.zero())
+                .subtotal(getOriginalSubtotal())
                 .build();
     }
 

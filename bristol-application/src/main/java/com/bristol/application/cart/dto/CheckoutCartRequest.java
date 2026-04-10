@@ -16,4 +16,6 @@ public class CheckoutCartRequest {
     private String shippingAddressId;
 
     private String notes;
+
+    private String couponCode;
 }

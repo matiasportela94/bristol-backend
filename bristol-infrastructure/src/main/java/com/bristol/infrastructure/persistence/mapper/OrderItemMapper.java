@@ -6,7 +6,9 @@ import com.bristol.domain.order.OrderItem;
 import com.bristol.domain.order.OrderItemId;
 import com.bristol.domain.order.ProductType;
 import com.bristol.domain.product.BeerType;
+import com.bristol.domain.product.ProductCategory;
 import com.bristol.domain.product.ProductId;
+import com.bristol.domain.product.ProductSubcategory;
 import com.bristol.domain.product.ProductVariantId;
 import com.bristol.domain.shared.valueobject.Money;
 import com.bristol.infrastructure.persistence.entity.OrderItemEntity;
@@ -28,6 +30,8 @@ public interface OrderItemMapper {
     @Mapping(target = "productVariantId", expression = "java(toProductVariantId(entity.getProductVariantId()))")
     @Mapping(target = "productType", expression = "java(toDomainProductType(entity.getProductType()))")
     @Mapping(target = "beerType", expression = "java(toDomainBeerType(entity.getBeerType()))")
+    @Mapping(target = "productCategory", expression = "java(toDomainProductCategory(entity.getProductCategory()))")
+    @Mapping(target = "productSubcategory", expression = "java(toDomainProductSubcategory(entity.getProductSubcategory()))")
     @Mapping(target = "pricePerUnit", expression = "java(toMoney(entity.getPricePerUnit()))")
     @Mapping(target = "itemDiscountCouponId", expression = "java(toCouponId(entity.getItemDiscountCouponId()))")
     @Mapping(target = "itemDiscountAmount", expression = "java(toMoney(entity.getItemDiscountAmount()))")
@@ -40,6 +44,8 @@ public interface OrderItemMapper {
     @Mapping(target = "productVariantId", expression = "java(toUUID(domain.getProductVariantId()))")
     @Mapping(target = "productType", expression = "java(toEntityProductType(domain.getProductType()))")
     @Mapping(target = "beerType", expression = "java(toEntityBeerType(domain.getBeerType()))")
+    @Mapping(target = "productCategory", expression = "java(toEntityProductCategory(domain.getProductCategory()))")
+    @Mapping(target = "productSubcategory", expression = "java(toEntityProductSubcategory(domain.getProductSubcategory()))")
     @Mapping(target = "pricePerUnit", expression = "java(toBigDecimal(domain.getPricePerUnit()))")
     @Mapping(target = "itemDiscountCouponId", expression = "java(toUUID(domain.getItemDiscountCouponId()))")
     @Mapping(target = "itemDiscountAmount", expression = "java(toBigDecimal(domain.getItemDiscountAmount()))")
@@ -111,5 +117,21 @@ public interface OrderItemMapper {
 
     default OrderItemEntity.BeerTypeEnum toEntityBeerType(BeerType beerType) {
         return beerType != null ? OrderItemEntity.BeerTypeEnum.valueOf(beerType.name()) : null;
+    }
+
+    default ProductCategory toDomainProductCategory(OrderItemEntity.ProductCategoryEnum productCategory) {
+        return productCategory != null ? ProductCategory.valueOf(productCategory.name()) : null;
+    }
+
+    default OrderItemEntity.ProductCategoryEnum toEntityProductCategory(ProductCategory productCategory) {
+        return productCategory != null ? OrderItemEntity.ProductCategoryEnum.valueOf(productCategory.name()) : null;
+    }
+
+    default ProductSubcategory toDomainProductSubcategory(OrderItemEntity.ProductSubcategoryEnum productSubcategory) {
+        return productSubcategory != null ? ProductSubcategory.valueOf(productSubcategory.name()) : null;
+    }
+
+    default OrderItemEntity.ProductSubcategoryEnum toEntityProductSubcategory(ProductSubcategory productSubcategory) {
+        return productSubcategory != null ? OrderItemEntity.ProductSubcategoryEnum.valueOf(productSubcategory.name()) : null;
     }
 }

@@ -22,5 +22,8 @@ public class CartItemDto {
     private BeerType beerType;
     private Integer quantity;
     private BigDecimal unitPrice;
+    private BigDecimal originalSubtotal;
+    private BigDecimal itemDiscountAmount;
     private BigDecimal subtotal;
+    private CartAppliedPromotionDto appliedPromotion;
 }

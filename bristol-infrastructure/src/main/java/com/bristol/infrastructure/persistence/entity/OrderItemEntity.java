@@ -42,6 +42,14 @@ public class OrderItemEntity {
     @Column(name = "beer_type")
     private BeerTypeEnum beerType;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "product_category")
+    private ProductCategoryEnum productCategory;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "product_subcategory")
+    private ProductSubcategoryEnum productSubcategory;
+
     @Column(nullable = false)
     private Integer quantity;
 
@@ -73,5 +81,13 @@ public class OrderItemEntity {
 
     public enum BeerTypeEnum {
         IPA, LAGER, APA, STOUT, PORTER, PILSNER, SOUR, WHEAT, BLONDE, AMBER, GOLDEN, PALE_ALE, OTRO
+    }
+
+    public enum ProductCategoryEnum {
+        PRODUCTOS, MERCHANDISING, ESPECIALES
+    }
+
+    public enum ProductSubcategoryEnum {
+        TWENTY_FOUR_PACK, SIX_PACK, CAN, KEG, GROWLER, REMERA, BUZO, GORRA, VASO, PLOTEO, EVENTO, OTRO
     }
 }

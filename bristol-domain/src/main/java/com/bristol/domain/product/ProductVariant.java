@@ -19,6 +19,7 @@ public class ProductVariant {
     private final ProductId productId;
     private final String sku;
     private final String size;
+    private final Integer sizeMl;
     private final String color;
     private final Money additionalPrice;
     private final Integer stockQuantity;
@@ -48,6 +49,7 @@ public class ProductVariant {
                 .productId(productId)
                 .sku(sku)
                 .size(size)
+                .sizeMl(parseSizeMl(size))
                 .color(color)
                 .additionalPrice(additionalPrice != null ? additionalPrice : Money.zero())
                 .stockQuantity(stockQuantity != null ? stockQuantity : 0)
@@ -102,5 +104,22 @@ public class ProductVariant {
             desc.append("Color: ").append(color);
         }
         return desc.toString();
+    }
+
+    private static Integer parseSizeMl(String size) {
+        if (size == null || size.isBlank()) {
+            return null;
+        }
+
+        String digitsOnly = size.replaceAll("[^0-9]", "");
+        if (digitsOnly.isBlank()) {
+            return null;
+        }
+
+        try {
+            return Integer.parseInt(digitsOnly);
+        } catch (NumberFormatException ignored) {
+            return null;
+        }
     }
 }

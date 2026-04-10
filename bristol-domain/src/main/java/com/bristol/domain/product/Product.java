@@ -5,6 +5,7 @@ import com.bristol.domain.shared.valueobject.Money;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 
 /**
@@ -21,6 +22,9 @@ public class Product {
     private final ProductCategory category;
     private final ProductSubcategory subcategory;
     private final BeerType beerType;
+    private final BigDecimal abv;
+    private final BigDecimal ibu;
+    private final BigDecimal srm;
     private final Money basePrice;
     private final Integer stockQuantity;
     private final Integer lowStockThreshold;

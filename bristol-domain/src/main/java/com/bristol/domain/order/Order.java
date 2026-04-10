@@ -92,45 +92,85 @@ public class Order {
      * Apply order-level discount.
      */
     public Order applyOrderDiscount(CouponId couponId, Money discountAmount, Instant now) {
-        if (discountAmount.isNegative()) {
-            throw new ValidationException("Order discount amount cannot be negative");
-        }
-        if (discountAmount.isGreaterThan(subtotal)) {
-            throw new ValidationException("Order discount cannot exceed order subtotal");
-        }
-
-        Money newTotal = subtotal
-                .subtract(discountAmount)
-                .add(shippingCost)
-                .subtract(shippingDiscountAmount);
-
-        return this.toBuilder()
-                .orderDiscountCouponId(couponId)
-                .orderDiscountAmount(discountAmount)
-                .total(newTotal)
-                .updatedAt(now)
-                .build();
+        return applyPromotions(
+                couponId,
+                discountAmount,
+                shippingDiscountCouponId,
+                shippingDiscountAmount,
+                now
+        );
     }
 
     /**
      * Apply shipping discount.
      */
     public Order applyShippingDiscount(CouponId couponId, Money discountAmount, Instant now) {
-        if (discountAmount.isNegative()) {
-            throw new ValidationException("Shipping discount amount cannot be negative");
-        }
-        if (discountAmount.isGreaterThan(shippingCost)) {
-            throw new ValidationException("Shipping discount cannot exceed shipping cost");
-        }
+        return applyPromotions(
+                orderDiscountCouponId,
+                orderDiscountAmount,
+                couponId,
+                discountAmount,
+                now
+        );
+    }
 
-        Money newTotal = subtotal
-                .subtract(orderDiscountAmount)
+    /**
+     * Reprice order-level and shipping promotions as one atomic state update.
+     */
+    public Order applyPromotions(
+            CouponId orderCouponId,
+            Money orderDiscountAmount,
+            CouponId shippingCouponId,
+            Money shippingDiscountAmount,
+            Instant now
+    ) {
+        return applyPromotions(
+                this.items,
+                orderCouponId,
+                orderDiscountAmount,
+                shippingCouponId,
+                shippingDiscountAmount,
+                now
+        );
+    }
+
+    /**
+     * Reprice order items and promotions as one atomic state update.
+     */
+    public Order applyPromotions(
+            List<OrderItem> items,
+            CouponId orderCouponId,
+            Money orderDiscountAmount,
+            CouponId shippingCouponId,
+            Money shippingDiscountAmount,
+            Instant now
+    ) {
+        validatePromotionsCanBeChanged();
+
+        List<OrderItem> repricedItems = items != null ? new ArrayList<>(items) : List.of();
+        Money resolvedOrderDiscountAmount = orderDiscountAmount != null ? orderDiscountAmount : Money.zero();
+        Money resolvedShippingDiscountAmount = shippingDiscountAmount != null ? shippingDiscountAmount : Money.zero();
+        Money repricedSubtotal = calculateItemsSubtotal(repricedItems);
+
+        validateDiscountAmount("Order", resolvedOrderDiscountAmount, repricedSubtotal);
+        validateDiscountAmount("Shipping", resolvedShippingDiscountAmount, shippingCost);
+
+        Money newTotal = repricedSubtotal
+                .subtract(resolvedOrderDiscountAmount)
                 .add(shippingCost)
-                .subtract(discountAmount);
+                .subtract(resolvedShippingDiscountAmount);
+
+        if (newTotal.isNegative()) {
+            throw new ValidationException("Order total cannot be negative");
+        }
 
         return this.toBuilder()
-                .shippingDiscountCouponId(couponId)
-                .shippingDiscountAmount(discountAmount)
+                .items(repricedItems)
+                .subtotal(repricedSubtotal)
+                .orderDiscountCouponId(orderCouponId)
+                .orderDiscountAmount(resolvedOrderDiscountAmount)
+                .shippingDiscountCouponId(shippingCouponId)
+                .shippingDiscountAmount(resolvedShippingDiscountAmount)
                 .total(newTotal)
                 .updatedAt(now)
                 .build();
@@ -345,6 +385,21 @@ public class Order {
         }
         if (shippingCost == null || shippingCost.isNegative()) {
             throw new ValidationException("Shipping cost must be zero or positive");
+        }
+    }
+
+    private void validateDiscountAmount(String label, Money discountAmount, Money maximum) {
+        if (discountAmount.isNegative()) {
+            throw new ValidationException(label + " discount amount cannot be negative");
+        }
+        if (discountAmount.isGreaterThan(maximum)) {
+            throw new ValidationException(label + " discount cannot exceed " + label.toLowerCase());
+        }
+    }
+
+    private void validatePromotionsCanBeChanged() {
+        if (status != OrderStatus.PENDING_PAYMENT && status != OrderStatus.PAYMENT_IN_PROCESS) {
+            throw new ValidationException("Promotions can only be changed while the order is awaiting payment");
         }
     }
 }

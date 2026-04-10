@@ -60,6 +60,7 @@ public class Coupon {
 
     // Status
     private final CouponStatus status;
+    private final int priority;
     private final Integer usedCount;
     private final Instant deletedAt;
 
@@ -123,6 +124,7 @@ public class Coupon {
                 .endDate(null)
                 .endTime(null)
                 .status(CouponStatus.ACTIVE)
+                .priority(0)
                 .usedCount(0)
                 .deletedAt(null)
                 .triggerType(CouponTriggerType.NONE)
@@ -167,6 +169,7 @@ public class Coupon {
             LocalDate endDate,
             LocalTime endTime,
             CouponStatus status,
+            Integer priority,
             CouponTriggerType triggerType,
             String triggerProductId,
             String triggerProductName,
@@ -179,6 +182,7 @@ public class Coupon {
         validateTitle(method, title);
         validateUsageLimits(limitTotalUses, maxTotalUses, limitPerCustomer, maxUsesPerCustomer);
         validateSchedule(startDate, startTime, setEndDate, endDate, endTime);
+        validatePriority(priority);
 
         return this.toBuilder()
                 .title(title)
@@ -206,6 +210,7 @@ public class Coupon {
                 .endDate(setEndDate ? endDate : null)
                 .endTime(setEndDate ? endTime : null)
                 .status(status != null ? status : CouponStatus.ACTIVE)
+                .priority(priority != null ? priority : 0)
                 .triggerType(triggerType != null ? triggerType : CouponTriggerType.NONE)
                 .triggerProductId(triggerProductId)
                 .triggerProductName(triggerProductName)
@@ -348,16 +353,24 @@ public class Coupon {
     }
 
     /**
+     * Normalized internal scope view built from the legacy coupon fields.
+     */
+    public CouponScope getScope() {
+        return CouponScope.from(appliesTo, selectedItems);
+    }
+
+    /**
+     * Normalized internal benefit view built from the legacy coupon fields.
+     */
+    public CouponBenefit getBenefit() {
+        return CouponBenefit.from(discountType, valueType, value, triggerType, ruleConfig);
+    }
+
+    /**
      * Calculate discount amount for a given total.
      */
     public Money calculateDiscount(Money amount) {
-        if (valueType == CouponValueType.PERCENTAGE) {
-            return amount.percentage(value);
-        } else {
-            Money fixedDiscount = Money.of(value);
-            // Don't discount more than the amount
-            return amount.isLessThan(fixedDiscount) ? amount : fixedDiscount;
-        }
+        return getBenefit().calculateDiscount(amount);
     }
 
     /**
@@ -416,6 +429,20 @@ public class Coupon {
         return combineWithShippingDiscounts;
     }
 
+    /**
+     * Synchronize persisted usage counter with redemption history.
+     */
+    public Coupon syncUsedCount(int usedCount, Instant now) {
+        if (usedCount < 0) {
+            throw new ValidationException("Used count cannot be negative");
+        }
+
+        return this.toBuilder()
+                .usedCount(usedCount)
+                .updatedAt(now)
+                .build();
+    }
+
     private static void validateBasicInfo(CouponMethod method, String code, BigDecimal value) {
         if (method == CouponMethod.CODE && (code == null || code.trim().isEmpty())) {
             throw new ValidationException("Code is required for code-based coupons");
@@ -442,6 +469,12 @@ public class Coupon {
         }
         if (limitPerCustomer && (maxUsesPerCustomer == null || maxUsesPerCustomer <= 0)) {
             throw new ValidationException("Max uses per customer must be positive when limit is enabled");
+        }
+    }
+
+    private static void validatePriority(Integer priority) {
+        if (priority != null && priority < 0) {
+            throw new ValidationException("Priority cannot be negative");
         }
     }
 

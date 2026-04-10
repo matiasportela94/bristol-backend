@@ -1,8 +1,12 @@
 package com.bristol.application.cart.usecase;
 
-import com.bristol.application.cart.dto.*;
+import com.bristol.application.cart.dto.CartAdjustmentDto;
+import com.bristol.application.cart.dto.CartAdjustmentType;
+import com.bristol.application.cart.dto.CheckoutCartRequest;
+import com.bristol.application.cart.dto.CheckoutCartResponse;
 import com.bristol.application.order.dto.OrderDto;
 import com.bristol.application.order.usecase.OrderMapper;
+import com.bristol.application.order.usecase.OrderPromotionApplicationService;
 import com.bristol.domain.address.UserAddress;
 import com.bristol.domain.address.UserAddressId;
 import com.bristol.domain.address.UserAddressRepository;
@@ -15,7 +19,6 @@ import com.bristol.domain.order.OrderRepository;
 import com.bristol.domain.order.ShippingAddress;
 import com.bristol.domain.product.Product;
 import com.bristol.domain.product.ProductRepository;
-import com.bristol.domain.product.ProductVariant;
 import com.bristol.domain.product.ProductVariantRepository;
 import com.bristol.domain.shared.exception.ValidationException;
 import com.bristol.domain.shared.valueobject.Money;
@@ -28,8 +31,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -43,6 +44,8 @@ public class CheckoutCartUseCase extends CartCommandSupport {
     private final UserRepository userRepository;
     private final CartMapper cartMapper;
     private final OrderMapper orderMapper;
+    private final OrderPromotionApplicationService orderPromotionApplicationService;
+    private final CartReconciliationService cartReconciliationService;
 
     @Transactional
     public CheckoutCartResponse execute(String userEmail, CheckoutCartRequest request) {
@@ -55,7 +58,7 @@ public class CheckoutCartUseCase extends CartCommandSupport {
             throw new ValidationException("Cart is empty");
         }
 
-        ReconciliationResult reconciliation = reconcileCart(cart, now);
+        CartReconciliationService.ReconciliationResult reconciliation = cartReconciliationService.reconcile(cart, now);
         if (reconciliation.hasChanges()) {
             ShoppingCart savedCart = shoppingCartRepository.save(reconciliation.cart());
             return CheckoutCartResponse.builder()
@@ -91,7 +94,20 @@ public class CheckoutCartUseCase extends CartCommandSupport {
                 now
         );
 
-        Order savedOrder = orderRepository.save(order);
+        Order orderWithPromotions;
+        try {
+            orderWithPromotions = orderPromotionApplicationService.applyRequestedPromotion(order, request.getCouponCode());
+        } catch (ValidationException exception) {
+            return CheckoutCartResponse.builder()
+                    .checkoutSucceeded(false)
+                    .message(exception.getMessage())
+                    .cart(cartMapper.toDto(reconciliation.cart()))
+                    .adjustments(buildPromotionAdjustments(request, exception.getMessage()))
+                    .createdOrder(null)
+                    .build();
+        }
+
+        Order savedOrder = orderRepository.save(orderWithPromotions);
         ShoppingCart clearedCart = shoppingCartRepository.save(reconciliation.cart().clear(now));
 
         return CheckoutCartResponse.builder()
@@ -101,90 +117,6 @@ public class CheckoutCartUseCase extends CartCommandSupport {
                 .adjustments(List.of())
                 .createdOrder(toOrderDto(savedOrder))
                 .build();
-    }
-
-    private ReconciliationResult reconcileCart(ShoppingCart cart, Instant now) {
-        List<CartAdjustmentDto> adjustments = new ArrayList<>();
-        List<CartItem> reconciledItems = new ArrayList<>();
-
-        for (CartItem item : cart.getItems()) {
-            Product product = productRepository.findById(item.getProductId()).orElse(null);
-            if (product == null || product.isDeleted() || product.getBasePrice() == null) {
-                adjustments.add(CartAdjustmentDto.builder()
-                        .type(CartAdjustmentType.ITEM_UNAVAILABLE)
-                        .itemId(item.getId().getValue().toString())
-                        .productId(item.getProductId().getValue().toString())
-                        .message("El producto ya no se encuentra disponible.")
-                        .previousValue(item.getProductName())
-                        .currentValue(null)
-                        .build());
-                continue;
-            }
-
-            Optional<ProductVariant> variant = Optional.ofNullable(item.getProductVariantId())
-                    .flatMap(productVariantRepository::findById)
-                    .filter(productVariant -> productVariant.getProductId().equals(product.getId()));
-
-            if (item.getProductVariantId() != null && variant.isEmpty()) {
-                adjustments.add(CartAdjustmentDto.builder()
-                        .type(CartAdjustmentType.ITEM_UNAVAILABLE)
-                        .itemId(item.getId().getValue().toString())
-                        .productId(item.getProductId().getValue().toString())
-                        .message("La variante seleccionada ya no está disponible.")
-                        .previousValue(item.getProductVariantId().getValue().toString())
-                        .currentValue(null)
-                        .build());
-                continue;
-            }
-
-            Money resolvedUnitPrice = resolveUnitPrice(product, variant);
-            int availableStock = variant.map(ProductVariant::getStockQuantity).orElse(product.getStockQuantity());
-            if (availableStock <= 0) {
-                adjustments.add(CartAdjustmentDto.builder()
-                        .type(CartAdjustmentType.ITEM_OUT_OF_STOCK)
-                        .itemId(item.getId().getValue().toString())
-                        .productId(item.getProductId().getValue().toString())
-                        .message("El producto quedó sin stock.")
-                        .previousValue(String.valueOf(item.getQuantity()))
-                        .currentValue("0")
-                        .build());
-                continue;
-            }
-
-            int reconciledQuantity = Math.min(item.getQuantity(), availableStock);
-            if (reconciledQuantity != item.getQuantity()) {
-                adjustments.add(CartAdjustmentDto.builder()
-                        .type(CartAdjustmentType.QUANTITY_ADJUSTED)
-                        .itemId(item.getId().getValue().toString())
-                        .productId(item.getProductId().getValue().toString())
-                        .message("La cantidad fue ajustada al stock disponible.")
-                        .previousValue(String.valueOf(item.getQuantity()))
-                        .currentValue(String.valueOf(reconciledQuantity))
-                        .build());
-            }
-
-            if (!Objects.equals(item.getUnitPrice().getAmount(), resolvedUnitPrice.getAmount())) {
-                adjustments.add(CartAdjustmentDto.builder()
-                        .type(CartAdjustmentType.PRICE_CHANGED)
-                        .itemId(item.getId().getValue().toString())
-                        .productId(item.getProductId().getValue().toString())
-                        .message("El precio del producto cambió.")
-                        .previousValue(item.getUnitPrice().getAmount().toPlainString())
-                        .currentValue(resolvedUnitPrice.getAmount().toPlainString())
-                        .build());
-            }
-
-            reconciledItems.add(item.updateSnapshot(
-                    product.getName(),
-                    mapCategoryToType(product.getCategory()),
-                    product.getBeerType(),
-                    reconciledQuantity,
-                    resolvedUnitPrice
-            ));
-        }
-
-        ShoppingCart reconciledCart = cart.replaceItems(reconciledItems, now);
-        return new ReconciliationResult(reconciledCart, adjustments);
     }
 
     private ShippingAddress toShippingAddress(UserAddress address) {
@@ -201,6 +133,8 @@ public class CheckoutCartUseCase extends CartCommandSupport {
     private List<OrderItem> toOrderItems(ShoppingCart cart) {
         List<OrderItem> orderItems = new ArrayList<>();
         for (CartItem item : cart.getItems()) {
+            Product product = productRepository.findById(item.getProductId())
+                    .orElseThrow(() -> new ValidationException("Product not found: " + item.getProductId().getValue()));
             orderItems.add(OrderItem.create(
                     com.bristol.domain.order.OrderId.generate(),
                     item.getProductId(),
@@ -208,6 +142,8 @@ public class CheckoutCartUseCase extends CartCommandSupport {
                     item.getProductName(),
                     item.getProductType(),
                     item.getBeerType(),
+                    product.getCategory(),
+                    product.getSubcategory(),
                     item.getQuantity(),
                     item.getUnitPrice()
             ));
@@ -219,9 +155,22 @@ public class CheckoutCartUseCase extends CartCommandSupport {
         return orderMapper.toDto(order);
     }
 
-    private record ReconciliationResult(ShoppingCart cart, List<CartAdjustmentDto> adjustments) {
-        boolean hasChanges() {
-            return !adjustments.isEmpty();
+    private List<CartAdjustmentDto> buildPromotionAdjustments(CheckoutCartRequest request, String message) {
+        List<CartAdjustmentDto> adjustments = new ArrayList<>();
+
+        if (hasText(request.getCouponCode())) {
+            adjustments.add(CartAdjustmentDto.builder()
+                    .type(CartAdjustmentType.PROMOTION_REMOVED)
+                    .message(message)
+                    .previousValue(request.getCouponCode().trim())
+                    .currentValue(null)
+                    .build());
         }
+
+        return adjustments;
+    }
+
+    private boolean hasText(String value) {
+        return value != null && !value.trim().isEmpty();
     }
 }

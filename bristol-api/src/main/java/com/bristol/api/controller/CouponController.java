@@ -1,6 +1,7 @@
 package com.bristol.api.controller;
 
 import com.bristol.application.coupon.dto.CouponDto;
+import com.bristol.application.coupon.dto.CouponRedemptionDto;
 import com.bristol.application.coupon.dto.CreateCouponRequest;
 import com.bristol.application.coupon.dto.UpdateCouponRequest;
 import com.bristol.application.coupon.dto.ValidateCouponRequest;
@@ -29,6 +30,7 @@ public class CouponController {
     private final CreateCouponUseCase createCouponUseCase;
     private final GetAllCouponsUseCase getAllCouponsUseCase;
     private final GetCouponByIdUseCase getCouponByIdUseCase;
+    private final GetCouponRedemptionsUseCase getCouponRedemptionsUseCase;
     private final GetActiveCouponsUseCase getActiveCouponsUseCase;
     private final ValidateCouponUseCase validateCouponUseCase;
     private final UpdateCouponUseCase updateCouponUseCase;
@@ -66,6 +68,17 @@ public class CouponController {
     public ResponseEntity<CouponDto> getCouponById(@PathVariable String id) {
         CouponDto coupon = getCouponByIdUseCase.execute(id);
         return ResponseEntity.ok(coupon);
+    }
+
+    /**
+     * Get coupon redemption history.
+     */
+    @GetMapping("/{id}/redemptions")
+    @PreAuthorize("hasRole('ADMIN')")
+    @SecurityRequirement(name = "Bearer Authentication")
+    @Operation(summary = "Get coupon redemptions", description = "Retrieve redemption history for a coupon (Admin only)")
+    public ResponseEntity<List<CouponRedemptionDto>> getCouponRedemptions(@PathVariable String id) {
+        return ResponseEntity.ok(getCouponRedemptionsUseCase.execute(id));
     }
 
     /**
