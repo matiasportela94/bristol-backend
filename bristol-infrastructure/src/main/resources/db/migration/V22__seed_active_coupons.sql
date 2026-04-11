@@ -86,7 +86,7 @@ FROM (
             100.00,
             'SCHEDULED',
             TIMESTAMP '2026-04-09 16:49:57.503871',
-            NULL,
+            NULL::timestamp,
             'ACTIVE',
             'NONE',
             NULL,
