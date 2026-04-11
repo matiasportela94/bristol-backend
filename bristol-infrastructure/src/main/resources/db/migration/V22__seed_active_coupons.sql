@@ -47,12 +47,12 @@ SELECT
     seed.value,
     seed.schedule_type,
     seed.start_date,
-    seed.end_date,
+    seed.end_date::timestamp,
     seed.status,
     seed.minimum_requirement_type,
-    seed.minimum_purchase_amount,
-    seed.minimum_item_quantity,
-    seed.usage_limit_total,
+    seed.minimum_purchase_amount::numeric(10,2),
+    seed.minimum_item_quantity::integer,
+    seed.usage_limit_total::integer,
     seed.usage_limit_per_customer,
     seed.times_used,
     seed.is_customer_specific,
@@ -66,13 +66,13 @@ SELECT
     seed.combine_with_order_discounts,
     seed.combine_with_shipping_discounts,
     seed.trigger_type,
-    seed.trigger_product_id,
-    seed.trigger_product_name,
+    seed.trigger_product_id::varchar(255),
+    seed.trigger_product_name::varchar(255),
     seed.applies_to_future_orders,
     seed.specific_customers,
     seed.rule_config,
     seed.priority,
-    NULL
+    NULL::timestamp
 FROM (
     VALUES
         (
@@ -86,7 +86,7 @@ FROM (
             100.00,
             'SCHEDULED',
             TIMESTAMP '2026-04-09 16:49:57.503871',
-            NULL::timestamp,
+            NULL,
             'ACTIVE',
             'NONE',
             NULL,
@@ -260,8 +260,4 @@ FROM (
     rule_config,
     priority
 )
-WHERE NOT EXISTS (
-    SELECT 1
-    FROM coupons c
-    WHERE c.id = seed.id
-);
+ON CONFLICT DO NOTHING;
