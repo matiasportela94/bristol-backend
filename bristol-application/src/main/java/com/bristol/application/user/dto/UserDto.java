@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.Instant;
+import java.time.LocalDate;
 
 /**
  * DTO for User information.
@@ -21,7 +22,10 @@ public class UserDto {
     private String email;
     private String firstName;
     private String lastName;
+    private String phone;
+    private LocalDate dateOfBirth;
     private UserRole role;
+    private boolean isDistributor;
     private Instant createdAt;
     private Instant updatedAt;
 }

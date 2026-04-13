@@ -38,6 +38,9 @@ public class OrderRepositoryImpl implements OrderRepository {
     @Override
     public Order save(Order order) {
         var entity = orderMapper.toEntity(order);
+        if (entity.getOrderNumber() == null) {
+            entity.setOrderNumber(jpaRepository.nextOrderNumber());
+        }
         var saved = jpaRepository.save(entity);
 
         orderItemRepository.deleteByOrderId(saved.getId());

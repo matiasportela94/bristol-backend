@@ -23,6 +23,7 @@ import java.util.UUID;
 public interface OrderMapper {
 
     @Mapping(target = "id", expression = "java(toOrderId(entity.getId()))")
+    @Mapping(target = "orderNumber", source = "orderNumber")
     @Mapping(target = "userId", expression = "java(toUserId(entity.getUserId()))")
     @Mapping(target = "status", expression = "java(toDomainStatus(entity.getOrderStatus()))")
     @Mapping(target = "distributorId", expression = "java(toDistributorId(entity.getDistributorId()))")
@@ -38,6 +39,7 @@ public interface OrderMapper {
     Order toDomain(OrderEntity entity);
 
     @Mapping(target = "id", expression = "java(toUUID(domain.getId()))")
+    @Mapping(target = "orderNumber", source = "orderNumber")
     @Mapping(target = "userId", expression = "java(toUUID(domain.getUserId()))")
     @Mapping(target = "orderStatus", expression = "java(toEntityStatus(domain.getStatus()))")
     @Mapping(target = "distributorId", expression = "java(toUUID(domain.getDistributorId()))")

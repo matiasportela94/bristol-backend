@@ -4,6 +4,7 @@ import com.bristol.application.user.dto.ChangePasswordRequest;
 import com.bristol.application.user.dto.UpdateUserProfileRequest;
 import com.bristol.application.user.dto.UserDto;
 import com.bristol.application.user.usecase.ChangePasswordUseCase;
+import com.bristol.application.user.usecase.GetAllUsersUseCase;
 import com.bristol.application.user.usecase.GetUserByIdUseCase;
 import com.bristol.application.user.usecase.UpdateUserProfileUseCase;
 import io.swagger.v3.oas.annotations.Operation;
@@ -15,6 +16,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 /**
  * REST controller for user endpoints.
  */
@@ -25,9 +28,17 @@ import org.springframework.web.bind.annotation.*;
 @SecurityRequirement(name = "Bearer Authentication")
 public class UserController {
 
+    private final GetAllUsersUseCase getAllUsersUseCase;
     private final GetUserByIdUseCase getUserByIdUseCase;
     private final UpdateUserProfileUseCase updateUserProfileUseCase;
     private final ChangePasswordUseCase changePasswordUseCase;
+
+    @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Get all users", description = "Retrieve all users")
+    public ResponseEntity<List<UserDto>> getAllUsers() {
+        return ResponseEntity.ok(getAllUsersUseCase.execute());
+    }
 
     /**
      * Get user by ID.

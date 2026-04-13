@@ -17,6 +17,9 @@ import java.util.UUID;
 @Repository
 public interface JpaDeliveryRepository extends JpaRepository<DeliveryEntity, UUID> {
 
+    @Query(value = "SELECT nextval('delivery_number_seq')", nativeQuery = true)
+    Long nextDeliveryNumber();
+
     Optional<DeliveryEntity> findByOrderId(UUID orderId);
 
     List<DeliveryEntity> findByDeliveryStatus(DeliveryEntity.DeliveryStatusEnum status);

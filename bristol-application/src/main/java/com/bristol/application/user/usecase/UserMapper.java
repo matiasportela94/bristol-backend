@@ -16,7 +16,10 @@ public class UserMapper {
                 .email(user.getEmail())
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
+                .phone(user.getPhone())
+                .dateOfBirth(user.getDateOfBirth())
                 .role(user.getRole())
+                .isDistributor(user.isDistributor())
                 .createdAt(user.getCreatedAt())
                 .updatedAt(user.getUpdatedAt())
                 .build();

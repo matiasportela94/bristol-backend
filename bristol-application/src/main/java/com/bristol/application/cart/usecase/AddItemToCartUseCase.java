@@ -33,9 +33,14 @@ public class AddItemToCartUseCase extends CartCommandSupport {
         ShoppingCart cart = getOrCreateCart(user, shoppingCartRepository);
         Product product = productOrThrow(request.getProductId(), productRepository);
         Optional<ProductVariant> variant = resolveVariant(request.getProductVariantId(), product, productVariantRepository);
+        int existingCartQuantity = resolveCartQuantity(
+                cart,
+                product.getId(),
+                variant.map(ProductVariant::getId).orElse(null)
+        );
 
         validateProductAvailability(product);
-        validateRequestedQuantity(product, variant, request.getQuantity());
+        validateRequestedQuantity(product, variant, request.getQuantity(), existingCartQuantity);
 
         ShoppingCart updatedCart = cart.addItem(
                 product.getId(),

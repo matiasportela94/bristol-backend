@@ -4,6 +4,8 @@ import com.bristol.domain.order.Order;
 import com.bristol.domain.order.OrderItem;
 import com.bristol.domain.product.Product;
 import com.bristol.domain.product.ProductRepository;
+import com.bristol.domain.product.ProductVariant;
+import com.bristol.domain.product.ProductVariantRepository;
 import com.bristol.domain.shared.exception.ValidationException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,10 +21,10 @@ import java.time.Instant;
 public class StockManagementService {
 
     private final ProductRepository productRepository;
+    private final ProductVariantRepository productVariantRepository;
 
     /**
      * Deduct stock for all items in an order.
-     * Called when order is marked as paid.
      */
     @Transactional
     public void deductStockForOrder(Order order) {
@@ -35,7 +37,27 @@ public class StockManagementService {
                     .orElseThrow(() -> new ValidationException(
                             "Product not found: " + item.getProductId().getValue()));
 
-            // Check if product has enough stock
+            if (item.getProductVariantId() != null) {
+                ProductVariant variant = productVariantRepository.findById(item.getProductVariantId())
+                        .orElseThrow(() -> new ValidationException(
+                                "Product variant not found: " + item.getProductVariantId().getValue()));
+
+                if (!variant.getProductId().equals(product.getId())) {
+                    throw new ValidationException(
+                            "Variant does not belong to product: " + item.getProductVariantId().getValue());
+                }
+
+                if (variant.getStockQuantity() < item.getQuantity()) {
+                    throw new ValidationException(
+                            "Insufficient stock for product: " + product.getName() +
+                            ". Available: " + variant.getStockQuantity() +
+                            ", Required: " + item.getQuantity());
+                }
+
+                productVariantRepository.save(variant.reduceStock(item.getQuantity(), Instant.now()));
+                continue;
+            }
+
             if (product.getStockQuantity() < item.getQuantity()) {
                 throw new ValidationException(
                         "Insufficient stock for product: " + product.getName() +
@@ -43,16 +65,12 @@ public class StockManagementService {
                         ", Required: " + item.getQuantity());
             }
 
-            // Deduct stock
-            int newStock = product.getStockQuantity() - item.getQuantity();
-            Product updatedProduct = product.updateStock(newStock, Instant.now());
-            productRepository.save(updatedProduct);
+            productRepository.save(product.reduceStock(item.getQuantity(), Instant.now()));
         }
     }
 
     /**
      * Restore stock for all items in an order.
-     * Called when order is cancelled.
      */
     @Transactional
     public void restoreStockForOrder(Order order) {
@@ -65,10 +83,24 @@ public class StockManagementService {
                     .orElseThrow(() -> new ValidationException(
                             "Product not found: " + item.getProductId().getValue()));
 
-            // Restore stock
-            int newStock = product.getStockQuantity() + item.getQuantity();
-            Product updatedProduct = product.updateStock(newStock, Instant.now());
-            productRepository.save(updatedProduct);
+            if (item.getProductVariantId() != null) {
+                ProductVariant variant = productVariantRepository.findById(item.getProductVariantId())
+                        .orElseThrow(() -> new ValidationException(
+                                "Product variant not found: " + item.getProductVariantId().getValue()));
+
+                if (!variant.getProductId().equals(product.getId())) {
+                    throw new ValidationException(
+                            "Variant does not belong to product: " + item.getProductVariantId().getValue());
+                }
+
+                productVariantRepository.save(variant.updateStock(
+                        variant.getStockQuantity() + item.getQuantity(),
+                        Instant.now()
+                ));
+                continue;
+            }
+
+            productRepository.save(product.increaseStock(item.getQuantity(), Instant.now()));
         }
     }
 }

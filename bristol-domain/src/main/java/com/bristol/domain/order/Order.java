@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
 public class Order {
 
     private final OrderId id;
+    private final Long orderNumber;
     private final UserId userId;
     private final OrderStatus status;
     private final DistributorId distributorId; // nullable
@@ -68,6 +69,7 @@ public class Order {
 
         return Order.builder()
                 .id(orderId)
+                .orderNumber(null)
                 .userId(userId)
                 .status(OrderStatus.PENDING_PAYMENT)
                 .distributorId(null)

@@ -43,19 +43,23 @@ class OrderRepositoryImplTest {
         );
 
         Order order = sampleOrder();
-        Order orderWithoutItems = order.toBuilder().items(List.of()).build();
+        Order orderWithoutItems = order.toBuilder().orderNumber(1000L).items(List.of()).build();
         OrderEntity orderEntity = sampleOrderEntity(order.getId().getValue());
+        orderEntity.setOrderNumber(null);
         OrderItemEntity orderItemEntity = sampleOrderItemEntity(order.getId().getValue(), order.getItems().get(0).getId().getValue());
 
         when(orderMapper.toEntity(order)).thenReturn(orderEntity);
+        when(jpaOrderRepository.nextOrderNumber()).thenReturn(1000L);
         when(jpaOrderRepository.save(orderEntity)).thenReturn(orderEntity);
         when(orderMapper.toDomain(orderEntity)).thenReturn(orderWithoutItems);
         when(orderItemMapper.toEntity(order.getItems().get(0))).thenReturn(orderItemEntity);
 
         Order saved = repository.save(order);
 
+        verify(jpaOrderRepository).nextOrderNumber();
         verify(jpaOrderItemRepository).deleteByOrderId(order.getId().getValue());
         verify(jpaOrderItemRepository).saveAll(List.of(orderItemEntity));
+        assertThat(orderEntity.getOrderNumber()).isEqualTo(1000L);
         assertThat(saved.getItems()).containsExactlyElementsOf(order.getItems());
     }
 
@@ -73,7 +77,7 @@ class OrderRepositoryImplTest {
         );
 
         Order order = sampleOrder();
-        Order orderWithoutItems = order.toBuilder().items(List.of()).build();
+        Order orderWithoutItems = order.toBuilder().orderNumber(1000L).items(List.of()).build();
         OrderEntity orderEntity = sampleOrderEntity(order.getId().getValue());
         OrderItemEntity orderItemEntity = sampleOrderItemEntity(order.getId().getValue(), order.getItems().get(0).getId().getValue());
 
@@ -121,6 +125,7 @@ class OrderRepositoryImplTest {
     private static OrderEntity sampleOrderEntity(UUID orderId) {
         return OrderEntity.builder()
                 .id(orderId)
+                .orderNumber(1000L)
                 .userId(UUID.randomUUID())
                 .orderStatus(OrderEntity.OrderStatusEnum.PENDING_PAYMENT)
                 .orderDate(Instant.parse("2026-03-31T12:00:00Z"))

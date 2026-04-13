@@ -21,7 +21,7 @@ import java.util.UUID;
 public class StartDeliveryTransitUseCase {
 
     private final DeliveryRepository deliveryRepository;
-    private final DeliveryMapper deliveryMapper;
+    private final DeliveryDtoAssembler deliveryDtoAssembler;
 
     @Transactional
     public DeliveryDto execute(String id, StartTransitRequest request) {
@@ -32,6 +32,6 @@ public class StartDeliveryTransitUseCase {
         Delivery updatedDelivery = delivery.startTransit(request.getDriverNotes(), Instant.now());
         Delivery savedDelivery = deliveryRepository.save(updatedDelivery);
 
-        return deliveryMapper.toDto(savedDelivery);
+        return deliveryDtoAssembler.toDto(savedDelivery);
     }
 }

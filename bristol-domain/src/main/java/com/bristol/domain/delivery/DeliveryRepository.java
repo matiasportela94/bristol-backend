@@ -17,6 +17,11 @@ public interface DeliveryRepository {
     Delivery save(Delivery delivery);
 
     /**
+     * Find all deliveries.
+     */
+    List<Delivery> findAll();
+
+    /**
      * Find delivery by ID.
      */
     Optional<Delivery> findById(DeliveryId deliveryId);

@@ -3,6 +3,7 @@ package com.bristol.application.order.usecase;
 import com.bristol.application.order.dto.CreateOrderRequest;
 import com.bristol.application.order.dto.OrderDto;
 import com.bristol.application.order.dto.OrderItemRequest;
+import com.bristol.application.order.service.StockManagementService;
 import com.bristol.domain.delivery.DeliveryZoneId;
 import com.bristol.domain.order.*;
 import com.bristol.domain.product.*;
@@ -26,6 +27,8 @@ public class CreateOrderUseCase {
 
     private final OrderRepository orderRepository;
     private final ProductRepository productRepository;
+    private final ProductVariantRepository productVariantRepository;
+    private final StockManagementService stockManagementService;
     private final OrderMapper orderMapper;
     private final OrderPromotionApplicationService orderPromotionApplicationService;
 
@@ -60,6 +63,9 @@ public class CreateOrderUseCase {
                 request.getOrderDiscountCouponCode(),
                 request.getShippingDiscountCouponCode()
         );
+
+        stockManagementService.deductStockForOrder(order);
+        order = order.markStockAsUpdated(now);
 
         // Save order
         Order savedOrder = orderRepository.save(order);
@@ -101,29 +107,36 @@ public class CreateOrderUseCase {
                 throw new ValidationException("Product is no longer available: " + product.getName());
             }
 
-            // Check stock availability
-            if (product.getStockQuantity() < itemRequest.getQuantity()) {
-                throw new ValidationException(
-                        "Insufficient stock for product: " + product.getName() +
-                        ". Available: " + product.getStockQuantity() +
-                        ", Requested: " + itemRequest.getQuantity());
-            }
-
             if (product.getBasePrice() == null) {
                 throw new ValidationException(
                         "Product does not have a fixed price and cannot be ordered online: " + product.getName());
             }
 
-            // Parse product variant ID if present
             ProductVariantId productVariantId = null;
+            ProductVariant variant = null;
             if (itemRequest.getProductVariantId() != null && !itemRequest.getProductVariantId().isBlank()) {
                 productVariantId = new ProductVariantId(itemRequest.getProductVariantId());
+                variant = productVariantRepository.findById(productVariantId)
+                        .orElseThrow(() -> new ValidationException(
+                                "Product variant not found: " + itemRequest.getProductVariantId()));
+                if (!variant.getProductId().equals(productId)) {
+                    throw new ValidationException("Variant does not belong to product: " + itemRequest.getProductVariantId());
+                }
             }
 
-            // Map ProductCategory to ProductType
-            ProductType productType = mapCategoryToType(product.getCategory());
+            int availableStock = variant != null ? variant.getStockQuantity() : product.getStockQuantity();
+            if (availableStock < itemRequest.getQuantity()) {
+                throw new ValidationException(
+                        "Insufficient stock for product: " + product.getName() +
+                        ". Available: " + availableStock +
+                        ", Requested: " + itemRequest.getQuantity());
+            }
 
-            // Create order item
+            ProductType productType = mapCategoryToType(product.getCategory());
+            Money unitPrice = variant != null
+                    ? product.getBasePrice().add(variant.getAdditionalPrice())
+                    : product.getBasePrice();
+
             OrderItem item = OrderItem.create(
                     placeholderOrderId,
                     productId,
@@ -134,7 +147,7 @@ public class CreateOrderUseCase {
                     product.getCategory(),
                     product.getSubcategory(),
                     itemRequest.getQuantity(),
-                    product.getBasePrice()
+                    unitPrice
             );
 
             items.add(item);

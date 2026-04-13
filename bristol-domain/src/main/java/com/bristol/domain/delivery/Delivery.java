@@ -17,6 +17,7 @@ import java.time.LocalDate;
 public class Delivery {
 
     private final DeliveryId id;
+    private final Long deliveryNumber;
     private final OrderId orderId;
     private final DeliveryCalendarId deliveryCalendarId;
     private final DeliveryStatus status;
@@ -43,6 +44,7 @@ public class Delivery {
 
         return Delivery.builder()
                 .id(id)
+                .deliveryNumber(null)
                 .orderId(orderId)
                 .deliveryCalendarId(deliveryCalendarId)
                 .status(DeliveryStatus.SCHEDULED)

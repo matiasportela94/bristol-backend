@@ -33,7 +33,8 @@ public interface JpaDeliveryCalendarRepository extends JpaRepository<DeliveryCal
     @Query("SELECT dc FROM DeliveryCalendarEntity dc " +
            "WHERE dc.deliveryZoneId = :zoneId " +
            "AND dc.deliveryDate >= :fromDate " +
-           "AND dc.currentBookings < dc.capacity")
+           "AND dc.currentBookings < dc.capacity " +
+           "ORDER BY dc.deliveryDate ASC")
     List<DeliveryCalendarEntity> findAvailableByZone(
             @Param("zoneId") UUID zoneId,
             @Param("fromDate") LocalDate fromDate

@@ -1,5 +1,6 @@
 package com.bristol.application.order.usecase;
 
+import com.bristol.application.delivery.service.DeliverySchedulingService;
 import com.bristol.application.order.dto.OrderDto;
 import com.bristol.application.order.dto.UpdateOrderStatusRequest;
 import com.bristol.application.order.service.StockManagementService;
@@ -24,6 +25,7 @@ public class UpdateOrderStatusUseCase {
     private final OrderRepository orderRepository;
     private final StockManagementService stockManagementService;
     private final CouponRedemptionApplicationService couponRedemptionApplicationService;
+    private final DeliverySchedulingService deliverySchedulingService;
     private final OrderMapper orderMapper;
 
     @Transactional
@@ -39,6 +41,7 @@ public class UpdateOrderStatusUseCase {
 
         Order savedOrder = orderRepository.save(updatedOrder);
         synchronizeCouponRedemptions(savedOrder, targetStatus, now);
+        synchronizeDelivery(savedOrder, targetStatus);
         return orderMapper.toDto(savedOrder);
     }
 
@@ -47,17 +50,18 @@ public class UpdateOrderStatusUseCase {
         return switch (targetStatus) {
             case PAYMENT_IN_PROCESS -> order.markPaymentInProcess(now);
             case PAID -> {
-                Order paidOrder = order.markAsPaid(now);
-                // Deduct stock when order is paid
-                stockManagementService.deductStockForOrder(paidOrder);
-                yield paidOrder.markStockAsUpdated(now);
+                yield order.markAsPaid(now);
             }
             case PROCESSING -> order.startProcessing(now);
             case SHIPPED -> order.markAsShipped(now);
             case DELIVERED -> order.markAsDelivered(now);
-            case PAYMENT_FAILED -> order.markPaymentFailed(now);
+            case PAYMENT_FAILED -> {
+                if (order.isStockUpdated()) {
+                    stockManagementService.restoreStockForOrder(order);
+                }
+                yield order.markPaymentFailed(now);
+            }
             case CANCELLED -> {
-                // Restore stock if it was deducted
                 if (order.isStockUpdated()) {
                     stockManagementService.restoreStockForOrder(order);
                 }
@@ -72,6 +76,15 @@ public class UpdateOrderStatusUseCase {
         switch (targetStatus) {
             case PAID -> couponRedemptionApplicationService.recordPaidOrderRedemptions(order, now);
             case CANCELLED, PAYMENT_FAILED -> couponRedemptionApplicationService.clearOrderRedemptions(order, now);
+            default -> {
+            }
+        }
+    }
+
+    private void synchronizeDelivery(Order order, OrderStatus targetStatus) {
+        switch (targetStatus) {
+            case PAID -> deliverySchedulingService.ensureScheduledForPaidOrder(order);
+            case CANCELLED, PAYMENT_FAILED -> deliverySchedulingService.cancelScheduledDelivery(order);
             default -> {
             }
         }

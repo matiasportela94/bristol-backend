@@ -23,6 +23,9 @@ public class DeliveryEntity {
     @Column(columnDefinition = "UUID")
     private UUID id;
 
+    @Column(name = "delivery_number", nullable = false, unique = true)
+    private Long deliveryNumber;
+
     @Column(name = "order_id", nullable = false, unique = true, columnDefinition = "UUID")
     private UUID orderId;
 

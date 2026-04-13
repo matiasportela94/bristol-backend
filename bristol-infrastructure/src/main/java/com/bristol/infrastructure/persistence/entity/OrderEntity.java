@@ -23,6 +23,9 @@ public class OrderEntity {
     @Column(columnDefinition = "UUID")
     private UUID id;
 
+    @Column(name = "order_number", nullable = false, unique = true)
+    private Long orderNumber;
+
     @Column(name = "user_id", nullable = false, columnDefinition = "UUID")
     private UUID userId;
 

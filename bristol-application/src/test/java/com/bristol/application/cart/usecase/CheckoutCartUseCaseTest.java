@@ -3,6 +3,7 @@ package com.bristol.application.cart.usecase;
 import com.bristol.application.cart.dto.CheckoutCartRequest;
 import com.bristol.application.cart.dto.CheckoutCartResponse;
 import com.bristol.application.cart.dto.CartAdjustmentType;
+import com.bristol.application.order.service.StockManagementService;
 import com.bristol.application.order.usecase.OrderMapper;
 import com.bristol.application.order.usecase.OrderPromotionApplicationService;
 import com.bristol.domain.address.UserAddress;
@@ -52,6 +53,7 @@ class CheckoutCartUseCaseTest {
         UserRepository userRepository = mock(UserRepository.class);
         OrderPromotionApplicationService orderPromotionApplicationService = mock(OrderPromotionApplicationService.class);
         CartPricingPreviewService cartPricingPreviewService = mock(CartPricingPreviewService.class);
+        StockManagementService stockManagementService = mock(StockManagementService.class);
 
         CheckoutCartUseCase useCase = new CheckoutCartUseCase(
                 shoppingCartRepository,
@@ -63,7 +65,8 @@ class CheckoutCartUseCaseTest {
                 new CartMapper(cartPricingPreviewService),
                 new OrderMapper(),
                 orderPromotionApplicationService,
-                new CartReconciliationService(productRepository, productVariantRepository)
+                new CartReconciliationService(productRepository, productVariantRepository),
+                stockManagementService
         );
 
         Instant now = Instant.parse("2026-04-09T12:00:00Z");
@@ -121,8 +124,10 @@ class CheckoutCartUseCaseTest {
         assertThat(response.getCreatedOrder()).isNotNull();
         assertThat(response.getCreatedOrder().getOrderDiscountAmount()).isEqualByComparingTo("10.00");
         assertThat(response.getCreatedOrder().getTotal()).isEqualByComparingTo("90.00");
+        assertThat(response.getCreatedOrder().isStockUpdated()).isTrue();
         assertThat(response.getCart().getItems()).isEmpty();
         verify(orderPromotionApplicationService).applyRequestedPromotion(any(Order.class), eq("ORDER10"));
+        verify(stockManagementService).deductStockForOrder(any(Order.class));
     }
 
     @Test
@@ -135,6 +140,7 @@ class CheckoutCartUseCaseTest {
         UserRepository userRepository = mock(UserRepository.class);
         OrderPromotionApplicationService orderPromotionApplicationService = mock(OrderPromotionApplicationService.class);
         CartPricingPreviewService cartPricingPreviewService = mock(CartPricingPreviewService.class);
+        StockManagementService stockManagementService = mock(StockManagementService.class);
 
         CheckoutCartUseCase useCase = new CheckoutCartUseCase(
                 shoppingCartRepository,
@@ -146,7 +152,8 @@ class CheckoutCartUseCaseTest {
                 new CartMapper(cartPricingPreviewService),
                 new OrderMapper(),
                 orderPromotionApplicationService,
-                new CartReconciliationService(productRepository, productVariantRepository)
+                new CartReconciliationService(productRepository, productVariantRepository),
+                stockManagementService
         );
 
         Instant now = Instant.parse("2026-04-09T12:00:00Z");
@@ -205,5 +212,6 @@ class CheckoutCartUseCaseTest {
         assertThat(response.getAdjustments().get(0).getType()).isEqualTo(CartAdjustmentType.PROMOTION_REMOVED);
         assertThat(response.getAdjustments().get(0).getPreviousValue()).isEqualTo("BADCODE");
         verify(orderRepository, never()).save(any(Order.class));
+        verify(stockManagementService, never()).deductStockForOrder(any(Order.class));
     }
 }

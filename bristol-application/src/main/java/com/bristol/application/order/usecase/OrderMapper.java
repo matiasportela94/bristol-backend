@@ -18,6 +18,7 @@ public class OrderMapper {
     public OrderDto toDto(Order order) {
         return OrderDto.builder()
                 .id(order.getId().getValue().toString())
+                .orderNumber(order.getOrderNumber())
                 .userId(order.getUserId().getValue().toString())
                 .status(order.getStatus())
                 .shippingAddress(toShippingAddressDto(order.getShippingAddress()))

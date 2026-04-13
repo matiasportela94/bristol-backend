@@ -12,13 +12,13 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class GetDeliveryByIdUseCase {
     private final DeliveryRepository deliveryRepository;
-    private final DeliveryMapper deliveryMapper;
+    private final DeliveryDtoAssembler deliveryDtoAssembler;
 
     @Transactional(readOnly = true)
     public DeliveryDto execute(String deliveryId) {
         DeliveryId id = new DeliveryId(deliveryId);
         return deliveryRepository.findById(id)
-                .map(deliveryMapper::toDto)
+                .map(deliveryDtoAssembler::toDto)
                 .orElseThrow(() -> new ValidationException("Delivery not found: " + deliveryId));
     }
 }

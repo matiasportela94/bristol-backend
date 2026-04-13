@@ -21,7 +21,7 @@ import java.util.UUID;
 public class MarkDeliveryFailedUseCase {
 
     private final DeliveryRepository deliveryRepository;
-    private final DeliveryMapper deliveryMapper;
+    private final DeliveryDtoAssembler deliveryDtoAssembler;
 
     @Transactional
     public DeliveryDto execute(String id, MarkDeliveryFailedRequest request) {
@@ -32,6 +32,6 @@ public class MarkDeliveryFailedUseCase {
         Delivery updatedDelivery = delivery.markAsFailed(request.getDriverNotes(), Instant.now());
         Delivery savedDelivery = deliveryRepository.save(updatedDelivery);
 
-        return deliveryMapper.toDto(savedDelivery);
+        return deliveryDtoAssembler.toDto(savedDelivery);
     }
 }

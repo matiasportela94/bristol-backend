@@ -5,6 +5,7 @@ import com.bristol.application.cart.dto.CartAdjustmentType;
 import com.bristol.application.cart.dto.CheckoutCartRequest;
 import com.bristol.application.cart.dto.CheckoutCartResponse;
 import com.bristol.application.order.dto.OrderDto;
+import com.bristol.application.order.service.StockManagementService;
 import com.bristol.application.order.usecase.OrderMapper;
 import com.bristol.application.order.usecase.OrderPromotionApplicationService;
 import com.bristol.domain.address.UserAddress;
@@ -46,6 +47,7 @@ public class CheckoutCartUseCase extends CartCommandSupport {
     private final OrderMapper orderMapper;
     private final OrderPromotionApplicationService orderPromotionApplicationService;
     private final CartReconciliationService cartReconciliationService;
+    private final StockManagementService stockManagementService;
 
     @Transactional
     public CheckoutCartResponse execute(String userEmail, CheckoutCartRequest request) {
@@ -107,7 +109,8 @@ public class CheckoutCartUseCase extends CartCommandSupport {
                     .build();
         }
 
-        Order savedOrder = orderRepository.save(orderWithPromotions);
+        stockManagementService.deductStockForOrder(orderWithPromotions);
+        Order savedOrder = orderRepository.save(orderWithPromotions.markStockAsUpdated(now));
         ShoppingCart clearedCart = shoppingCartRepository.save(reconciliation.cart().clear(now));
 
         return CheckoutCartResponse.builder()

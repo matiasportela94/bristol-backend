@@ -20,6 +20,7 @@ import java.util.List;
 public class OrderDto {
 
     private String id;
+    private Long orderNumber;
     private String userId;
     private OrderStatus status;
     private ShippingAddressDto shippingAddress;

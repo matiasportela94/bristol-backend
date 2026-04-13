@@ -1,5 +1,6 @@
 package com.bristol.application.cart.usecase;
 
+import com.bristol.domain.cart.CartItem;
 import com.bristol.domain.cart.ShoppingCart;
 import com.bristol.domain.cart.ShoppingCartRepository;
 import com.bristol.domain.order.ProductType;
@@ -58,13 +59,34 @@ abstract class CartCommandSupport {
     }
 
     protected void validateRequestedQuantity(Product product, Optional<ProductVariant> variant, Integer quantity) {
+        validateRequestedQuantity(product, variant, quantity, 0);
+    }
+
+    protected void validateRequestedQuantity(
+            Product product,
+            Optional<ProductVariant> variant,
+            Integer quantity,
+            Integer existingCartQuantity
+    ) {
         int availableStock = variant.map(ProductVariant::getStockQuantity).orElse(product.getStockQuantity());
-        if (availableStock < quantity) {
+        int requestedQuantity = Math.max(0, existingCartQuantity != null ? existingCartQuantity : 0) + quantity;
+        if (availableStock < requestedQuantity) {
             throw new ValidationException(
                     "Insufficient stock for product: " + product.getName() +
                             ". Available: " + availableStock +
-                            ", Requested: " + quantity);
+                            ", Requested: " + requestedQuantity);
         }
+    }
+
+    protected int resolveCartQuantity(ShoppingCart cart, ProductId productId, ProductVariantId productVariantId) {
+        if (cart == null) {
+            return 0;
+        }
+
+        return cart.getItems().stream()
+                .filter(item -> isSameProduct(item, productId, productVariantId))
+                .mapToInt(CartItem::getQuantity)
+                .sum();
     }
 
     protected Money resolveUnitPrice(Product product, Optional<ProductVariant> variant) {
@@ -78,5 +100,17 @@ abstract class CartCommandSupport {
             case MERCHANDISING -> ProductType.MERCH;
             case ESPECIALES -> ProductType.SPECIAL;
         };
+    }
+
+    private boolean isSameProduct(CartItem item, ProductId productId, ProductVariantId productVariantId) {
+        if (!item.getProductId().equals(productId)) {
+            return false;
+        }
+
+        if (productVariantId == null) {
+            return item.getProductVariantId() == null;
+        }
+
+        return productVariantId.equals(item.getProductVariantId());
     }
 }

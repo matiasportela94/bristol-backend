@@ -1,5 +1,6 @@
 package com.bristol.application.order.usecase;
 
+import com.bristol.application.delivery.service.DeliverySchedulingService;
 import com.bristol.application.order.dto.OrderDto;
 import com.bristol.application.order.service.StockManagementService;
 import com.bristol.domain.order.Order;
@@ -21,6 +22,8 @@ public class CancelOrderUseCase {
 
     private final OrderRepository orderRepository;
     private final StockManagementService stockManagementService;
+    private final CouponRedemptionApplicationService couponRedemptionApplicationService;
+    private final DeliverySchedulingService deliverySchedulingService;
     private final OrderMapper orderMapper;
 
     @Transactional
@@ -45,6 +48,8 @@ public class CancelOrderUseCase {
         // Cancel the order
         Order cancelledOrder = order.cancel(now);
         Order savedOrder = orderRepository.save(cancelledOrder);
+        couponRedemptionApplicationService.clearOrderRedemptions(savedOrder, now);
+        deliverySchedulingService.cancelScheduledDelivery(savedOrder);
 
         return orderMapper.toDto(savedOrder);
     }

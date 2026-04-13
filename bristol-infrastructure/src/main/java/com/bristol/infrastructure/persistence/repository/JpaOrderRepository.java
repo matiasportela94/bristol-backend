@@ -16,6 +16,9 @@ import java.util.UUID;
 @Repository
 public interface JpaOrderRepository extends JpaRepository<OrderEntity, UUID> {
 
+    @Query(value = "SELECT nextval('order_number_seq')", nativeQuery = true)
+    Long nextOrderNumber();
+
     List<OrderEntity> findByUserId(UUID userId);
 
     List<OrderEntity> findByOrderStatus(OrderEntity.OrderStatusEnum status);

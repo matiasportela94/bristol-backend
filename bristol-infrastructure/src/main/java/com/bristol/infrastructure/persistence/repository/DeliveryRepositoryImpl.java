@@ -29,8 +29,18 @@ public class DeliveryRepositoryImpl implements DeliveryRepository {
     @Override
     public Delivery save(Delivery delivery) {
         var entity = mapper.toEntity(delivery);
+        if (entity.getDeliveryNumber() == null) {
+            entity.setDeliveryNumber(jpaRepository.nextDeliveryNumber());
+        }
         var saved = jpaRepository.save(entity);
         return mapper.toDomain(saved);
+    }
+
+    @Override
+    public List<Delivery> findAll() {
+        return jpaRepository.findAll().stream()
+                .map(mapper::toDomain)
+                .collect(Collectors.toList());
     }
 
     @Override

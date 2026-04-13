@@ -21,7 +21,7 @@ import java.util.UUID;
 public class CompleteDeliveryUseCase {
 
     private final DeliveryRepository deliveryRepository;
-    private final DeliveryMapper deliveryMapper;
+    private final DeliveryDtoAssembler deliveryDtoAssembler;
 
     @Transactional
     public DeliveryDto execute(String id, CompleteDeliveryRequest request) {
@@ -36,6 +36,6 @@ public class CompleteDeliveryUseCase {
         );
         Delivery savedDelivery = deliveryRepository.save(updatedDelivery);
 
-        return deliveryMapper.toDto(savedDelivery);
+        return deliveryDtoAssembler.toDto(savedDelivery);
     }
 }

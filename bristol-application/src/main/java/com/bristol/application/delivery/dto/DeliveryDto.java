@@ -14,7 +14,10 @@ import java.time.Instant;
 @AllArgsConstructor
 public class DeliveryDto {
     private String id;
+    private Long deliveryNumber;
     private String orderId;
+    private Long orderNumber;
+    private String userEmail;
     private String distributorId;
     private String deliveryZoneId;
     private String address;
