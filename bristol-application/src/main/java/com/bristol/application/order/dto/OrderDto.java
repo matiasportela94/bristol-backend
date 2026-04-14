@@ -22,6 +22,9 @@ public class OrderDto {
     private String id;
     private Long orderNumber;
     private String userId;
+    private String customerName;
+    private String userEmail;
+    private String distributorName;
     private OrderStatus status;
     private ShippingAddressDto shippingAddress;
     private List<OrderItemDto> items;

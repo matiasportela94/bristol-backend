@@ -11,6 +11,8 @@ import com.bristol.domain.product.ProductCategory;
 import com.bristol.domain.product.ProductId;
 import com.bristol.domain.product.ProductRepository;
 import com.bristol.domain.product.ProductSubcategory;
+import com.bristol.domain.product.ProductVariant;
+import com.bristol.domain.product.ProductVariantId;
 import com.bristol.domain.product.ProductVariantRepository;
 import com.bristol.domain.shared.exception.ValidationException;
 import com.bristol.domain.shared.valueobject.Money;
@@ -20,10 +22,13 @@ import com.bristol.domain.user.UserRole;
 import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -141,5 +146,68 @@ class AddItemToCartUseCaseTest {
 
         verify(shoppingCartRepository).save(any(ShoppingCart.class));
         verify(cartMapper).toDto(any(ShoppingCart.class));
+    }
+
+    @Test
+    void executeShouldResolveSingleAvailableVariantWhenFrontendDoesNotSendVariantId() {
+        ShoppingCartRepository shoppingCartRepository = mock(ShoppingCartRepository.class);
+        ProductRepository productRepository = mock(ProductRepository.class);
+        ProductVariantRepository productVariantRepository = mock(ProductVariantRepository.class);
+        UserRepository userRepository = mock(UserRepository.class);
+        CartMapper cartMapper = mock(CartMapper.class);
+        AddItemToCartUseCase useCase = new AddItemToCartUseCase(
+                shoppingCartRepository,
+                productRepository,
+                productVariantRepository,
+                userRepository,
+                cartMapper
+        );
+
+        Instant now = Instant.parse("2026-04-14T13:00:00Z");
+        User user = User.create("cliente@bristol.com", "hash", "Cliente", "Demo", UserRole.USER, now);
+        Product product = Product.create(
+                "Six Pack Bristol Pale Ale",
+                "Pack de 6 latas",
+                ProductCategory.PRODUCTOS,
+                ProductSubcategory.SIX_PACK,
+                BeerType.PALE_ALE,
+                Money.of(7800),
+                0,
+                5,
+                now
+        );
+        ProductVariant variant = ProductVariant.builder()
+                .id(ProductVariantId.generate())
+                .productId(product.getId())
+                .sku("PALE-6-433")
+                .size("433ml")
+                .sizeMl(433)
+                .additionalPrice(Money.zero())
+                .stockQuantity(1)
+                .createdAt(now)
+                .updatedAt(now)
+                .build();
+
+        when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.of(user));
+        when(shoppingCartRepository.findByUserId(user.getId())).thenReturn(Optional.empty());
+        when(productRepository.findById(product.getId())).thenReturn(Optional.of(product));
+        when(productVariantRepository.findByProductId(product.getId())).thenReturn(List.of(variant));
+        when(productVariantRepository.findInStockByProductId(product.getId())).thenReturn(List.of(variant));
+        when(shoppingCartRepository.save(any(ShoppingCart.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(cartMapper.toDto(any(ShoppingCart.class))).thenReturn(new CartDto());
+
+        AddCartItemRequest request = AddCartItemRequest.builder()
+                .productId(product.getId().getValue().toString())
+                .quantity(1)
+                .build();
+
+        useCase.execute(user.getEmail(), request);
+
+        verify(cartMapper).toDto(any(ShoppingCart.class));
+        verify(shoppingCartRepository).save(argThat(savedCart -> {
+            assertThat(savedCart.getItems()).hasSize(1);
+            assertThat(savedCart.getItems().get(0).getProductVariantId()).isEqualTo(variant.getId());
+            return true;
+        }));
     }
 }

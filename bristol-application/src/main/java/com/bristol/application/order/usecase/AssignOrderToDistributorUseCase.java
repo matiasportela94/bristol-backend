@@ -28,7 +28,8 @@ public class AssignOrderToDistributorUseCase {
         Instant now = Instant.now();
 
         // Verify distributor exists
-        distributorRepository.findById(distributorId)
+        String distributorName = distributorRepository.findById(distributorId)
+                .map(distributor -> distributor.getRazonSocial())
                 .orElseThrow(() -> new ValidationException("Distributor not found: " + request.getDistributorId()));
 
         // Find and assign order
@@ -38,6 +39,6 @@ public class AssignOrderToDistributorUseCase {
         Order assignedOrder = order.assignToDistributor(distributorId, now);
 
         Order savedOrder = orderRepository.save(assignedOrder);
-        return orderMapper.toDto(savedOrder);
+        return orderMapper.toDto(savedOrder, distributorName);
     }
 }

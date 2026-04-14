@@ -3,9 +3,10 @@ package com.bristol.application.order.usecase;
 import com.bristol.application.order.dto.OrderDto;
 import com.bristol.application.order.dto.OrderFilterRequest;
 import com.bristol.domain.distributor.DistributorId;
+import com.bristol.domain.distributor.DistributorRepository;
 import com.bristol.domain.order.Order;
 import com.bristol.domain.order.OrderRepository;
-import com.bristol.domain.order.OrderStatus;
+import com.bristol.domain.user.UserRepository;
 import com.bristol.domain.user.UserId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -13,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -24,6 +26,8 @@ import java.util.stream.Collectors;
 public class GetFilteredOrdersUseCase {
 
     private final OrderRepository orderRepository;
+    private final DistributorRepository distributorRepository;
+    private final UserRepository userRepository;
     private final OrderMapper orderMapper;
 
     @Transactional(readOnly = true)
@@ -74,9 +78,41 @@ public class GetFilteredOrdersUseCase {
             orders = applyDistributorFilter(orders, distributorId);
         }
 
+        Map<String, String> distributorNames = distributorRepository.findAll().stream()
+                .collect(Collectors.toMap(
+                        distributor -> distributor.getId().getValue().toString(),
+                        distributor -> distributor.getRazonSocial()
+                ));
+        Map<String, CustomerSummary> customersById = userRepository.findAll().stream()
+                .collect(Collectors.toMap(
+                        user -> user.getId().getValue().toString(),
+                        user -> new CustomerSummary(
+                                formatCustomerName(user.getFirstName(), user.getLastName(), user.getEmail()),
+                                user.getEmail()
+                        )
+                ));
+
         return orders.stream()
-                .map(orderMapper::toDto)
+                .map(order -> {
+                    CustomerSummary customer = customersById.get(order.getUserId().getValue().toString());
+                    return orderMapper.toDto(
+                            order,
+                            customer != null ? customer.name() : null,
+                            customer != null ? customer.email() : null,
+                            order.getDistributorId() != null
+                                    ? distributorNames.get(order.getDistributorId().getValue().toString())
+                                    : null
+                    );
+                })
                 .collect(Collectors.toList());
+    }
+
+    private String formatCustomerName(String firstName, String lastName, String email) {
+        String fullName = ((firstName != null ? firstName : "") + " " + (lastName != null ? lastName : "")).trim();
+        return !fullName.isEmpty() ? fullName : email;
+    }
+
+    private record CustomerSummary(String name, String email) {
     }
 
     private boolean isNoFiltersApplied(OrderFilterRequest filter) {

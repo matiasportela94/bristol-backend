@@ -7,6 +7,7 @@ import com.bristol.application.stats.dto.RankingResponseDto;
 import com.bristol.application.stats.dto.StockStatDto;
 import com.bristol.application.stats.usecase.GetAdminDashboardStatsUseCase;
 import com.bristol.application.stats.usecase.GetDistributorStatsUseCase;
+import com.bristol.application.stats.usecase.GetMerchStockStatsUseCase;
 import com.bristol.application.stats.usecase.GetMonthlyRankingUseCase;
 import com.bristol.application.stats.usecase.GetProductStockStatsUseCase;
 import io.swagger.v3.oas.annotations.Operation;
@@ -35,6 +36,7 @@ public class StatsController {
     private final GetDistributorStatsUseCase getDistributorStatsUseCase;
     private final GetMonthlyRankingUseCase getMonthlyRankingUseCase;
     private final GetProductStockStatsUseCase getProductStockStatsUseCase;
+    private final GetMerchStockStatsUseCase getMerchStockStatsUseCase;
     private final DistributorAccessService distributorAccessService;
 
     @GetMapping("/admin/dashboard")
@@ -71,6 +73,13 @@ public class StatsController {
     @Operation(summary = "Get stock statistics", description = "Retrieve stock totals grouped by beer type")
     public ResponseEntity<List<StockStatDto>> getProductStockStats() {
         return ResponseEntity.ok(getProductStockStatsUseCase.execute());
+    }
+
+    @GetMapping("/stock/merch")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Get merchandising stock statistics", description = "Retrieve stock totals grouped by merchandising subcategory")
+    public ResponseEntity<List<StockStatDto>> getMerchStockStats() {
+        return ResponseEntity.ok(getMerchStockStatsUseCase.execute());
     }
 
     private void resolveAccessibleDistributor(String distributorId, Authentication authentication) {

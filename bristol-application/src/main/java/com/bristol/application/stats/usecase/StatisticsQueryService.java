@@ -15,7 +15,9 @@ import com.bristol.domain.order.OrderRepository;
 import com.bristol.domain.order.OrderStatus;
 import com.bristol.domain.product.BeerType;
 import com.bristol.domain.product.Product;
+import com.bristol.domain.product.ProductCategory;
 import com.bristol.domain.product.ProductRepository;
+import com.bristol.domain.product.ProductSubcategory;
 import com.bristol.domain.product.ProductVariant;
 import com.bristol.domain.product.ProductVariantRepository;
 import com.bristol.domain.shared.exception.ValidationException;
@@ -178,6 +180,31 @@ public class StatisticsQueryService {
                 .toList();
     }
 
+    public List<StockStatDto> getMerchStockStats() {
+        Map<ProductSubcategory, Integer> stockBySubcategory = new HashMap<>();
+
+        for (Product product : productRepository.findAll()) {
+            if (product.getCategory() != ProductCategory.MERCHANDISING || product.isDeleted() || product.getSubcategory() == null) {
+                continue;
+            }
+
+            int totalStock = resolveProductStock(product);
+            if (totalStock <= 0) {
+                continue;
+            }
+
+            stockBySubcategory.merge(product.getSubcategory(), totalStock, Integer::sum);
+        }
+
+        return stockBySubcategory.entrySet().stream()
+                .map(entry -> StockStatDto.builder()
+                        .label(formatSubcategory(entry.getKey()))
+                        .value(entry.getValue())
+                        .build())
+                .sorted(Comparator.comparing(StockStatDto::getValue, Comparator.reverseOrder()))
+                .toList();
+    }
+
     private MonthlyRankingDto toMonthlyRanking(
             Distributor distributor,
             Map<String, List<Order>> ordersByUserId,
@@ -257,16 +284,30 @@ public class StatisticsQueryService {
     }
 
     private int resolveProductStock(Product product) {
+        int unitMultiplier = resolveUnitMultiplier(product.getSubcategory());
         List<ProductVariant> variants = productVariantRepository.findByProductId(product.getId());
         if (variants.isEmpty()) {
-            return product.getStockQuantity() != null ? product.getStockQuantity() : 0;
+            return (product.getStockQuantity() != null ? product.getStockQuantity() : 0) * unitMultiplier;
         }
 
         return variants.stream()
                 .map(ProductVariant::getStockQuantity)
                 .filter(java.util.Objects::nonNull)
                 .mapToInt(Integer::intValue)
-                .sum();
+                .sum() * unitMultiplier;
+    }
+
+    private int resolveUnitMultiplier(ProductSubcategory subcategory) {
+        if (subcategory == null) {
+            return 1;
+        }
+
+        return switch (subcategory) {
+            case CAN -> 1;
+            case SIX_PACK -> 6;
+            case TWENTY_FOUR_PACK -> 24;
+            default -> 1;
+        };
     }
 
     private String formatBeerType(BeerType beerType) {
@@ -284,6 +325,23 @@ public class StatisticsQueryService {
             case GOLDEN -> "Golden";
             case PALE_ALE -> "Pale Ale";
             case OTRO -> "Otro";
+        };
+    }
+
+    private String formatSubcategory(ProductSubcategory subcategory) {
+        return switch (subcategory) {
+            case REMERA -> "Remeras";
+            case BUZO -> "Buzos";
+            case GORRA -> "Gorras";
+            case VASO -> "Vasos";
+            case PLOTEO -> "Ploteos";
+            case EVENTO -> "Eventos";
+            case OTRO -> "Otros";
+            case CAN -> "Latas";
+            case SIX_PACK -> "Six Packs";
+            case TWENTY_FOUR_PACK -> "24 Packs";
+            case KEG -> "Barriles";
+            case GROWLER -> "Growlers";
         };
     }
 }

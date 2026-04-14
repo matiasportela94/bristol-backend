@@ -10,6 +10,7 @@ import com.bristol.domain.shared.valueobject.Money;
 import com.bristol.domain.user.User;
 import com.bristol.domain.user.UserRepository;
 
+import java.util.List;
 import java.util.Optional;
 
 abstract class CartCommandSupport {
@@ -35,7 +36,7 @@ abstract class CartCommandSupport {
             ProductVariantRepository productVariantRepository
     ) {
         if (productVariantId == null || productVariantId.isBlank()) {
-            return Optional.empty();
+            return resolveSingleAvailableVariant(product, productVariantRepository);
         }
 
         ProductVariant variant = productVariantRepository.findById(new ProductVariantId(productVariantId))
@@ -46,6 +47,28 @@ abstract class CartCommandSupport {
         }
 
         return Optional.of(variant);
+    }
+
+    private Optional<ProductVariant> resolveSingleAvailableVariant(
+            Product product,
+            ProductVariantRepository productVariantRepository
+    ) {
+        List<ProductVariant> allVariants = productVariantRepository.findByProductId(product.getId());
+        if (allVariants.size() != 1) {
+            return Optional.empty();
+        }
+
+        List<ProductVariant> availableVariants = productVariantRepository.findInStockByProductId(product.getId());
+        if (availableVariants.size() != 1) {
+            return Optional.empty();
+        }
+
+        ProductVariant onlyVariant = availableVariants.get(0);
+        if (!onlyVariant.getId().equals(allVariants.get(0).getId())) {
+            return Optional.empty();
+        }
+
+        return Optional.of(onlyVariant);
     }
 
     protected void validateProductAvailability(Product product) {

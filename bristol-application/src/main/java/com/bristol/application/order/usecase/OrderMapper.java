@@ -16,10 +16,21 @@ import java.util.stream.Collectors;
 public class OrderMapper {
 
     public OrderDto toDto(Order order) {
+        return toDto(order, null, null, null);
+    }
+
+    public OrderDto toDto(Order order, String distributorName) {
+        return toDto(order, null, null, distributorName);
+    }
+
+    public OrderDto toDto(Order order, String customerName, String userEmail, String distributorName) {
         return OrderDto.builder()
                 .id(order.getId().getValue().toString())
                 .orderNumber(order.getOrderNumber())
                 .userId(order.getUserId().getValue().toString())
+                .customerName(customerName)
+                .userEmail(userEmail)
+                .distributorName(distributorName)
                 .status(order.getStatus())
                 .shippingAddress(toShippingAddressDto(order.getShippingAddress()))
                 .items(order.getItems().stream()

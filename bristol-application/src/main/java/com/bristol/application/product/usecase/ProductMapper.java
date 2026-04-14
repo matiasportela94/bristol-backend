@@ -39,6 +39,8 @@ public class ProductMapper {
             String primaryImageDataUrl,
             List<ProductPromotionDto> promotions
     ) {
+        List<ProductVariantDto> safeVariants = variants != null ? variants : List.of();
+
         return ProductDto.builder()
                 .id(product.getId().getValue().toString())
                 .name(product.getName())
@@ -50,9 +52,9 @@ public class ProductMapper {
                 .ibu(product.getIbu())
                 .srm(product.getSrm())
                 .price(product.getBasePrice() != null ? product.getBasePrice().getAmount() : null)
-                .stockQuantity(product.getStockQuantity())
+                .stockQuantity(resolveCatalogStock(product, safeVariants))
                 .minStockLevel(product.getLowStockThreshold())
-                .variants(variants != null ? variants : List.of())
+                .variants(safeVariants)
                 .images(images)
                 .active(!product.isDeleted())
                 .featured(product.isFeatured())
@@ -60,5 +62,17 @@ public class ProductMapper {
                 .reviewCount(null) // TODO: Reviews not aggregated in domain yet
                 .promotions(promotions != null ? promotions : List.of())
                 .build();
+    }
+
+    private Integer resolveCatalogStock(Product product, List<ProductVariantDto> variants) {
+        if (!variants.isEmpty()) {
+            return variants.stream()
+                    .map(ProductVariantDto::getStockQuantity)
+                    .filter(stock -> stock != null && stock > 0)
+                    .mapToInt(Integer::intValue)
+                    .sum();
+        }
+
+        return product.getStockQuantity();
     }
 }
