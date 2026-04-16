@@ -1,5 +1,9 @@
 # Production profile
 spring:
+  datasource:
+    hikari:
+      maximum-pool-size: 5
+      minimum-idle: 2
   jpa:
     show-sql: false
 
@@ -9,7 +13,3 @@ logging:
     com.bristol: INFO
     org.springframework.web: WARN
     org.hibernate.SQL: WARN
-
-  hikari:
-    maximum-pool-size: 5
-    minimum-idle: 2

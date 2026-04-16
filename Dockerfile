@@ -10,5 +10,6 @@ RUN mvn clean package -DskipTests
 FROM eclipse-temurin:17-alpine
 WORKDIR /app
 COPY --from=build /app/bristol-api/target/bristol-api-*.jar app.jar
+ENV JAVA_TOOL_OPTIONS="-XX:MaxRAMPercentage=75.0 -XX:InitialRAMPercentage=25.0 -Djava.security.egd=file:/dev/./urandom"
 EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "app.jar"]
