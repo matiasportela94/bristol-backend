@@ -7,11 +7,10 @@ import com.bristol.domain.distributor.DistributorRegistrationRepository;
 import com.bristol.domain.distributor.DistributorRegistrationRequest;
 import com.bristol.domain.user.UserRepository;
 import com.bristol.domain.shared.exception.ValidationException;
+import com.bristol.domain.shared.time.TimeProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.Instant;
 
 /**
  * Use case to register a new distributor request.
@@ -25,6 +24,7 @@ public class RegisterDistributorUseCase {
     private final RegistrationDocumentService registrationDocumentService;
     private final DistributorRegistrationAddressService registrationAddressService;
     private final UserRepository userRepository;
+    private final TimeProvider timeProvider;
 
     @Transactional
     public DistributorRegistrationDto execute(CreateDistributorRegistrationRequest request) {
@@ -48,7 +48,7 @@ public class RegisterDistributorUseCase {
                 request.getCiudad(),
                 request.getDireccion(),
                 request.getCodigoPostal(),
-                Instant.now()
+                timeProvider.now()
         );
 
         // Save to repository

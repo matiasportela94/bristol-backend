@@ -10,6 +10,7 @@ import com.bristol.domain.product.ProductCategory;
 import com.bristol.domain.product.ProductRepository;
 import com.bristol.domain.product.ProductSubcategory;
 import com.bristol.domain.product.ProductVariantRepository;
+import com.bristol.domain.shared.time.TimeProvider;
 import com.bristol.domain.shared.valueobject.Money;
 import com.bristol.domain.user.User;
 import com.bristol.domain.user.UserRepository;
@@ -17,6 +18,8 @@ import com.bristol.domain.user.UserRole;
 import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -38,7 +41,8 @@ class GetMyCartUseCaseTest {
                 shoppingCartRepository,
                 userRepository,
                 cartMapper,
-                new CartReconciliationService(productRepository, productVariantRepository)
+                new CartReconciliationService(productRepository, productVariantRepository),
+                fixedTimeProvider()
         );
 
         Instant now = Instant.parse("2026-04-10T20:00:00Z");
@@ -73,5 +77,25 @@ class GetMyCartUseCaseTest {
 
         verify(shoppingCartRepository).save(any(ShoppingCart.class));
         verify(cartMapper).toDto(any(ShoppingCart.class));
+    }
+
+    private static TimeProvider fixedTimeProvider() {
+        Instant fixedInstant = Instant.parse("2026-04-10T20:00:00Z");
+        return new TimeProvider() {
+            @Override
+            public Instant now() {
+                return fixedInstant;
+            }
+
+            @Override
+            public LocalDateTime nowDateTime() {
+                return LocalDateTime.of(2026, 4, 10, 17, 0);
+            }
+
+            @Override
+            public LocalDate nowDate() {
+                return LocalDate.of(2026, 4, 10);
+            }
+        };
     }
 }

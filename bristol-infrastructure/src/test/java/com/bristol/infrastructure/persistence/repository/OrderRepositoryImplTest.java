@@ -8,6 +8,7 @@ import com.bristol.domain.order.ProductType;
 import com.bristol.domain.order.ShippingAddress;
 import com.bristol.domain.product.BeerType;
 import com.bristol.domain.product.ProductId;
+import com.bristol.domain.shared.time.TimeProvider;
 import com.bristol.domain.shared.valueobject.Money;
 import com.bristol.domain.user.UserId;
 import com.bristol.infrastructure.persistence.entity.OrderEntity;
@@ -35,11 +36,13 @@ class OrderRepositoryImplTest {
         JpaOrderItemRepository jpaOrderItemRepository = mock(JpaOrderItemRepository.class);
         OrderMapper orderMapper = mock(OrderMapper.class);
         OrderItemMapper orderItemMapper = mock(OrderItemMapper.class);
+        TimeProvider timeProvider = mock(TimeProvider.class);
         OrderRepositoryImpl repository = new OrderRepositoryImpl(
                 jpaOrderRepository,
                 jpaOrderItemRepository,
                 orderMapper,
-                orderItemMapper
+                orderItemMapper,
+                timeProvider
         );
 
         Order order = sampleOrder();
@@ -69,11 +72,13 @@ class OrderRepositoryImplTest {
         JpaOrderItemRepository jpaOrderItemRepository = mock(JpaOrderItemRepository.class);
         OrderMapper orderMapper = mock(OrderMapper.class);
         OrderItemMapper orderItemMapper = mock(OrderItemMapper.class);
+        TimeProvider timeProvider = mock(TimeProvider.class);
         OrderRepositoryImpl repository = new OrderRepositoryImpl(
                 jpaOrderRepository,
                 jpaOrderItemRepository,
                 orderMapper,
-                orderItemMapper
+                orderItemMapper,
+                timeProvider
         );
 
         Order order = sampleOrder();

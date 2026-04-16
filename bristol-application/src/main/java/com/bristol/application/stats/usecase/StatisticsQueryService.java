@@ -21,6 +21,7 @@ import com.bristol.domain.product.ProductSubcategory;
 import com.bristol.domain.product.ProductVariant;
 import com.bristol.domain.product.ProductVariantRepository;
 import com.bristol.domain.shared.exception.ValidationException;
+import com.bristol.domain.shared.time.TimeProvider;
 import com.bristol.domain.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -73,6 +74,7 @@ public class StatisticsQueryService {
     private final UserRepository userRepository;
     private final ProductRepository productRepository;
     private final ProductVariantRepository productVariantRepository;
+    private final TimeProvider timeProvider;
 
     public AdminDashboardStatsDto getAdminDashboardStats() {
         List<Order> orders = orderRepository.findAll();
@@ -87,7 +89,7 @@ public class StatisticsQueryService {
                         .filter(Distributor::isApproved)
                         .count())
                 .pendingDistributors(distributorRegistrationRepository.findByStatus(RegistrationStatus.PENDING).size())
-                .updatedAt(latestOrderInstant(orders).orElse(Instant.now()))
+                .updatedAt(latestOrderInstant(orders).orElse(timeProvider.now()))
                 .build();
     }
 

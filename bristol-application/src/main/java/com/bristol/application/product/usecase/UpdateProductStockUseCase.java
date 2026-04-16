@@ -6,6 +6,7 @@ import com.bristol.domain.product.Product;
 import com.bristol.domain.product.ProductId;
 import com.bristol.domain.product.ProductRepository;
 import com.bristol.domain.shared.exception.ValidationException;
+import com.bristol.domain.shared.time.TimeProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,11 +20,12 @@ public class UpdateProductStockUseCase {
     private final ProductMapper productMapper;
     private final ProductImageService productImageService;
     private final ProductVariantCatalogService productVariantCatalogService;
+    private final TimeProvider timeProvider;
 
     @Transactional
     public ProductDto execute(String productId, UpdateProductStockRequest request) {
         ProductId id = new ProductId(productId);
-        Instant now = Instant.now();
+        Instant now = timeProvider.now();
 
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ValidationException("Product not found: " + productId));

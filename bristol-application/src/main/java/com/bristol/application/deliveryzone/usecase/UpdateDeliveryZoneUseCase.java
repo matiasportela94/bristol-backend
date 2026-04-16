@@ -6,11 +6,11 @@ import com.bristol.domain.delivery.DeliveryZone;
 import com.bristol.domain.delivery.DeliveryZoneId;
 import com.bristol.domain.delivery.DeliveryZoneRepository;
 import com.bristol.domain.shared.exception.NotFoundException;
+import com.bristol.domain.shared.time.TimeProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Instant;
 import java.util.UUID;
 
 /**
@@ -22,6 +22,7 @@ public class UpdateDeliveryZoneUseCase {
 
     private final DeliveryZoneRepository deliveryZoneRepository;
     private final DeliveryZoneMapper deliveryZoneMapper;
+    private final TimeProvider timeProvider;
 
     @Transactional
     public DeliveryZoneDto execute(String id, UpdateDeliveryZoneRequest request) {
@@ -29,7 +30,7 @@ public class UpdateDeliveryZoneUseCase {
         DeliveryZone zone = deliveryZoneRepository.findById(zoneId)
                 .orElseThrow(() -> new NotFoundException("DeliveryZone", id));
 
-        DeliveryZone updatedZone = zone.update(request.getName(), request.getDescription(), Instant.now());
+        DeliveryZone updatedZone = zone.update(request.getName(), request.getDescription(), timeProvider.now());
         DeliveryZone savedZone = deliveryZoneRepository.save(updatedZone);
 
         return deliveryZoneMapper.toDto(savedZone);

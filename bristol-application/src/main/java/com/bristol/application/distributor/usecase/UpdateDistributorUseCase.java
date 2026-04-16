@@ -7,12 +7,11 @@ import com.bristol.domain.distributor.Distributor;
 import com.bristol.domain.distributor.DistributorId;
 import com.bristol.domain.distributor.DistributorRepository;
 import com.bristol.domain.shared.exception.NotFoundException;
+import com.bristol.domain.shared.time.TimeProvider;
 import com.bristol.domain.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.Instant;
 import java.util.UUID;
 
 /**
@@ -26,6 +25,7 @@ public class UpdateDistributorUseCase {
     private final UserRepository userRepository;
     private final DistributorMapper distributorMapper;
     private final DistributorDocumentQueryService distributorDocumentQueryService;
+    private final TimeProvider timeProvider;
 
     @Transactional
     public DistributorDto execute(String id, UpdateDistributorRequest request) {
@@ -41,7 +41,7 @@ public class UpdateDistributorUseCase {
                 request.getCuit(),
                 request.getRazonSocial(),
                 deliveryZoneId,
-                Instant.now()
+                timeProvider.now()
         );
 
         Distributor savedDistributor = distributorRepository.save(updatedDistributor);

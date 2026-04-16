@@ -715,6 +715,20 @@
           }
         },
         {
+          "name": "Mark Delivery As Delivered",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"actualDeliveryDate\":\"2026-04-01\",\"driverNotes\":\"Entregado sin novedades\"}"
+            },
+            "url": "{{baseUrl}}/api/deliveries/{{deliveryId}}/mark-delivered"
+          }
+        },
+        {
           "name": "Mark Delivery Failed",
           "request": {
             "method": "PUT",
@@ -726,6 +740,20 @@
               "raw": "{\"driverNotes\":\"Cliente ausente\"}"
             },
             "url": "{{baseUrl}}/api/deliveries/{{deliveryId}}/mark-failed"
+          }
+        },
+        {
+          "name": "Cancel Delivery",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"driverNotes\":\"Cliente ausente\"}"
+            },
+            "url": "{{baseUrl}}/api/deliveries/{{deliveryId}}/cancel"
           }
         }
       ]

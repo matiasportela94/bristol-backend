@@ -6,6 +6,7 @@ import com.bristol.domain.product.ProductVariant;
 import com.bristol.domain.product.ProductVariantId;
 import com.bristol.domain.product.ProductVariantRepository;
 import com.bristol.domain.shared.exception.NotFoundException;
+import com.bristol.domain.shared.time.TimeProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +23,7 @@ public class UpdateProductVariantStockUseCase {
 
     private final ProductVariantRepository productVariantRepository;
     private final ProductVariantMapper productVariantMapper;
+    private final TimeProvider timeProvider;
 
     @Transactional
     public ProductVariantDto execute(String id, UpdateProductVariantStockRequest request) {
@@ -29,7 +31,7 @@ public class UpdateProductVariantStockUseCase {
         ProductVariant variant = productVariantRepository.findById(variantId)
                 .orElseThrow(() -> new NotFoundException("ProductVariant", id));
 
-        ProductVariant updatedVariant = variant.updateStock(request.getStockQuantity(), Instant.now());
+        ProductVariant updatedVariant = variant.updateStock(request.getStockQuantity(), timeProvider.now());
         ProductVariant savedVariant = productVariantRepository.save(updatedVariant);
 
         return productVariantMapper.toDto(savedVariant);

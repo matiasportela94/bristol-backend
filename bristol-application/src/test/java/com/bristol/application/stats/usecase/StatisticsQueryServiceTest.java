@@ -11,11 +11,14 @@ import com.bristol.domain.product.ProductRepository;
 import com.bristol.domain.product.ProductSubcategory;
 import com.bristol.domain.product.ProductVariant;
 import com.bristol.domain.product.ProductVariantRepository;
+import com.bristol.domain.shared.time.TimeProvider;
 import com.bristol.domain.shared.valueobject.Money;
 import com.bristol.domain.user.UserRepository;
 import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -39,7 +42,8 @@ class StatisticsQueryServiceTest {
                 distributorRegistrationRepository,
                 userRepository,
                 productRepository,
-                productVariantRepository
+                productVariantRepository,
+                fixedTimeProvider()
         );
 
         Product canProduct = sampleProduct("Pale Ale lata", ProductSubcategory.CAN, BeerType.PALE_ALE, 5);
@@ -76,7 +80,8 @@ class StatisticsQueryServiceTest {
                 distributorRegistrationRepository,
                 userRepository,
                 productRepository,
-                productVariantRepository
+                productVariantRepository,
+                fixedTimeProvider()
         );
 
         Product sixPackProduct = sampleProduct("Lager six pack", ProductSubcategory.SIX_PACK, BeerType.LAGER, 99);
@@ -127,7 +132,8 @@ class StatisticsQueryServiceTest {
                 distributorRegistrationRepository,
                 userRepository,
                 productRepository,
-                productVariantRepository
+                productVariantRepository,
+                fixedTimeProvider()
         );
 
         Product remera = sampleMerchProduct("Remera Bristol", ProductSubcategory.REMERA, 8);
@@ -174,5 +180,25 @@ class StatisticsQueryServiceTest {
                 1,
                 Instant.parse("2026-04-14T12:00:00Z")
         );
+    }
+
+    private static TimeProvider fixedTimeProvider() {
+        Instant fixedInstant = Instant.parse("2026-04-14T12:00:00Z");
+        return new TimeProvider() {
+            @Override
+            public Instant now() {
+                return fixedInstant;
+            }
+
+            @Override
+            public LocalDateTime nowDateTime() {
+                return LocalDateTime.of(2026, 4, 14, 9, 0);
+            }
+
+            @Override
+            public LocalDate nowDate() {
+                return LocalDate.of(2026, 4, 14);
+            }
+        };
     }
 }

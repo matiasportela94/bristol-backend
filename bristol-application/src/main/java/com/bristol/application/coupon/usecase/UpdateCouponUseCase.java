@@ -10,6 +10,7 @@ import com.bristol.domain.coupon.CouponStatus;
 import com.bristol.domain.coupon.CouponTriggerType;
 import com.bristol.domain.shared.valueobject.Money;
 import com.bristol.domain.shared.exception.NotFoundException;
+import com.bristol.domain.shared.time.TimeProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,13 +31,14 @@ public class UpdateCouponUseCase {
     private final CouponMapper couponMapper;
     private final CouponAdminPayloadResolver couponAdminPayloadResolver;
     private final CouponDefinitionValidator couponDefinitionValidator;
+    private final TimeProvider timeProvider;
 
     @Transactional
     public CouponDto execute(String id, UpdateCouponRequest request) {
         CouponId couponId = new CouponId(UUID.fromString(id));
         Coupon coupon = couponRepository.findById(couponId)
                 .orElseThrow(() -> new NotFoundException("Coupon", id));
-        Instant now = Instant.now();
+        Instant now = timeProvider.now();
         LocalTime startTime = request.getStartTime() != null ? request.getStartTime() : LocalTime.MIDNIGHT;
         String normalizedCode = normalizeCode(request.getCode());
         String normalizedTitle = normalizeTitle(request.getTitle(), normalizedCode);

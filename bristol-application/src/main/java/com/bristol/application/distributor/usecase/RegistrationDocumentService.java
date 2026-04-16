@@ -10,6 +10,7 @@ import com.bristol.domain.distributor.RegistrationDocumentId;
 import com.bristol.domain.distributor.RegistrationDocumentRepository;
 import com.bristol.domain.distributor.RegistrationDocumentType;
 import com.bristol.domain.shared.exception.ValidationException;
+import com.bristol.domain.shared.time.TimeProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -27,6 +28,7 @@ public class RegistrationDocumentService {
 
     private final RegistrationDocumentRepository registrationDocumentRepository;
     private final DistributorRegistrationRepository distributorRegistrationRepository;
+    private final TimeProvider timeProvider;
 
     public List<RegistrationDocument> createDocuments(
             DistributorRegistrationRequestId registrationRequestId,
@@ -40,7 +42,7 @@ public class RegistrationDocumentService {
             throw new ValidationException("Registration cannot include more than 5 documents");
         }
 
-        Instant now = Instant.now();
+        Instant now = timeProvider.now();
 
         return documents.stream()
                 .map(document -> RegistrationDocument.create(
@@ -84,7 +86,7 @@ public class RegistrationDocumentService {
                 resolveDocumentType(documentType),
                 fileSize,
                 fileData,
-                Instant.now()
+                timeProvider.now()
         );
         return registrationDocumentRepository.save(document);
     }

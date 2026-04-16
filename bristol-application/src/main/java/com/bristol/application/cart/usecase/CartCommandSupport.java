@@ -6,6 +6,7 @@ import com.bristol.domain.cart.ShoppingCartRepository;
 import com.bristol.domain.order.ProductType;
 import com.bristol.domain.product.*;
 import com.bristol.domain.shared.exception.ValidationException;
+import com.bristol.domain.shared.time.TimeProvider;
 import com.bristol.domain.shared.valueobject.Money;
 import com.bristol.domain.user.User;
 import com.bristol.domain.user.UserRepository;
@@ -20,9 +21,13 @@ abstract class CartCommandSupport {
                 .orElseThrow(() -> new ValidationException("Authenticated user not found: " + email));
     }
 
-    protected ShoppingCart getOrCreateCart(User user, ShoppingCartRepository shoppingCartRepository) {
+    protected ShoppingCart getOrCreateCart(
+            User user,
+            ShoppingCartRepository shoppingCartRepository,
+            TimeProvider timeProvider
+    ) {
         return shoppingCartRepository.findByUserId(user.getId())
-                .orElseGet(() -> ShoppingCart.create(user.getId(), java.time.Instant.now()));
+                .orElseGet(() -> ShoppingCart.create(user.getId(), timeProvider.now()));
     }
 
     protected Product productOrThrow(String productId, ProductRepository productRepository) {

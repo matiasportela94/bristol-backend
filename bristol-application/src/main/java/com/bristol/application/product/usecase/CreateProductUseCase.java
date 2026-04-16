@@ -4,6 +4,7 @@ import com.bristol.application.product.dto.CreateProductRequest;
 import com.bristol.application.product.dto.ProductDto;
 import com.bristol.domain.product.Product;
 import com.bristol.domain.product.ProductRepository;
+import com.bristol.domain.shared.time.TimeProvider;
 import com.bristol.domain.shared.valueobject.Money;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,7 @@ public class CreateProductUseCase {
     private final ProductMapper productMapper;
     private final ProductImageService productImageService;
     private final ProductVariantCatalogService productVariantCatalogService;
+    private final TimeProvider timeProvider;
 
     @Transactional
     public ProductDto execute(CreateProductRequest request) {
@@ -35,11 +37,11 @@ public class CreateProductUseCase {
                 toMoney(request.getPrice()),
                 request.getStockQuantity(),
                 request.getLowStockThreshold(),
-                Instant.now()
+                timeProvider.now()
         );
 
         if (Boolean.TRUE.equals(request.getIsFeatured())) {
-            product = product.setAsFeatured(Instant.now());
+            product = product.setAsFeatured(timeProvider.now());
         }
 
         Product savedProduct = productRepository.save(product);

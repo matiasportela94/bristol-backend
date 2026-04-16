@@ -3,6 +3,7 @@ package com.bristol.application.auth.usecase;
 import com.bristol.application.auth.dto.AuthResponse;
 import com.bristol.application.auth.dto.RegisterRequest;
 import com.bristol.application.auth.dto.UserDto;
+import com.bristol.domain.shared.time.TimeProvider;
 import com.bristol.domain.user.User;
 import com.bristol.domain.user.UserRepository;
 import com.bristol.domain.user.UserRole;
@@ -10,9 +11,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.Instant;
-
 /**
  * Use case for user registration.
  */
@@ -23,6 +21,7 @@ public class RegisterUseCase {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenGenerator tokenGenerator;
+    private final TimeProvider timeProvider;
 
     @Transactional
     public AuthResponse execute(RegisterRequest request) {
@@ -41,7 +40,7 @@ public class RegisterUseCase {
                 request.getFirstName(),
                 request.getLastName(),
                 UserRole.USER,
-                Instant.now()
+                timeProvider.now()
         );
 
         // Save user

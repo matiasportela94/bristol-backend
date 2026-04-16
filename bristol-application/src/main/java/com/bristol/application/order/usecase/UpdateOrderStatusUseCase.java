@@ -9,6 +9,7 @@ import com.bristol.domain.order.OrderId;
 import com.bristol.domain.order.OrderRepository;
 import com.bristol.domain.order.OrderStatus;
 import com.bristol.domain.shared.exception.ValidationException;
+import com.bristol.domain.shared.time.TimeProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,11 +28,12 @@ public class UpdateOrderStatusUseCase {
     private final CouponRedemptionApplicationService couponRedemptionApplicationService;
     private final DeliverySchedulingService deliverySchedulingService;
     private final OrderMapper orderMapper;
+    private final TimeProvider timeProvider;
 
     @Transactional
     public OrderDto execute(String orderId, UpdateOrderStatusRequest request) {
         OrderId id = new OrderId(orderId);
-        Instant now = Instant.now();
+        Instant now = timeProvider.now();
 
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new ValidationException("Order not found: " + orderId));

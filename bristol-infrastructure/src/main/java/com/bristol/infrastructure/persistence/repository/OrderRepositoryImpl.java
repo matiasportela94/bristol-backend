@@ -5,6 +5,7 @@ import com.bristol.domain.order.Order;
 import com.bristol.domain.order.OrderId;
 import com.bristol.domain.order.OrderRepository;
 import com.bristol.domain.order.OrderStatus;
+import com.bristol.domain.shared.time.TimeProvider;
 import com.bristol.domain.user.UserId;
 import com.bristol.infrastructure.persistence.entity.OrderEntity;
 import com.bristol.infrastructure.persistence.entity.OrderItemEntity;
@@ -15,7 +16,6 @@ import org.springframework.stereotype.Component;
 
 import java.time.Instant;
 import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -34,6 +34,7 @@ public class OrderRepositoryImpl implements OrderRepository {
     private final JpaOrderItemRepository orderItemRepository;
     private final OrderMapper orderMapper;
     private final OrderItemMapper orderItemMapper;
+    private final TimeProvider timeProvider;
 
     @Override
     public Order save(Order order) {
@@ -91,8 +92,8 @@ public class OrderRepositoryImpl implements OrderRepository {
 
     @Override
     public List<Order> findByDateRange(LocalDate startDate, LocalDate endDate) {
-        Instant startInstant = startDate.atStartOfDay(ZoneId.systemDefault()).toInstant();
-        Instant endInstant = endDate.atTime(23, 59, 59).atZone(ZoneId.systemDefault()).toInstant();
+        Instant startInstant = timeProvider.startOfDay(startDate);
+        Instant endInstant = timeProvider.endOfDay(endDate);
 
         return attachItems(jpaRepository.findByDateRange(startInstant, endInstant).stream()
                 .map(orderMapper::toDomain)
@@ -101,7 +102,7 @@ public class OrderRepositoryImpl implements OrderRepository {
 
     @Override
     public List<Order> findPendingOrdersOlderThan(LocalDate date) {
-        Instant instant = date.atStartOfDay(ZoneId.systemDefault()).toInstant();
+        Instant instant = timeProvider.startOfDay(date);
         return attachItems(jpaRepository.findPendingOrdersOlderThan(instant).stream()
                 .map(orderMapper::toDomain)
                 .collect(Collectors.toList()));

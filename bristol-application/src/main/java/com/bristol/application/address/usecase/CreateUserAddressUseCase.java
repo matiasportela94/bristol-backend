@@ -5,18 +5,18 @@ import com.bristol.application.address.dto.UserAddressDto;
 import com.bristol.domain.address.UserAddress;
 import com.bristol.domain.address.UserAddressRepository;
 import com.bristol.domain.delivery.DeliveryZoneId;
+import com.bristol.domain.shared.time.TimeProvider;
 import com.bristol.domain.user.UserId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.Instant;
 
 @Service
 @RequiredArgsConstructor
 public class CreateUserAddressUseCase {
     private final UserAddressRepository userAddressRepository;
     private final UserAddressMapper userAddressMapper;
+    private final TimeProvider timeProvider;
 
     @Transactional
     public UserAddressDto execute(CreateUserAddressRequest request) {
@@ -32,7 +32,7 @@ public class CreateUserAddressUseCase {
                 request.getPostalCode(),
                 zoneId,
                 request.isDefault(),
-                Instant.now()
+                timeProvider.now()
         );
 
         UserAddress saved = userAddressRepository.save(address);

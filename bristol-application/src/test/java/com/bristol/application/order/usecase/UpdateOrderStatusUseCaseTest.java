@@ -14,11 +14,14 @@ import com.bristol.domain.order.ProductType;
 import com.bristol.domain.order.ShippingAddress;
 import com.bristol.domain.product.BeerType;
 import com.bristol.domain.product.ProductId;
+import com.bristol.domain.shared.time.TimeProvider;
 import com.bristol.domain.shared.valueobject.Money;
 import com.bristol.domain.user.UserId;
 import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -43,7 +46,8 @@ class UpdateOrderStatusUseCaseTest {
                 stockManagementService,
                 couponRedemptionApplicationService,
                 deliverySchedulingService,
-                orderMapper
+                orderMapper,
+                fixedTimeProvider()
         );
 
         Instant now = Instant.parse("2026-04-07T12:00:00Z");
@@ -73,7 +77,8 @@ class UpdateOrderStatusUseCaseTest {
                 stockManagementService,
                 couponRedemptionApplicationService,
                 deliverySchedulingService,
-                orderMapper
+                orderMapper,
+                fixedTimeProvider()
         );
 
         Instant now = Instant.parse("2026-04-07T12:00:00Z");
@@ -103,7 +108,8 @@ class UpdateOrderStatusUseCaseTest {
                 stockManagementService,
                 couponRedemptionApplicationService,
                 deliverySchedulingService,
-                orderMapper
+                orderMapper,
+                fixedTimeProvider()
         );
 
         Instant now = Instant.parse("2026-04-07T12:00:00Z");
@@ -120,6 +126,26 @@ class UpdateOrderStatusUseCaseTest {
         verify(stockManagementService).restoreStockForOrder(order);
         verify(couponRedemptionApplicationService).clearOrderRedemptions(any(Order.class), any(Instant.class));
         verify(deliverySchedulingService).cancelScheduledDelivery(any(Order.class));
+    }
+
+    private static TimeProvider fixedTimeProvider() {
+        Instant fixedInstant = Instant.parse("2026-04-07T12:00:00Z");
+        return new TimeProvider() {
+            @Override
+            public Instant now() {
+                return fixedInstant;
+            }
+
+            @Override
+            public LocalDateTime nowDateTime() {
+                return LocalDateTime.of(2026, 4, 7, 9, 0);
+            }
+
+            @Override
+            public LocalDate nowDate() {
+                return LocalDate.of(2026, 4, 7);
+            }
+        };
     }
 
     private static Order sampleOrder() {

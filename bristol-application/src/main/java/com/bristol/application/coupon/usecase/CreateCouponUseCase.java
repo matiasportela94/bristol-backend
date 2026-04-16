@@ -7,6 +7,7 @@ import com.bristol.domain.coupon.CouponCustomerEligibility;
 import com.bristol.domain.coupon.CouponRepository;
 import com.bristol.domain.coupon.CouponStatus;
 import com.bristol.domain.coupon.CouponTriggerType;
+import com.bristol.domain.shared.time.TimeProvider;
 import com.bristol.domain.shared.valueobject.Money;
 import com.bristol.domain.user.UserId;
 import lombok.RequiredArgsConstructor;
@@ -28,10 +29,11 @@ public class CreateCouponUseCase {
     private final CouponMapper couponMapper;
     private final CouponAdminPayloadResolver couponAdminPayloadResolver;
     private final CouponDefinitionValidator couponDefinitionValidator;
+    private final TimeProvider timeProvider;
 
     @Transactional
     public CouponDto execute(CreateCouponRequest request) {
-        Instant now = Instant.now();
+        Instant now = timeProvider.now();
         LocalTime startTime = request.getStartTime() != null ? request.getStartTime() : LocalTime.MIDNIGHT;
         UserId createdBy = request.getCreatedBy() != null ? new UserId(request.getCreatedBy()) : null;
         String normalizedCode = normalizeCode(request.getCode());

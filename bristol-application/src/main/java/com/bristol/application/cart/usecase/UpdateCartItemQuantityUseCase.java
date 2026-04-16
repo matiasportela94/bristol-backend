@@ -11,13 +11,13 @@ import com.bristol.domain.product.ProductRepository;
 import com.bristol.domain.product.ProductVariant;
 import com.bristol.domain.product.ProductVariantRepository;
 import com.bristol.domain.shared.exception.ValidationException;
+import com.bristol.domain.shared.time.TimeProvider;
 import com.bristol.domain.user.User;
 import com.bristol.domain.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Instant;
 import java.util.Optional;
 
 @Service
@@ -29,6 +29,7 @@ public class UpdateCartItemQuantityUseCase extends CartCommandSupport {
     private final ProductVariantRepository productVariantRepository;
     private final UserRepository userRepository;
     private final CartMapper cartMapper;
+    private final TimeProvider timeProvider;
 
     @Transactional
     public CartDto execute(String userEmail, String itemId, UpdateCartItemQuantityRequest request) {
@@ -52,7 +53,7 @@ public class UpdateCartItemQuantityUseCase extends CartCommandSupport {
         validateProductAvailability(product);
         validateRequestedQuantity(product, variant, request.getQuantity());
 
-        ShoppingCart updatedCart = cart.updateItemQuantity(existingItem.getId(), request.getQuantity(), Instant.now());
+        ShoppingCart updatedCart = cart.updateItemQuantity(existingItem.getId(), request.getQuantity(), timeProvider.now());
         return cartMapper.toDto(shoppingCartRepository.save(updatedCart));
     }
 }

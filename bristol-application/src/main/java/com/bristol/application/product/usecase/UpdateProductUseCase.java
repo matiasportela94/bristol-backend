@@ -6,6 +6,7 @@ import com.bristol.domain.product.Product;
 import com.bristol.domain.product.ProductId;
 import com.bristol.domain.product.ProductRepository;
 import com.bristol.domain.shared.exception.NotFoundException;
+import com.bristol.domain.shared.time.TimeProvider;
 import com.bristol.domain.shared.valueobject.Money;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -25,6 +26,7 @@ public class UpdateProductUseCase {
     private final ProductMapper productMapper;
     private final ProductImageService productImageService;
     private final ProductVariantCatalogService productVariantCatalogService;
+    private final TimeProvider timeProvider;
 
     @Transactional
     public ProductDto execute(String productId, UpdateProductRequest request) {
@@ -39,13 +41,13 @@ public class UpdateProductUseCase {
                 request.getSubcategory(),
                 request.getBeerType(),
                 toMoney(request.getPrice()),
-                Instant.now()
+                timeProvider.now()
         );
 
         if (request.getIsFeatured() != null) {
             updatedProduct = request.getIsFeatured()
-                    ? updatedProduct.setAsFeatured(Instant.now())
-                    : updatedProduct.unsetAsFeatured(Instant.now());
+                    ? updatedProduct.setAsFeatured(timeProvider.now())
+                    : updatedProduct.unsetAsFeatured(timeProvider.now());
         }
 
         Product saved = productRepository.save(updatedProduct);

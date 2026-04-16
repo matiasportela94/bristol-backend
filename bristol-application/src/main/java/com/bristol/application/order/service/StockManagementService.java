@@ -7,6 +7,7 @@ import com.bristol.domain.product.ProductRepository;
 import com.bristol.domain.product.ProductVariant;
 import com.bristol.domain.product.ProductVariantRepository;
 import com.bristol.domain.shared.exception.ValidationException;
+import com.bristol.domain.shared.time.TimeProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +23,7 @@ public class StockManagementService {
 
     private final ProductRepository productRepository;
     private final ProductVariantRepository productVariantRepository;
+    private final TimeProvider timeProvider;
 
     /**
      * Deduct stock for all items in an order.
@@ -54,7 +56,7 @@ public class StockManagementService {
                             ", Required: " + item.getQuantity());
                 }
 
-                productVariantRepository.save(variant.reduceStock(item.getQuantity(), Instant.now()));
+                productVariantRepository.save(variant.reduceStock(item.getQuantity(), timeProvider.now()));
                 continue;
             }
 
@@ -65,7 +67,7 @@ public class StockManagementService {
                         ", Required: " + item.getQuantity());
             }
 
-            productRepository.save(product.reduceStock(item.getQuantity(), Instant.now()));
+            productRepository.save(product.reduceStock(item.getQuantity(), timeProvider.now()));
         }
     }
 
@@ -95,12 +97,12 @@ public class StockManagementService {
 
                 productVariantRepository.save(variant.updateStock(
                         variant.getStockQuantity() + item.getQuantity(),
-                        Instant.now()
+                        timeProvider.now()
                 ));
                 continue;
             }
 
-            productRepository.save(product.increaseStock(item.getQuantity(), Instant.now()));
+            productRepository.save(product.increaseStock(item.getQuantity(), timeProvider.now()));
         }
     }
 }

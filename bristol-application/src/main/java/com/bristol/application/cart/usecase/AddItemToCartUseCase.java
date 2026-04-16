@@ -8,13 +8,13 @@ import com.bristol.domain.product.Product;
 import com.bristol.domain.product.ProductRepository;
 import com.bristol.domain.product.ProductVariant;
 import com.bristol.domain.product.ProductVariantRepository;
+import com.bristol.domain.shared.time.TimeProvider;
 import com.bristol.domain.user.User;
 import com.bristol.domain.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Instant;
 import java.util.Optional;
 
 @Service
@@ -26,11 +26,12 @@ public class AddItemToCartUseCase extends CartCommandSupport {
     private final ProductVariantRepository productVariantRepository;
     private final UserRepository userRepository;
     private final CartMapper cartMapper;
+    private final TimeProvider timeProvider;
 
     @Transactional
     public CartDto execute(String userEmail, AddCartItemRequest request) {
         User user = resolveUserByEmail(userEmail, userRepository);
-        ShoppingCart cart = getOrCreateCart(user, shoppingCartRepository);
+        ShoppingCart cart = getOrCreateCart(user, shoppingCartRepository, timeProvider);
         Product product = productOrThrow(request.getProductId(), productRepository);
         Optional<ProductVariant> variant = resolveVariant(request.getProductVariantId(), product, productVariantRepository);
         int existingCartQuantity = resolveCartQuantity(
@@ -50,7 +51,7 @@ public class AddItemToCartUseCase extends CartCommandSupport {
                 product.getBeerType(),
                 request.getQuantity(),
                 resolveUnitPrice(product, variant),
-                Instant.now()
+                timeProvider.now()
         );
 
         return cartMapper.toDto(shoppingCartRepository.save(updatedCart));

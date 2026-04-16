@@ -12,6 +12,7 @@ import com.bristol.domain.distributor.DistributorRegistrationAddressRepository;
 import com.bristol.domain.distributor.DistributorRegistrationRequest;
 import com.bristol.domain.distributor.DistributorRegistrationRequestId;
 import com.bristol.domain.shared.exception.ValidationException;
+import com.bristol.domain.shared.time.TimeProvider;
 import com.bristol.domain.user.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -27,10 +28,11 @@ public class DistributorRegistrationAddressService {
 
     private final DistributorRegistrationAddressRepository registrationAddressRepository;
     private final UserAddressRepository userAddressRepository;
+    private final TimeProvider timeProvider;
 
     public void createAddresses(DistributorRegistrationRequest registration, CreateDistributorRegistrationRequest request) {
         List<RegistrationShippingAddressPayload> shippingAddresses = normalizeShippingAddresses(request);
-        Instant now = Instant.now();
+        Instant now = timeProvider.now();
 
         shippingAddresses.forEach(address -> registrationAddressRepository.save(
                 DistributorRegistrationAddress.create(
@@ -78,7 +80,7 @@ public class DistributorRegistrationAddressService {
                     address.getPostalCode(),
                     address.getDeliveryZoneId(),
                     address.isDefault(),
-                    Instant.now()
+                    timeProvider.now()
             );
             userAddressRepository.save(userAddress);
         }

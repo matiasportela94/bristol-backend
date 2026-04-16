@@ -6,6 +6,7 @@ import com.bristol.domain.distributor.DistributorId;
 import com.bristol.domain.distributor.DistributorRepository;
 import com.bristol.domain.order.Order;
 import com.bristol.domain.order.OrderRepository;
+import com.bristol.domain.shared.time.TimeProvider;
 import com.bristol.domain.user.UserRepository;
 import com.bristol.domain.user.UserId;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +30,7 @@ public class GetFilteredOrdersUseCase {
     private final DistributorRepository distributorRepository;
     private final UserRepository userRepository;
     private final OrderMapper orderMapper;
+    private final TimeProvider timeProvider;
 
     @Transactional(readOnly = true)
     public List<OrderDto> execute(OrderFilterRequest filter) {
@@ -126,9 +128,7 @@ public class GetFilteredOrdersUseCase {
     private List<Order> applyDateFilter(List<Order> orders, LocalDate startDate, LocalDate endDate) {
         return orders.stream()
                 .filter(order -> {
-                    LocalDate orderDate = order.getOrderDate()
-                            .atZone(java.time.ZoneId.systemDefault())
-                            .toLocalDate();
+                    LocalDate orderDate = timeProvider.toLocalDate(order.getOrderDate());
                     boolean afterStart = startDate == null || !orderDate.isBefore(startDate);
                     boolean beforeEnd = endDate == null || !orderDate.isAfter(endDate);
                     return afterStart && beforeEnd;

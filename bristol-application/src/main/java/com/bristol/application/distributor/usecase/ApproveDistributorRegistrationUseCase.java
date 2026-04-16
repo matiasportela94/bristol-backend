@@ -9,6 +9,7 @@ import com.bristol.domain.distributor.DistributorRegistrationRequest;
 import com.bristol.domain.distributor.DistributorRegistrationRequestId;
 import com.bristol.domain.distributor.DistributorRepository;
 import com.bristol.domain.distributor.DistributorStatus;
+import com.bristol.domain.shared.time.TimeProvider;
 import com.bristol.domain.user.User;
 import com.bristol.domain.user.UserRepository;
 import com.bristol.domain.user.UserRole;
@@ -38,10 +39,11 @@ public class ApproveDistributorRegistrationUseCase {
     private final RegistrationDocumentService registrationDocumentService;
     private final DistributorRegistrationAddressService registrationAddressService;
     private final DistributorRegistrationNotificationService notificationService;
+    private final TimeProvider timeProvider;
 
     @Transactional
     public DistributorRegistrationDto execute(String registrationId) {
-        Instant now = Instant.now();
+        Instant now = timeProvider.now();
 
         // Find registration request
         DistributorRegistrationRequestId id = new DistributorRegistrationRequestId(UUID.fromString(registrationId));

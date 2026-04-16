@@ -1,5 +1,6 @@
 package com.bristol.api.exception;
 
+import com.bristol.domain.shared.time.BristolTime;
 import com.bristol.domain.shared.exception.DomainException;
 import com.bristol.domain.shared.exception.NotFoundException;
 import com.bristol.domain.shared.exception.ValidationException;
@@ -18,7 +19,6 @@ import org.springframework.web.multipart.MultipartException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -71,7 +71,7 @@ public class GlobalExceptionHandler {
                 .collect(Collectors.toList());
 
         Map<String, Object> errorResponse = Map.of(
-                "timestamp", Instant.now().toString(),
+                "timestamp", BristolTime.timestamp(),
                 "status", HttpStatus.BAD_REQUEST.value(),
                 "error", "Validation Error",
                 "message", "Invalid request parameters",
@@ -155,7 +155,7 @@ public class GlobalExceptionHandler {
                     status.value(),
                     status.getReasonPhrase(),
                     message,
-                    Instant.now().toString()
+                    BristolTime.timestamp()
             );
         }
     }

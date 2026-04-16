@@ -6,7 +6,6 @@ import org.springframework.stereotype.Component;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 
 /**
  * System implementation of TimeProvider using actual system time.
@@ -14,20 +13,18 @@ import java.time.ZoneId;
 @Component
 public class SystemTimeProvider implements TimeProvider {
 
-    private static final ZoneId DEFAULT_ZONE = ZoneId.systemDefault();
-
     @Override
     public Instant now() {
-        return Instant.now();
+        return java.time.ZonedDateTime.now(zoneId()).toInstant();
     }
 
     @Override
     public LocalDateTime nowDateTime() {
-        return LocalDateTime.now(DEFAULT_ZONE);
+        return LocalDateTime.now(zoneId());
     }
 
     @Override
     public LocalDate nowDate() {
-        return LocalDate.now(DEFAULT_ZONE);
+        return LocalDate.now(zoneId());
     }
 }

@@ -28,11 +28,17 @@ public class DeliveryMapper {
                         ? order.getShippingAddress().getFullAddress()
                         : null)
                 .status(delivery.getStatus())
+                .scheduledDate(delivery.getScheduledDate())
+                .actualDeliveryDate(delivery.getActualDeliveryDate())
                 .scheduledAt(delivery.getScheduledDate() != null ?
                         delivery.getScheduledDate().atStartOfDay().toInstant(java.time.ZoneOffset.UTC) : null)
                 .deliveredAt(delivery.getActualDeliveryDate() != null ?
                         delivery.getActualDeliveryDate().atStartOfDay().toInstant(java.time.ZoneOffset.UTC) : null)
+                .driverNotes(delivery.getDriverNotes())
+                .customerNotes(delivery.getCustomerNotes())
                 .notes(delivery.getCustomerNotes())
+                .canMarkDelivered(delivery.canBeCompleted())
+                .canCancel(delivery.canBeCancelled())
                 .createdAt(delivery.getCreatedAt())
                 .updatedAt(delivery.getUpdatedAt())
                 .build();

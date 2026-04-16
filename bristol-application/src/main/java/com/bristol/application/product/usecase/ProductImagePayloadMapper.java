@@ -5,6 +5,8 @@ import com.bristol.application.product.dto.ProductImageRequest;
 import com.bristol.domain.product.ProductId;
 import com.bristol.domain.product.ProductImage;
 import com.bristol.domain.shared.exception.ValidationException;
+import com.bristol.domain.shared.time.TimeProvider;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
@@ -17,7 +19,10 @@ import java.util.List;
  * Maps product image payloads between API DTOs and domain objects.
  */
 @Component
+@RequiredArgsConstructor
 public class ProductImagePayloadMapper {
+
+    private final TimeProvider timeProvider;
 
     public List<ProductImage> toDomainList(ProductId productId, List<ProductImageRequest> requests) {
         if (requests == null || requests.isEmpty()) {
@@ -25,7 +30,7 @@ public class ProductImagePayloadMapper {
         }
 
         int primaryIndex = resolvePrimaryIndex(requests);
-        Instant now = Instant.now();
+        Instant now = timeProvider.now();
         List<ProductImage> images = new ArrayList<>(requests.size());
 
         for (int i = 0; i < requests.size(); i++) {

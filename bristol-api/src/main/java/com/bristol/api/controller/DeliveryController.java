@@ -119,12 +119,40 @@ public class DeliveryController {
     }
 
     /**
+     * Mark delivery as delivered.
+     */
+    @PutMapping("/{id}/mark-delivered")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Mark delivery as delivered", description = "Mark delivery as delivered while preserving the scheduled date (Admin only)")
+    public ResponseEntity<DeliveryDto> markAsDelivered(
+            @PathVariable String id,
+            @Valid @RequestBody CompleteDeliveryRequest request
+    ) {
+        DeliveryDto delivery = completeDeliveryUseCase.execute(id, request);
+        return ResponseEntity.ok(delivery);
+    }
+
+    /**
      * Mark delivery as failed.
      */
     @PutMapping("/{id}/mark-failed")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Mark delivery as failed", description = "Mark delivery as failed (Admin only)")
     public ResponseEntity<DeliveryDto> markAsFailed(
+            @PathVariable String id,
+            @Valid @RequestBody MarkDeliveryFailedRequest request
+    ) {
+        DeliveryDto delivery = markDeliveryFailedUseCase.execute(id, request);
+        return ResponseEntity.ok(delivery);
+    }
+
+    /**
+     * Cancel delivery.
+     */
+    @PutMapping("/{id}/cancel")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Cancel delivery", description = "Mark delivery as cancelled/failed (Admin only)")
+    public ResponseEntity<DeliveryDto> cancelDelivery(
             @PathVariable String id,
             @Valid @RequestBody MarkDeliveryFailedRequest request
     ) {

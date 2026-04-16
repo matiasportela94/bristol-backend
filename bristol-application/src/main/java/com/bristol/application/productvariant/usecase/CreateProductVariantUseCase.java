@@ -5,6 +5,7 @@ import com.bristol.application.productvariant.dto.ProductVariantDto;
 import com.bristol.domain.product.ProductId;
 import com.bristol.domain.product.ProductVariant;
 import com.bristol.domain.product.ProductVariantRepository;
+import com.bristol.domain.shared.time.TimeProvider;
 import com.bristol.domain.shared.valueobject.Money;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -22,6 +23,7 @@ public class CreateProductVariantUseCase {
 
     private final ProductVariantRepository productVariantRepository;
     private final ProductVariantMapper productVariantMapper;
+    private final TimeProvider timeProvider;
 
     @Transactional
     public ProductVariantDto execute(CreateProductVariantRequest request) {
@@ -38,7 +40,7 @@ public class CreateProductVariantUseCase {
                 additionalPrice,
                 request.getStockQuantity(),
                 request.getImageUrl(),
-                Instant.now()
+                timeProvider.now()
         );
 
         ProductVariant savedVariant = productVariantRepository.save(variant);

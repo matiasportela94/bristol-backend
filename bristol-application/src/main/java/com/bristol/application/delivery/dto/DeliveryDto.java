@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.Instant;
+import java.time.LocalDate;
 
 @Data
 @Builder
@@ -22,9 +23,15 @@ public class DeliveryDto {
     private String deliveryZoneId;
     private String address;
     private DeliveryStatus status;
+    private LocalDate scheduledDate;
+    private LocalDate actualDeliveryDate;
     private Instant scheduledAt;
     private Instant deliveredAt;
+    private String driverNotes;
+    private String customerNotes;
     private String notes;
+    private boolean canMarkDelivered;
+    private boolean canCancel;
     private Instant createdAt;
     private Instant updatedAt;
 }

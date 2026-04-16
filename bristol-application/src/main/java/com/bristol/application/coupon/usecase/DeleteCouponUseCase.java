@@ -4,11 +4,10 @@ import com.bristol.domain.coupon.Coupon;
 import com.bristol.domain.coupon.CouponId;
 import com.bristol.domain.coupon.CouponRepository;
 import com.bristol.domain.shared.exception.ValidationException;
+import com.bristol.domain.shared.time.TimeProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.Instant;
 
 /**
  * Use case to delete a coupon (soft delete).
@@ -18,11 +17,12 @@ import java.time.Instant;
 public class DeleteCouponUseCase {
 
     private final CouponRepository couponRepository;
+    private final TimeProvider timeProvider;
 
     @Transactional
     public void execute(String couponId) {
         CouponId id = new CouponId(couponId);
-        Instant now = Instant.now();
+        var now = timeProvider.now();
 
         Coupon coupon = couponRepository.findById(id)
                 .orElseThrow(() -> new ValidationException("Coupon not found: " + couponId));

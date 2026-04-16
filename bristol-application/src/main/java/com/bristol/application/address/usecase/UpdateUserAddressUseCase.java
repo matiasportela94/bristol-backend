@@ -7,17 +7,17 @@ import com.bristol.domain.address.UserAddressId;
 import com.bristol.domain.address.UserAddressRepository;
 import com.bristol.domain.delivery.DeliveryZoneId;
 import com.bristol.domain.shared.exception.ValidationException;
+import com.bristol.domain.shared.time.TimeProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.Instant;
 
 @Service
 @RequiredArgsConstructor
 public class UpdateUserAddressUseCase {
     private final UserAddressRepository userAddressRepository;
     private final UserAddressMapper userAddressMapper;
+    private final TimeProvider timeProvider;
 
     @Transactional
     public UserAddressDto execute(String addressId, UpdateUserAddressRequest request) {
@@ -34,7 +34,7 @@ public class UpdateUserAddressUseCase {
                 request.getProvince(),
                 request.getPostalCode(),
                 zoneId,
-                Instant.now()
+                timeProvider.now()
         );
 
         UserAddress saved = userAddressRepository.save(updated);

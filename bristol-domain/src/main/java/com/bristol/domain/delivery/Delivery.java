@@ -76,8 +76,8 @@ public class Delivery {
      * Mark delivery as completed.
      */
     public Delivery complete(LocalDate actualDeliveryDate, String driverNotes, Instant now) {
-        if (!status.equals(DeliveryStatus.IN_TRANSIT)) {
-            throw new ValidationException("Only in-transit deliveries can be completed");
+        if (!(status.equals(DeliveryStatus.SCHEDULED) || status.equals(DeliveryStatus.IN_TRANSIT))) {
+            throw new ValidationException("Only scheduled or in-transit deliveries can be completed");
         }
         if (actualDeliveryDate == null) {
             throw new ValidationException("Actual delivery date is required");
@@ -168,6 +168,14 @@ public class Delivery {
      */
     public boolean isFinal() {
         return status == DeliveryStatus.DELIVERED || status == DeliveryStatus.FAILED;
+    }
+
+    public boolean canBeCompleted() {
+        return status == DeliveryStatus.SCHEDULED || status == DeliveryStatus.IN_TRANSIT;
+    }
+
+    public boolean canBeCancelled() {
+        return status != DeliveryStatus.DELIVERED && status != DeliveryStatus.FAILED;
     }
 
     /**

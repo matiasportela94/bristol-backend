@@ -5,18 +5,18 @@ import com.bristol.application.distributor.dto.DistributorDto;
 import com.bristol.domain.delivery.DeliveryZoneId;
 import com.bristol.domain.distributor.Distributor;
 import com.bristol.domain.distributor.DistributorRepository;
+import com.bristol.domain.shared.time.TimeProvider;
 import com.bristol.domain.user.UserId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.Instant;
 
 @Service
 @RequiredArgsConstructor
 public class CreateDistributorUseCase {
     private final DistributorRepository distributorRepository;
     private final DistributorMapper distributorMapper;
+    private final TimeProvider timeProvider;
 
     @Transactional
     public DistributorDto execute(CreateDistributorRequest request) {
@@ -32,7 +32,7 @@ public class CreateDistributorUseCase {
                 request.getRazonSocial(),
                 request.getDateOfBirth(),
                 zoneId,
-                Instant.now()
+                timeProvider.now()
         );
 
         Distributor saved = distributorRepository.save(distributor);

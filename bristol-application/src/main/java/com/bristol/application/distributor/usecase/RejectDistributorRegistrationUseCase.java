@@ -6,11 +6,10 @@ import com.bristol.application.distributor.mapper.DistributorRegistrationMapper;
 import com.bristol.domain.distributor.DistributorRegistrationRepository;
 import com.bristol.domain.distributor.DistributorRegistrationRequest;
 import com.bristol.domain.distributor.DistributorRegistrationRequestId;
+import com.bristol.domain.shared.time.TimeProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -24,6 +23,7 @@ public class RejectDistributorRegistrationUseCase {
     private final DistributorRegistrationRepository registrationRepository;
     private final DistributorRegistrationMapper mapper;
     private final DistributorRegistrationNotificationService notificationService;
+    private final TimeProvider timeProvider;
 
     @Transactional
     public DistributorRegistrationDto execute(String registrationId, RejectDistributorRegistrationRequest request) {
@@ -33,7 +33,7 @@ public class RejectDistributorRegistrationUseCase {
                 .orElseThrow(() -> new IllegalArgumentException("Registration request not found: " + registrationId));
 
         // Reject the registration (changes status to REJECTED and sets reason)
-        registration = registration.reject(request.getReason(), Instant.now());
+        registration = registration.reject(request.getReason(), timeProvider.now());
         registrationRepository.delete(registration.getId());
 
         return mapper.toDto(

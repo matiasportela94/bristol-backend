@@ -8,6 +8,7 @@ import com.bristol.domain.delivery.DeliveryZoneId;
 import com.bristol.domain.order.*;
 import com.bristol.domain.product.*;
 import com.bristol.domain.shared.exception.ValidationException;
+import com.bristol.domain.shared.time.TimeProvider;
 import com.bristol.domain.shared.valueobject.Money;
 import com.bristol.domain.user.UserId;
 import lombok.RequiredArgsConstructor;
@@ -31,10 +32,11 @@ public class CreateOrderUseCase {
     private final StockManagementService stockManagementService;
     private final OrderMapper orderMapper;
     private final OrderPromotionApplicationService orderPromotionApplicationService;
+    private final TimeProvider timeProvider;
 
     @Transactional
     public OrderDto execute(CreateOrderRequest request) {
-        Instant now = Instant.now();
+        Instant now = timeProvider.now();
 
         // Parse user ID
         UserId userId = new UserId(request.getUserId());

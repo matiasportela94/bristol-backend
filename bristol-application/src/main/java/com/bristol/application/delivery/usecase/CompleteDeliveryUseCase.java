@@ -6,11 +6,11 @@ import com.bristol.domain.delivery.Delivery;
 import com.bristol.domain.delivery.DeliveryId;
 import com.bristol.domain.delivery.DeliveryRepository;
 import com.bristol.domain.shared.exception.NotFoundException;
+import com.bristol.domain.shared.time.TimeProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Instant;
 import java.util.UUID;
 
 /**
@@ -22,6 +22,7 @@ public class CompleteDeliveryUseCase {
 
     private final DeliveryRepository deliveryRepository;
     private final DeliveryDtoAssembler deliveryDtoAssembler;
+    private final TimeProvider timeProvider;
 
     @Transactional
     public DeliveryDto execute(String id, CompleteDeliveryRequest request) {
@@ -32,7 +33,7 @@ public class CompleteDeliveryUseCase {
         Delivery updatedDelivery = delivery.complete(
                 request.getActualDeliveryDate(),
                 request.getDriverNotes(),
-                Instant.now()
+                timeProvider.now()
         );
         Delivery savedDelivery = deliveryRepository.save(updatedDelivery);
 

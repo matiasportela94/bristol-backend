@@ -22,6 +22,7 @@ import com.bristol.domain.product.Product;
 import com.bristol.domain.product.ProductRepository;
 import com.bristol.domain.product.ProductVariantRepository;
 import com.bristol.domain.shared.exception.ValidationException;
+import com.bristol.domain.shared.time.TimeProvider;
 import com.bristol.domain.shared.valueobject.Money;
 import com.bristol.domain.user.User;
 import com.bristol.domain.user.UserRepository;
@@ -48,10 +49,11 @@ public class CheckoutCartUseCase extends CartCommandSupport {
     private final OrderPromotionApplicationService orderPromotionApplicationService;
     private final CartReconciliationService cartReconciliationService;
     private final StockManagementService stockManagementService;
+    private final TimeProvider timeProvider;
 
     @Transactional
     public CheckoutCartResponse execute(String userEmail, CheckoutCartRequest request) {
-        Instant now = Instant.now();
+        Instant now = timeProvider.now();
         User user = resolveUserByEmail(userEmail, userRepository);
         ShoppingCart cart = shoppingCartRepository.findByUserId(user.getId())
                 .orElseThrow(() -> new ValidationException("Cart not found for authenticated user"));

@@ -23,6 +23,7 @@ import com.bristol.domain.product.ProductRepository;
 import com.bristol.domain.product.ProductSubcategory;
 import com.bristol.domain.product.ProductVariantRepository;
 import com.bristol.domain.shared.exception.ValidationException;
+import com.bristol.domain.shared.time.TimeProvider;
 import com.bristol.domain.shared.valueobject.Money;
 import com.bristol.domain.user.User;
 import com.bristol.domain.user.UserRepository;
@@ -30,6 +31,8 @@ import com.bristol.domain.user.UserRole;
 import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -66,7 +69,8 @@ class CheckoutCartUseCaseTest {
                 new OrderMapper(),
                 orderPromotionApplicationService,
                 new CartReconciliationService(productRepository, productVariantRepository),
-                stockManagementService
+                stockManagementService,
+                fixedTimeProvider()
         );
 
         Instant now = Instant.parse("2026-04-09T12:00:00Z");
@@ -153,7 +157,8 @@ class CheckoutCartUseCaseTest {
                 new OrderMapper(),
                 orderPromotionApplicationService,
                 new CartReconciliationService(productRepository, productVariantRepository),
-                stockManagementService
+                stockManagementService,
+                fixedTimeProvider()
         );
 
         Instant now = Instant.parse("2026-04-09T12:00:00Z");
@@ -213,5 +218,25 @@ class CheckoutCartUseCaseTest {
         assertThat(response.getAdjustments().get(0).getPreviousValue()).isEqualTo("BADCODE");
         verify(orderRepository, never()).save(any(Order.class));
         verify(stockManagementService, never()).deductStockForOrder(any(Order.class));
+    }
+
+    private static TimeProvider fixedTimeProvider() {
+        Instant fixedInstant = Instant.parse("2026-04-09T12:00:00Z");
+        return new TimeProvider() {
+            @Override
+            public Instant now() {
+                return fixedInstant;
+            }
+
+            @Override
+            public LocalDateTime nowDateTime() {
+                return LocalDateTime.of(2026, 4, 9, 9, 0);
+            }
+
+            @Override
+            public LocalDate nowDate() {
+                return LocalDate.of(2026, 4, 9);
+            }
+        };
     }
 }
