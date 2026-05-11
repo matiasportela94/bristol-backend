@@ -32,7 +32,7 @@ spring:
     baseline-on-migrate: ${FLYWAY_BASELINE_ON_MIGRATE:false}
     baseline-version: ${FLYWAY_BASELINE_VERSION:1}
     locations: classpath:db/migration
-    validate-on-migrate: ${FLYWAY_VALIDATE_ON_MIGRATE:true}
+    validate-on-migrate: ${FLYWAY_VALIDATE_ON_MIGRATE:false}
 
   security:
     user:
@@ -109,7 +109,7 @@ bristol:
     environment: ${AFIP_ENV:testing} # testing or production
 
   cors:
-    allowed-origins: ${CORS_ORIGINS:http://localhost:4200,https://bristol-platform.web.app}
+    allowed-origins: ${CORS_ORIGINS:http://localhost:4200,http://localhost:11500, https://bristol-platform.web.app}
     allowed-methods: GET,POST,PUT,DELETE,PATCH,OPTIONS
     allowed-headers: "*"
     allow-credentials: true

@@ -17,6 +17,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class OrderFilterRequest {
 
+    private String orderId;
     private OrderStatus status;
     private String distributorId;
     private LocalDate startDate;

@@ -5,6 +5,7 @@ import com.bristol.domain.order.Order;
 import com.bristol.domain.order.OrderId;
 import com.bristol.domain.order.OrderRepository;
 import com.bristol.domain.order.OrderStatus;
+import com.bristol.domain.shared.Page;
 import com.bristol.domain.shared.time.TimeProvider;
 import com.bristol.domain.user.UserId;
 import com.bristol.infrastructure.persistence.entity.OrderEntity;
@@ -12,6 +13,8 @@ import com.bristol.infrastructure.persistence.entity.OrderItemEntity;
 import com.bristol.infrastructure.persistence.mapper.OrderMapper;
 import com.bristol.infrastructure.persistence.mapper.OrderItemMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
@@ -118,6 +121,82 @@ public class OrderRepositoryImpl implements OrderRepository {
         return attachItems(jpaRepository.findAll().stream()
                 .map(orderMapper::toDomain)
                 .collect(Collectors.toList()));
+    }
+
+    @Override
+    public List<Order> findWithFilters(
+            OrderStatus status,
+            LocalDate startDate,
+            LocalDate endDate,
+            DistributorId distributorId,
+            UserId userId
+    ) {
+        String statusString = status != null ? status.name() : null;
+        UUID distributorUuid = distributorId != null ? distributorId.getValue() : null;
+        UUID userUuid = userId != null ? userId.getValue() : null;
+        Instant startInstant = startDate != null ? timeProvider.startOfDay(startDate) : null;
+        Instant endInstant = endDate != null ? timeProvider.endOfDay(endDate) : null;
+
+        return attachItems(jpaRepository.findWithFilters(
+                statusString,
+                startInstant,
+                endInstant,
+                distributorUuid,
+                userUuid
+        ).stream()
+                .map(orderMapper::toDomain)
+                .collect(Collectors.toList()));
+    }
+
+    @Override
+    public Page<Order> findWithFiltersPaginated(
+            OrderId orderId,
+            OrderStatus status,
+            LocalDate startDate,
+            LocalDate endDate,
+            DistributorId distributorId,
+            UserId userId,
+            int pageNumber,
+            int pageSize
+    ) {
+        String orderIdString = orderId != null ? orderId.getValue().toString() : null;
+        String statusString = status != null ? status.name() : null;
+        String distributorIdString = distributorId != null ? distributorId.getValue().toString() : null;
+        String userIdString = userId != null ? userId.getValue().toString() : null;
+        Instant startInstant = startDate != null ? timeProvider.startOfDay(startDate) : null;
+        Instant endInstant = endDate != null ? timeProvider.endOfDay(endDate) : null;
+
+        // Create pageable without sort (query already has ORDER BY)
+        PageRequest pageRequest = PageRequest.of(pageNumber, pageSize);
+
+        org.springframework.data.domain.Page<OrderEntity> entityPage = jpaRepository.findWithFiltersPaginated(
+                orderIdString,
+                statusString,
+                startInstant,
+                endInstant,
+                distributorIdString,
+                userIdString,
+                pageRequest
+        );
+
+        // Convert entities to domain and attach items
+        List<Order> orders = attachItems(entityPage.getContent().stream()
+                .map(orderMapper::toDomain)
+                .collect(Collectors.toList()));
+
+        return new Page<>(
+                orders,
+                entityPage.getNumber(),
+                entityPage.getSize(),
+                entityPage.getTotalElements()
+        );
+    }
+
+    @Override
+    public long countByStatus(OrderStatus status) {
+        OrderEntity.OrderStatusEnum entityStatus = status != null ?
+                OrderEntity.OrderStatusEnum.valueOf(status.name()) : null;
+        return jpaRepository.countByOrderStatus(entityStatus);
     }
 
     @Override

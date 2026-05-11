@@ -41,6 +41,7 @@
         <lombok.version>1.18.30</lombok.version>
         <mapstruct.version>1.5.5.Final</mapstruct.version>
         <springdoc.version>2.3.0</springdoc.version>
+        <caffeine.version>3.1.8</caffeine.version>
         <junit.version>5.10.1</junit.version>
         <mockito.version>5.8.0</mockito.version>
         <assertj.version>3.25.1</assertj.version>
@@ -109,6 +110,13 @@
                 <groupId>org.mapstruct</groupId>
                 <artifactId>mapstruct</artifactId>
                 <version>${mapstruct.version}</version>
+            </dependency>
+
+            <!-- Cache -->
+            <dependency>
+                <groupId>com.github.ben-manes.caffeine</groupId>
+                <artifactId>caffeine</artifactId>
+                <version>${caffeine.version}</version>
             </dependency>
 
             <!-- Documentation -->

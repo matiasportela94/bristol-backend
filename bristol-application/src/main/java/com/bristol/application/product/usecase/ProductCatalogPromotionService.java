@@ -8,7 +8,7 @@ import com.bristol.domain.coupon.CouponDiscountType;
 import com.bristol.domain.coupon.CouponRepository;
 import com.bristol.domain.coupon.CouponScope;
 import com.bristol.domain.coupon.CouponValueType;
-import com.bristol.domain.product.Product;
+import com.bristol.domain.product.BaseProduct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -28,12 +28,12 @@ public class ProductCatalogPromotionService {
 
     private final CouponRepository couponRepository;
 
-    public List<ProductPromotionDto> resolveForProduct(Product product) {
+    public List<ProductPromotionDto> resolveForProduct(BaseProduct product) {
         return resolveForProducts(List.of(product))
                 .getOrDefault(product.getId().getValue().toString(), List.of());
     }
 
-    public Map<String, List<ProductPromotionDto>> resolveForProducts(List<Product> products) {
+    public Map<String, List<ProductPromotionDto>> resolveForProducts(List<BaseProduct> products) {
         if (products == null || products.isEmpty()) {
             return Map.of();
         }
@@ -46,7 +46,7 @@ public class ProductCatalogPromotionService {
                 .toList();
 
         Map<String, List<ProductPromotionDto>> promotionsByProductId = new LinkedHashMap<>();
-        for (Product product : products) {
+        for (BaseProduct product : products) {
             List<ProductPromotionDto> promotions = catalogCoupons.stream()
                     .filter(coupon -> matchesProduct(coupon, product))
                     .map(this::toDto)
@@ -63,7 +63,7 @@ public class ProductCatalogPromotionService {
                 && !coupon.isForSpecificCustomers();
     }
 
-    private boolean matchesProduct(Coupon coupon, Product product) {
+    private boolean matchesProduct(Coupon coupon, BaseProduct product) {
         CouponScope scope = coupon.getScope();
         String productId = product.getId().getValue().toString();
 

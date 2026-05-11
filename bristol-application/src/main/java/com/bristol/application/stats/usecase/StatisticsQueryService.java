@@ -124,6 +124,7 @@ public class StatisticsQueryService {
     }
 
     public RankingResponseDto getMonthlyRanking(String month, String distributorId, Integer limit) {
+        boolean isCurrentMonth = month == null || month.isBlank();
         YearMonth targetMonth = resolveMonth(month);
         YearMonth previousMonth = targetMonth.minusMonths(1);
         Map<String, List<Order>> ordersByUserId = orderRepository.findAll().stream()
@@ -132,7 +133,7 @@ public class StatisticsQueryService {
         List<MonthlyRankingDto> ranked = assignPositions(distributorRepository.findAll().stream()
                 .filter(Distributor::isApproved)
                 .map(distributor -> toMonthlyRanking(distributor, ordersByUserId, targetMonth, previousMonth))
-                .filter(this::hasMonthlyActivity)
+                .filter(ranking -> isCurrentMonth || hasMonthlyActivity(ranking))
                 .sorted(Comparator
                         .comparing(MonthlyRankingDto::getMonthlySpent, Comparator.reverseOrder())
                         .thenComparing(MonthlyRankingDto::getMonthlyOrders, Comparator.reverseOrder())

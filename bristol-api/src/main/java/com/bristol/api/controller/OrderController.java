@@ -2,6 +2,7 @@ package com.bristol.api.controller;
 
 import com.bristol.application.order.dto.*;
 import com.bristol.application.order.usecase.*;
+import com.bristol.application.shared.dto.PagedResponse;
 import com.bristol.domain.order.OrderStatus;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -31,12 +32,14 @@ public class OrderController {
     private final GetOrderByIdUseCase getOrderByIdUseCase;
     private final GetUserOrdersUseCase getUserOrdersUseCase;
     private final GetFilteredOrdersUseCase getFilteredOrdersUseCase;
+    private final GetFilteredOrdersPaginatedUseCase getFilteredOrdersPaginatedUseCase;
     private final UpdateOrderStatusUseCase updateOrderStatusUseCase;
     private final CancelOrderUseCase cancelOrderUseCase;
     private final ApplyOrderCouponUseCase applyOrderCouponUseCase;
     private final ApplyShippingCouponUseCase applyShippingCouponUseCase;
     private final RepriceOrderPromotionsUseCase repriceOrderPromotionsUseCase;
     private final AssignOrderToDistributorUseCase assignOrderToDistributorUseCase;
+    private final GetOrderCountSummaryUseCase getOrderCountSummaryUseCase;
 
     /**
      * Create a new order.
@@ -93,6 +96,45 @@ public class OrderController {
                 .build();
         List<OrderDto> orders = getFilteredOrdersUseCase.execute(filter);
         return ResponseEntity.ok(orders);
+    }
+
+    /**
+     * Get filtered orders with pagination.
+     */
+    @GetMapping("/page")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Get filtered orders (paginated)", description = "Retrieve orders with optional filters and pagination (Admin only)")
+    public ResponseEntity<PagedResponse<OrderDto>> getFilteredOrdersPaginated(
+            @RequestParam(required = false) String orderId,
+            @RequestParam(required = false) OrderStatus status,
+            @RequestParam(required = false) String distributorId,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            @RequestParam(required = false) String userId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size
+    ) {
+        OrderFilterRequest filter = OrderFilterRequest.builder()
+                .orderId(orderId)
+                .status(status)
+                .distributorId(distributorId)
+                .startDate(startDate)
+                .endDate(endDate)
+                .userId(userId)
+                .build();
+        PagedResponse<OrderDto> orders = getFilteredOrdersPaginatedUseCase.execute(filter, page, size);
+        return ResponseEntity.ok(orders);
+    }
+
+    /**
+     * Get order count summary by status.
+     */
+    @GetMapping("/count-summary")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Get order count summary", description = "Get order counts grouped by status (Admin only)")
+    public ResponseEntity<OrderCountSummaryDto> getOrderCountSummary() {
+        OrderCountSummaryDto summary = getOrderCountSummaryUseCase.execute();
+        return ResponseEntity.ok(summary);
     }
 
     /**

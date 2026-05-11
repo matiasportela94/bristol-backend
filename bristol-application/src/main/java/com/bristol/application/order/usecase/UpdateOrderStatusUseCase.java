@@ -1,6 +1,7 @@
 package com.bristol.application.order.usecase;
 
 import com.bristol.application.delivery.service.DeliverySchedulingService;
+import com.bristol.application.distributor.usecase.DistributorOrderStatsService;
 import com.bristol.application.order.dto.OrderDto;
 import com.bristol.application.order.dto.UpdateOrderStatusRequest;
 import com.bristol.application.order.service.StockManagementService;
@@ -27,6 +28,7 @@ public class UpdateOrderStatusUseCase {
     private final StockManagementService stockManagementService;
     private final CouponRedemptionApplicationService couponRedemptionApplicationService;
     private final DeliverySchedulingService deliverySchedulingService;
+    private final DistributorOrderStatsService distributorOrderStatsService;
     private final OrderMapper orderMapper;
     private final TimeProvider timeProvider;
 
@@ -44,6 +46,7 @@ public class UpdateOrderStatusUseCase {
         Order savedOrder = orderRepository.save(updatedOrder);
         synchronizeCouponRedemptions(savedOrder, targetStatus, now);
         synchronizeDelivery(savedOrder, targetStatus);
+        synchronizeDistributorStats(savedOrder, targetStatus, now);
         return orderMapper.toDto(savedOrder);
     }
 
@@ -89,6 +92,12 @@ public class UpdateOrderStatusUseCase {
             case CANCELLED, PAYMENT_FAILED -> deliverySchedulingService.cancelScheduledDelivery(order);
             default -> {
             }
+        }
+    }
+
+    private void synchronizeDistributorStats(Order order, OrderStatus targetStatus, Instant now) {
+        if (targetStatus == OrderStatus.PAID) {
+            distributorOrderStatsService.recordPaidOrder(order, now);
         }
     }
 }

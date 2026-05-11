@@ -1,8 +1,8 @@
 package com.bristol.application.product.usecase;
 
 import com.bristol.application.product.dto.ProductDto;
-import com.bristol.domain.product.Product;
-import com.bristol.domain.product.ProductRepository;
+import com.bristol.application.product.service.UnifiedProductService;
+import com.bristol.domain.product.BaseProduct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,21 +17,21 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class GetAllProductsUseCase {
 
-    private final ProductRepository productRepository;
-    private final ProductMapper productMapper;
+    private final UnifiedProductService unifiedProductService;
+    private final UnifiedProductMapper unifiedProductMapper;
     private final ProductImageService productImageService;
     private final ProductVariantCatalogService productVariantCatalogService;
     private final ProductCatalogPromotionService productCatalogPromotionService;
 
     @Transactional(readOnly = true)
     public List<ProductDto> execute() {
-        List<Product> products = productRepository.findAll();
+        List<BaseProduct> products = unifiedProductService.findAll();
         var promotionsByProductId = productCatalogPromotionService.resolveForProducts(products);
         return products.stream()
                 .map(product -> {
                     var images = productImageService.getImages(product.getId());
                     var variants = productVariantCatalogService.getVariants(product.getId());
-                    return productMapper.toDto(
+                    return unifiedProductMapper.toDto(
                             product,
                             variants,
                             productImageService.toDtos(images),

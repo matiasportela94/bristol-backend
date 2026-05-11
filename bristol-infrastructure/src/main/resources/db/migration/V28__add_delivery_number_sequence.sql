@@ -18,5 +18,11 @@ SELECT setval(
 ALTER TABLE deliveries
     ALTER COLUMN delivery_number SET NOT NULL;
 
-ALTER TABLE deliveries
-    ADD CONSTRAINT uk_deliveries_delivery_number UNIQUE (delivery_number);
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_constraint WHERE conname = 'uk_deliveries_delivery_number'
+    ) THEN
+        ALTER TABLE deliveries ADD CONSTRAINT uk_deliveries_delivery_number UNIQUE (delivery_number);
+    END IF;
+END $$;

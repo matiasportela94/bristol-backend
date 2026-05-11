@@ -6,9 +6,12 @@ import com.bristol.domain.product.ProductCategory;
 import com.bristol.domain.product.ProductId;
 import com.bristol.domain.product.ProductRepository;
 import com.bristol.domain.product.ProductSubcategory;
+import com.bristol.domain.shared.Page;
 import com.bristol.infrastructure.persistence.entity.ProductEntity;
 import com.bristol.infrastructure.persistence.mapper.ProductMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -89,6 +92,77 @@ public class ProductRepositoryImpl implements ProductRepository {
         return jpaRepository.searchByName(name).stream()
                 .map(mapper::toDomain)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public Page<Product> findAllPaginated(int pageNumber, int pageSize) {
+        PageRequest pageRequest = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.ASC, "name"));
+        org.springframework.data.domain.Page<ProductEntity> entityPage = jpaRepository.findAllPaginated(pageRequest);
+
+        List<Product> products = entityPage.getContent().stream()
+                .map(mapper::toDomain)
+                .collect(Collectors.toList());
+
+        return new Page<>(
+                products,
+                entityPage.getNumber(),
+                entityPage.getSize(),
+                entityPage.getTotalElements()
+        );
+    }
+
+    @Override
+    public Page<Product> findByCategoryPaginated(ProductCategory category, int pageNumber, int pageSize) {
+        var entityCategory = ProductEntity.ProductCategoryEnum.valueOf(category.name());
+        PageRequest pageRequest = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.ASC, "name"));
+        org.springframework.data.domain.Page<ProductEntity> entityPage =
+                jpaRepository.findByCategoryPaginated(entityCategory, pageRequest);
+
+        List<Product> products = entityPage.getContent().stream()
+                .map(mapper::toDomain)
+                .collect(Collectors.toList());
+
+        return new Page<>(
+                products,
+                entityPage.getNumber(),
+                entityPage.getSize(),
+                entityPage.getTotalElements()
+        );
+    }
+
+    @Override
+    public Page<Product> findFeaturedPaginated(int pageNumber, int pageSize) {
+        PageRequest pageRequest = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.ASC, "name"));
+        org.springframework.data.domain.Page<ProductEntity> entityPage = jpaRepository.findFeaturedPaginated(pageRequest);
+
+        List<Product> products = entityPage.getContent().stream()
+                .map(mapper::toDomain)
+                .collect(Collectors.toList());
+
+        return new Page<>(
+                products,
+                entityPage.getNumber(),
+                entityPage.getSize(),
+                entityPage.getTotalElements()
+        );
+    }
+
+    @Override
+    public Page<Product> searchPaginated(String query, int pageNumber, int pageSize) {
+        PageRequest pageRequest = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.ASC, "name"));
+        org.springframework.data.domain.Page<ProductEntity> entityPage =
+                jpaRepository.searchPaginated(query, pageRequest);
+
+        List<Product> products = entityPage.getContent().stream()
+                .map(mapper::toDomain)
+                .collect(Collectors.toList());
+
+        return new Page<>(
+                products,
+                entityPage.getNumber(),
+                entityPage.getSize(),
+                entityPage.getTotalElements()
+        );
     }
 
     @Override

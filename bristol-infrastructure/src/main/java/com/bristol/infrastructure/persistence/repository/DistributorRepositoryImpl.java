@@ -23,6 +23,7 @@ public class DistributorRepositoryImpl implements DistributorRepository {
 
     private final JpaDistributorRepository jpaRepository;
     private final DistributorMapper mapper;
+    private final DistributorStatsCalculator statsCalculator;
 
     @Override
     public Distributor save(Distributor distributor) {
@@ -34,27 +35,27 @@ public class DistributorRepositoryImpl implements DistributorRepository {
     @Override
     public Optional<Distributor> findById(DistributorId id) {
         return jpaRepository.findById(id.getValue())
-                .map(mapper::toDomain);
+                .map(this::enrichWithCalculatedStats);
     }
 
     @Override
     public List<Distributor> findAll() {
         return jpaRepository.findAll().stream()
-                .map(mapper::toDomain)
+                .map(this::enrichWithCalculatedStats)
                 .collect(Collectors.toList());
     }
 
     @Override
     public Optional<Distributor> findByUserId(UserId userId) {
         return jpaRepository.findByUserId(userId.getValue())
-                .map(mapper::toDomain);
+                .map(this::enrichWithCalculatedStats);
     }
 
     @Override
     public List<Distributor> findByStatus(DistributorStatus status) {
         var entityStatus = DistributorEntity.DistributorStatusEnum.valueOf(status.name());
         return jpaRepository.findByStatus(entityStatus).stream()
-                .map(mapper::toDomain)
+                .map(this::enrichWithCalculatedStats)
                 .collect(Collectors.toList());
     }
 
@@ -78,11 +79,27 @@ public class DistributorRepositoryImpl implements DistributorRepository {
     @Override
     public Optional<Distributor> findByCuit(String cuit) {
         return jpaRepository.findByCuit(cuit)
-                .map(mapper::toDomain);
+                .map(this::enrichWithCalculatedStats);
     }
 
     @Override
     public void delete(DistributorId id) {
         jpaRepository.deleteById(id.getValue());
+    }
+
+    /**
+     * Enrich distributor with calculated statistics from orders.
+     * Calculates totalOrders on-the-fly while keeping totalSpent and totalBeers from DB.
+     */
+    private Distributor enrichWithCalculatedStats(DistributorEntity entity) {
+        Distributor distributor = mapper.toDomain(entity);
+
+        // Calculate totalOrders from orders table
+        int totalOrders = statsCalculator.calculateTotalOrders(distributor.getUserId());
+
+        // Rebuild with calculated totalOrders
+        return distributor.toBuilder()
+                .totalOrders(totalOrders)
+                .build();
     }
 }

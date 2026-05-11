@@ -1,6 +1,7 @@
 package com.bristol.domain.order;
 
 import com.bristol.domain.distributor.DistributorId;
+import com.bristol.domain.shared.Page;
 import com.bristol.domain.user.UserId;
 
 import java.time.LocalDate;
@@ -61,6 +62,50 @@ public interface OrderRepository {
      * Find all orders (for admin).
      */
     List<Order> findAll();
+
+    /**
+     * Find orders with multiple optional filters.
+     * All parameters are optional (can be null).
+     */
+    List<Order> findWithFilters(
+            OrderStatus status,
+            LocalDate startDate,
+            LocalDate endDate,
+            DistributorId distributorId,
+            UserId userId
+    );
+
+    /**
+     * Find orders with multiple optional filters (paginated).
+     * All filter parameters are optional (can be null).
+     *
+     * @param orderId       Order ID filter
+     * @param status        Order status filter
+     * @param startDate     Start date filter
+     * @param endDate       End date filter
+     * @param distributorId Distributor ID filter
+     * @param userId        User ID filter
+     * @param pageNumber    Page number (0-indexed)
+     * @param pageSize      Number of items per page
+     * @return Page of orders matching the filters
+     */
+    Page<Order> findWithFiltersPaginated(
+            OrderId orderId,
+            OrderStatus status,
+            LocalDate startDate,
+            LocalDate endDate,
+            DistributorId distributorId,
+            UserId userId,
+            int pageNumber,
+            int pageSize
+    );
+
+    /**
+     * Count orders by status.
+     * @param status Order status to count, or null to count all orders
+     * @return Number of orders with the specified status
+     */
+    long countByStatus(OrderStatus status);
 
     /**
      * Delete order (should rarely be used, prefer soft delete via cancel).

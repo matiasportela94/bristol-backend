@@ -34,58 +34,47 @@ public class GetFilteredOrdersUseCase {
 
     @Transactional(readOnly = true)
     public List<OrderDto> execute(OrderFilterRequest filter) {
-        List<Order> orders;
+        // Parse IDs
+        DistributorId distributorId = filter.getDistributorId() != null && !filter.getDistributorId().isBlank()
+                ? new DistributorId(UUID.fromString(filter.getDistributorId()))
+                : null;
 
-        // If no filters, return all orders
-        if (isNoFiltersApplied(filter)) {
-            orders = orderRepository.findAll();
-        }
-        // Filter by user and status
-        else if (filter.getUserId() != null && filter.getStatus() != null) {
-            UserId userId = new UserId(UUID.fromString(filter.getUserId()));
-            orders = orderRepository.findByUserIdAndStatus(userId, filter.getStatus());
-        }
-        // Filter by user only
-        else if (filter.getUserId() != null) {
-            UserId userId = new UserId(UUID.fromString(filter.getUserId()));
-            orders = orderRepository.findByUserId(userId);
-        }
-        // Filter by status only
-        else if (filter.getStatus() != null) {
-            orders = orderRepository.findByStatus(filter.getStatus());
-        }
-        // Filter by distributor only
-        else if (filter.getDistributorId() != null) {
-            DistributorId distributorId = new DistributorId(UUID.fromString(filter.getDistributorId()));
-            orders = orderRepository.findByDistributorId(distributorId);
-        }
-        // Filter by date range
-        else if (filter.getStartDate() != null && filter.getEndDate() != null) {
-            orders = orderRepository.findByDateRange(filter.getStartDate(), filter.getEndDate());
-        }
-        // Default: all orders
-        else {
-            orders = orderRepository.findAll();
-        }
+        UserId userId = filter.getUserId() != null && !filter.getUserId().isBlank()
+                ? new UserId(UUID.fromString(filter.getUserId()))
+                : null;
 
-        // Apply additional in-memory filters if needed
-        if (filter.getStartDate() != null || filter.getEndDate() != null) {
-            orders = applyDateFilter(orders, filter.getStartDate(), filter.getEndDate());
-        }
+        // Use optimized database-level filtering
+        List<Order> orders = orderRepository.findWithFilters(
+                filter.getStatus(),
+                filter.getStartDate(),
+                filter.getEndDate(),
+                distributorId,
+                userId
+        );
 
-        if (filter.getDistributorId() != null && filter.getUserId() == null && filter.getStatus() == null) {
-            // Already filtered by distributor above
-        } else if (filter.getDistributorId() != null) {
-            DistributorId distributorId = new DistributorId(UUID.fromString(filter.getDistributorId()));
-            orders = applyDistributorFilter(orders, distributorId);
-        }
+        // Extract unique IDs from the current result set (avoid loading all users/distributors)
+        List<UUID> userIds = orders.stream()
+                .map(order -> order.getUserId().getValue())
+                .distinct()
+                .collect(Collectors.toList());
 
-        Map<String, String> distributorNames = distributorRepository.findAll().stream()
-                .collect(Collectors.toMap(
-                        distributor -> distributor.getId().getValue().toString(),
-                        distributor -> distributor.getRazonSocial()
-                ));
+        List<UUID> distributorIds = orders.stream()
+                .filter(order -> order.getDistributorId() != null)
+                .map(order -> order.getDistributorId().getValue())
+                .distinct()
+                .collect(Collectors.toList());
+
+        // Build lookup maps for only the users and distributors in this result set
+        Map<String, String> distributorNames = distributorIds.isEmpty() ? Map.of() :
+                distributorRepository.findAll().stream()
+                        .filter(d -> distributorIds.contains(d.getId().getValue()))
+                        .collect(Collectors.toMap(
+                                distributor -> distributor.getId().getValue().toString(),
+                                distributor -> distributor.getRazonSocial()
+                        ));
+
         Map<String, CustomerSummary> customersById = userRepository.findAll().stream()
+                .filter(u -> userIds.contains(u.getId().getValue()))
                 .collect(Collectors.toMap(
                         user -> user.getId().getValue().toString(),
                         user -> new CustomerSummary(
@@ -115,30 +104,5 @@ public class GetFilteredOrdersUseCase {
     }
 
     private record CustomerSummary(String name, String email) {
-    }
-
-    private boolean isNoFiltersApplied(OrderFilterRequest filter) {
-        return filter.getStatus() == null
-                && filter.getDistributorId() == null
-                && filter.getStartDate() == null
-                && filter.getEndDate() == null
-                && filter.getUserId() == null;
-    }
-
-    private List<Order> applyDateFilter(List<Order> orders, LocalDate startDate, LocalDate endDate) {
-        return orders.stream()
-                .filter(order -> {
-                    LocalDate orderDate = timeProvider.toLocalDate(order.getOrderDate());
-                    boolean afterStart = startDate == null || !orderDate.isBefore(startDate);
-                    boolean beforeEnd = endDate == null || !orderDate.isAfter(endDate);
-                    return afterStart && beforeEnd;
-                })
-                .collect(Collectors.toList());
-    }
-
-    private List<Order> applyDistributorFilter(List<Order> orders, DistributorId distributorId) {
-        return orders.stream()
-                .filter(order -> distributorId.equals(order.getDistributorId()))
-                .collect(Collectors.toList());
     }
 }
