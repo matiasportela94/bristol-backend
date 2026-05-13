@@ -6,5 +6,9 @@ package com.bristol.domain.user;
  */
 public enum UserRole {
     ADMIN,
-    USER
+    USER,
+    /** Main user of a distributor — sees all branches of their distributor. */
+    DISTRIBUTOR,
+    /** User linked to a specific distributor branch — sees only their branch's data. */
+    DISTRIBUTOR_BRANCH
 }

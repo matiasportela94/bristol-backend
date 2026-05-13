@@ -3,7 +3,6 @@ package com.bristol.application.distributor.usecase;
 import com.bristol.application.distributor.dto.DistributorRegistrationDto;
 import com.bristol.application.distributor.mapper.DistributorRegistrationMapper;
 import com.bristol.domain.distributor.Distributor;
-import com.bristol.domain.distributor.DistributorRegistrationAddress;
 import com.bristol.domain.distributor.DistributorRegistrationRepository;
 import com.bristol.domain.distributor.DistributorRegistrationRequest;
 import com.bristol.domain.distributor.DistributorRegistrationRequestId;
@@ -37,7 +36,6 @@ public class ApproveDistributorRegistrationUseCase {
     private final PasswordEncoder passwordEncoder;
     private final DistributorRegistrationMapper mapper;
     private final RegistrationDocumentService registrationDocumentService;
-    private final DistributorRegistrationAddressService registrationAddressService;
     private final DistributorRegistrationNotificationService notificationService;
     private final TimeProvider timeProvider;
 
@@ -52,21 +50,20 @@ public class ApproveDistributorRegistrationUseCase {
 
         // Approve the registration (changes status to APPROVED)
         registration = registration.approve(now);
-        DistributorRegistrationAddress primaryShippingAddress = registrationAddressService.getDefaultAddress(registration.getId())
-                .orElseThrow(() -> new IllegalStateException("Registration request has no shipping address"));
 
         String temporaryPassword = DEFAULT_DISTRIBUTOR_PASSWORD;
         User savedUser = saveApprovedUser(registration, temporaryPassword, now);
-        Distributor savedDistributor = distributorRepository.save(upsertApprovedDistributor(registration, primaryShippingAddress, savedUser, now));
-        registrationAddressService.assignAddressesToUser(registration.getId(), savedUser);
+        Distributor savedDistributor = distributorRepository.save(upsertApprovedDistributor(registration, savedUser, now));
+
+        // Link the user to their distributor now that the distributor ID is known
+        userRepository.save(savedUser.toBuilder()
+                .distributorId(savedDistributor.getId())
+                .build());
+
         registrationDocumentService.assignDocumentsToDistributor(registration.getId(), savedDistributor.getId());
         registrationRepository.delete(registration.getId());
 
-        return mapper.toDto(
-                registration,
-                registrationAddressService.toDtos(registration.getId()),
-                List.of()
-        );
+        return mapper.toDto(registration, List.of(), List.of());
     }
 
     private User saveApprovedUser(
@@ -82,7 +79,7 @@ public class ApproveDistributorRegistrationUseCase {
                         .lastName(extractLastName(registration.getRazonSocial()))
                         .phone(registration.getTelefono())
                         .passwordHash(hashedPassword)
-                        .role(UserRole.USER)
+                        .role(UserRole.DISTRIBUTOR)
                         .isDistributor(true)
                         .updatedAt(now)
                         .build())
@@ -93,7 +90,7 @@ public class ApproveDistributorRegistrationUseCase {
                                     hashedPassword,
                                     extractFirstName(registration.getRazonSocial()),
                                     extractLastName(registration.getRazonSocial()),
-                                    UserRole.USER,
+                                    UserRole.DISTRIBUTOR,
                                     now
                             ).toBuilder()
                             .phone(registration.getTelefono())
@@ -106,7 +103,6 @@ public class ApproveDistributorRegistrationUseCase {
 
     private Distributor upsertApprovedDistributor(
             DistributorRegistrationRequest registration,
-            DistributorRegistrationAddress primaryShippingAddress,
             User savedUser,
             Instant now
     ) {
@@ -118,7 +114,6 @@ public class ApproveDistributorRegistrationUseCase {
                         .phone(registration.getTelefono())
                         .cuit(registration.getCuit())
                         .razonSocial(registration.getRazonSocial())
-                        .deliveryZoneId(primaryShippingAddress.getDeliveryZoneId())
                         .status(DistributorStatus.APPROVED)
                         .updatedAt(now)
                         .build())
@@ -130,7 +125,7 @@ public class ApproveDistributorRegistrationUseCase {
                                 registration.getCuit(),
                                 registration.getRazonSocial(),
                                 null,
-                                primaryShippingAddress.getDeliveryZoneId(),
+                                null,
                                 now
                         ).approve(now));
     }

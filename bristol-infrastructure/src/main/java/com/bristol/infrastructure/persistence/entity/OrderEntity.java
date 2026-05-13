@@ -36,6 +36,9 @@ public class OrderEntity {
     @Column(name = "distributor_id", columnDefinition = "UUID")
     private UUID distributorId;
 
+    @Column(name = "branch_id", columnDefinition = "UUID")
+    private UUID branchId;
+
     @Column(name = "order_date", nullable = false)
     private Instant orderDate;
 

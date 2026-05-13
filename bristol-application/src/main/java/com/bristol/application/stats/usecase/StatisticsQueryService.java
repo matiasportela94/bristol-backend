@@ -13,10 +13,10 @@ import com.bristol.domain.distributor.RegistrationStatus;
 import com.bristol.domain.order.Order;
 import com.bristol.domain.order.OrderRepository;
 import com.bristol.domain.order.OrderStatus;
+import com.bristol.application.product.service.UnifiedProductService;
+import com.bristol.domain.product.BaseProduct;
 import com.bristol.domain.product.BeerType;
-import com.bristol.domain.product.Product;
 import com.bristol.domain.product.ProductCategory;
-import com.bristol.domain.product.ProductRepository;
 import com.bristol.domain.product.ProductSubcategory;
 import com.bristol.domain.product.ProductVariant;
 import com.bristol.domain.product.ProductVariantRepository;
@@ -72,7 +72,7 @@ public class StatisticsQueryService {
     private final DistributorRepository distributorRepository;
     private final DistributorRegistrationRepository distributorRegistrationRepository;
     private final UserRepository userRepository;
-    private final ProductRepository productRepository;
+    private final UnifiedProductService unifiedProductService;
     private final ProductVariantRepository productVariantRepository;
     private final TimeProvider timeProvider;
 
@@ -161,7 +161,7 @@ public class StatisticsQueryService {
     public List<StockStatDto> getProductStockStats() {
         Map<BeerType, Integer> stockByBeerType = new HashMap<>();
 
-        for (Product product : productRepository.findAll()) {
+        for (BaseProduct product : unifiedProductService.findAll()) {
             if (!product.isBeer() || product.isDeleted() || product.getBeerType() == null) {
                 continue;
             }
@@ -186,7 +186,7 @@ public class StatisticsQueryService {
     public List<StockStatDto> getMerchStockStats() {
         Map<ProductSubcategory, Integer> stockBySubcategory = new HashMap<>();
 
-        for (Product product : productRepository.findAll()) {
+        for (BaseProduct product : unifiedProductService.findAll()) {
             if (product.getCategory() != ProductCategory.MERCHANDISING || product.isDeleted() || product.getSubcategory() == null) {
                 continue;
             }
@@ -286,7 +286,7 @@ public class StatisticsQueryService {
         }
     }
 
-    private int resolveProductStock(Product product) {
+    private int resolveProductStock(BaseProduct product) {
         int unitMultiplier = resolveUnitMultiplier(product.getSubcategory());
         List<ProductVariant> variants = productVariantRepository.findByProductId(product.getId());
         if (variants.isEmpty()) {

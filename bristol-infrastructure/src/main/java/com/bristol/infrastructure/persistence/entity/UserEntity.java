@@ -50,6 +50,12 @@ public class UserEntity {
     @Builder.Default
     private Boolean isDistributor = false;
 
+    @Column(name = "distributor_id", columnDefinition = "UUID")
+    private UUID distributorId;
+
+    @Column(name = "branch_id", columnDefinition = "UUID")
+    private UUID branchId;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
@@ -72,6 +78,6 @@ public class UserEntity {
     }
 
     public enum UserRoleEnum {
-        ADMIN, USER
+        ADMIN, USER, DISTRIBUTOR, DISTRIBUTOR_BRANCH
     }
 }

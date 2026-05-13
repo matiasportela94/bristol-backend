@@ -2,12 +2,12 @@ package com.bristol.application.cart.usecase;
 
 import com.bristol.application.cart.dto.CartDto;
 import com.bristol.application.cart.dto.UpdateCartItemQuantityRequest;
+import com.bristol.application.product.service.UnifiedProductService;
 import com.bristol.domain.cart.CartItem;
 import com.bristol.domain.cart.CartItemId;
 import com.bristol.domain.cart.ShoppingCart;
 import com.bristol.domain.cart.ShoppingCartRepository;
-import com.bristol.domain.product.Product;
-import com.bristol.domain.product.ProductRepository;
+import com.bristol.domain.product.BaseProduct;
 import com.bristol.domain.product.ProductVariant;
 import com.bristol.domain.product.ProductVariantRepository;
 import com.bristol.domain.shared.exception.ValidationException;
@@ -25,7 +25,7 @@ import java.util.Optional;
 public class UpdateCartItemQuantityUseCase extends CartCommandSupport {
 
     private final ShoppingCartRepository shoppingCartRepository;
-    private final ProductRepository productRepository;
+    private final UnifiedProductService unifiedProductService;
     private final ProductVariantRepository productVariantRepository;
     private final UserRepository userRepository;
     private final CartMapper cartMapper;
@@ -42,7 +42,7 @@ public class UpdateCartItemQuantityUseCase extends CartCommandSupport {
                 .findFirst()
                 .orElseThrow(() -> new ValidationException("Cart item not found: " + itemId));
 
-        Product product = productRepository.findById(existingItem.getProductId())
+        BaseProduct product = unifiedProductService.findById(existingItem.getProductId())
                 .orElseThrow(() -> new ValidationException("Product not found: " + existingItem.getProductId()));
         Optional<ProductVariant> variant = Optional.ofNullable(existingItem.getProductVariantId())
                 .flatMap(productVariantRepository::findById);

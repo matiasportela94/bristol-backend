@@ -70,7 +70,7 @@ public class DistributorController {
     }
 
     @GetMapping("/user/{userId}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER', 'DISTRIBUTOR', 'DISTRIBUTOR_BRANCH')")
     @Operation(summary = "Get distributor by user ID", description = "Retrieve the distributor associated to a user")
     public ResponseEntity<DistributorDto> getDistributorByUserId(
             @PathVariable String userId,
@@ -84,7 +84,7 @@ public class DistributorController {
      * Get distributor by ID.
      */
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER', 'DISTRIBUTOR', 'DISTRIBUTOR_BRANCH')")
     @Operation(summary = "Get distributor by ID", description = "Retrieve a distributor by its ID")
     public ResponseEntity<DistributorDto> getDistributorById(@PathVariable String id, Authentication authentication) {
         resolveAccessibleDistributor(id, authentication);
@@ -105,7 +105,7 @@ public class DistributorController {
      * Update distributor information.
      */
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER', 'DISTRIBUTOR', 'DISTRIBUTOR_BRANCH')")
     @Operation(summary = "Update distributor", description = "Update distributor business information")
     public ResponseEntity<DistributorDto> updateDistributor(
             @PathVariable String id,
@@ -158,15 +158,10 @@ public class DistributorController {
             @RequestParam String cuit,
             @RequestParam String email,
             @RequestParam String telefono,
-            @RequestParam String provincia,
-            @RequestParam String ciudad,
+            @RequestParam(required = false) String provincia,
+            @RequestParam(required = false) String ciudad,
             @RequestParam String direccion,
             @RequestParam(required = false) String codigoPostal,
-            @RequestParam(required = false) String provinciaEnvio,
-            @RequestParam(required = false) String ciudadEnvio,
-            @RequestParam(required = false) String direccionEnvio,
-            @RequestParam(required = false) String codigoPostalEnvio,
-            @RequestParam String deliveryZone,
             @RequestPart(value = "documents", required = false) List<MultipartFile> documents
     ) {
         CreateDistributorRegistrationRequest request = CreateDistributorRegistrationRequest.builder()
@@ -178,11 +173,6 @@ public class DistributorController {
                 .ciudad(ciudad)
                 .direccion(direccion)
                 .codigoPostal(codigoPostal)
-                .provinciaEnvio(provinciaEnvio)
-                .ciudadEnvio(ciudadEnvio)
-                .direccionEnvio(direccionEnvio)
-                .codigoPostalEnvio(codigoPostalEnvio)
-                .deliveryZone(deliveryZone)
                 .documents(toDocumentPayloads(documents))
                 .build();
 
@@ -230,7 +220,7 @@ public class DistributorController {
     }
 
     @GetMapping("/{distributorId}/documents/{documentId}/download")
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER', 'DISTRIBUTOR', 'DISTRIBUTOR_BRANCH')")
     @Operation(summary = "Download distributor document", description = "Download a document associated to an approved distributor")
     public ResponseEntity<byte[]> downloadDistributorDocument(
             @PathVariable String distributorId,
@@ -244,7 +234,7 @@ public class DistributorController {
     }
 
     @PostMapping(value = "/{id}/documents", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER', 'DISTRIBUTOR', 'DISTRIBUTOR_BRANCH')")
     @Operation(summary = "Upload distributor document", description = "Upload a supporting document for a distributor")
     public ResponseEntity<DistributorDto> uploadDistributorDocument(
             @PathVariable String id,
@@ -270,7 +260,7 @@ public class DistributorController {
     }
 
     @DeleteMapping("/{id}/documents/{documentId}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER', 'DISTRIBUTOR', 'DISTRIBUTOR_BRANCH')")
     @Operation(summary = "Delete distributor document", description = "Delete a supporting document for a distributor")
     public ResponseEntity<DistributorDto> deleteDistributorDocument(
             @PathVariable String id,

@@ -10,8 +10,9 @@ import com.bristol.domain.coupon.CouponRepository;
 import com.bristol.domain.coupon.CouponStatus;
 import com.bristol.domain.coupon.CouponTriggerType;
 import com.bristol.domain.coupon.CouponValueType;
+import com.bristol.domain.product.BaseProduct;
+import com.bristol.domain.product.BeerProduct;
 import com.bristol.domain.product.BeerType;
-import com.bristol.domain.product.Product;
 import com.bristol.domain.product.ProductCategory;
 import com.bristol.domain.product.ProductId;
 import com.bristol.domain.product.ProductSubcategory;
@@ -37,13 +38,13 @@ class ProductCatalogPromotionServiceTest {
         CouponRepository couponRepository = mock(CouponRepository.class);
         ProductCatalogPromotionService service = new ProductCatalogPromotionService(couponRepository);
 
-        Product beer = sampleProduct(
+        BaseProduct beer = sampleProduct(
                 "Cerveza IPA",
                 ProductCategory.PRODUCTOS,
                 ProductSubcategory.CAN,
                 BeerType.IPA
         );
-        Product merch = sampleProduct(
+        BaseProduct merch = sampleProduct(
                 "Remera Bristol",
                 ProductCategory.MERCHANDISING,
                 ProductSubcategory.REMERA,
@@ -185,13 +186,13 @@ class ProductCatalogPromotionServiceTest {
         CouponRepository couponRepository = mock(CouponRepository.class);
         ProductCatalogPromotionService service = new ProductCatalogPromotionService(couponRepository);
 
-        Product product = sampleProduct(
+        BaseProduct product = sampleProduct(
                 "Lager Bristol",
                 ProductCategory.PRODUCTOS,
                 ProductSubcategory.CAN,
                 BeerType.LAGER
         );
-        Product triggerProduct = sampleProduct(
+        BaseProduct triggerProduct = sampleProduct(
                 "IPA Bristol",
                 ProductCategory.PRODUCTOS,
                 ProductSubcategory.CAN,
@@ -242,19 +243,16 @@ class ProductCatalogPromotionServiceTest {
                 );
     }
 
-    private static Product sampleProduct(
+    private static BaseProduct sampleProduct(
             String name,
             ProductCategory category,
             ProductSubcategory subcategory,
             BeerType beerType
     ) {
-        return Product.builder()
+        return BeerProduct.builder()
                 .id(ProductId.generate())
                 .name(name)
                 .description(name)
-                .category(category)
-                .subcategory(subcategory)
-                .beerType(beerType)
                 .basePrice(Money.of(1000))
                 .stockQuantity(10)
                 .lowStockThreshold(2)

@@ -12,6 +12,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 /**
  * Use case to register a new distributor request.
  */
@@ -22,7 +24,6 @@ public class RegisterDistributorUseCase {
     private final DistributorRegistrationRepository registrationRepository;
     private final DistributorRegistrationMapper mapper;
     private final RegistrationDocumentService registrationDocumentService;
-    private final DistributorRegistrationAddressService registrationAddressService;
     private final UserRepository userRepository;
     private final TimeProvider timeProvider;
 
@@ -53,12 +54,11 @@ public class RegisterDistributorUseCase {
 
         // Save to repository
         DistributorRegistrationRequest savedRegistration = registrationRepository.save(registration);
-        registrationAddressService.createAddresses(savedRegistration, request);
         registrationDocumentService.createDocuments(savedRegistration.getId(), request.getDocuments());
 
         return mapper.toDto(
                 savedRegistration,
-                registrationAddressService.toDtos(savedRegistration.getId()),
+                List.of(),
                 registrationDocumentService.toDtos(savedRegistration.getId())
         );
     }

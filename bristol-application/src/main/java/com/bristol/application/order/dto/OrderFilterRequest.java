@@ -23,4 +23,5 @@ public class OrderFilterRequest {
     private LocalDate startDate;
     private LocalDate endDate;
     private String userId;
+    private String branchId;
 }

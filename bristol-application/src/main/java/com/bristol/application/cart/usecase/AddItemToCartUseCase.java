@@ -2,10 +2,10 @@ package com.bristol.application.cart.usecase;
 
 import com.bristol.application.cart.dto.AddCartItemRequest;
 import com.bristol.application.cart.dto.CartDto;
+import com.bristol.application.product.service.UnifiedProductService;
 import com.bristol.domain.cart.ShoppingCart;
 import com.bristol.domain.cart.ShoppingCartRepository;
-import com.bristol.domain.product.Product;
-import com.bristol.domain.product.ProductRepository;
+import com.bristol.domain.product.BaseProduct;
 import com.bristol.domain.product.ProductVariant;
 import com.bristol.domain.product.ProductVariantRepository;
 import com.bristol.domain.shared.time.TimeProvider;
@@ -22,7 +22,7 @@ import java.util.Optional;
 public class AddItemToCartUseCase extends CartCommandSupport {
 
     private final ShoppingCartRepository shoppingCartRepository;
-    private final ProductRepository productRepository;
+    private final UnifiedProductService unifiedProductService;
     private final ProductVariantRepository productVariantRepository;
     private final UserRepository userRepository;
     private final CartMapper cartMapper;
@@ -32,7 +32,7 @@ public class AddItemToCartUseCase extends CartCommandSupport {
     public CartDto execute(String userEmail, AddCartItemRequest request) {
         User user = resolveUserByEmail(userEmail, userRepository);
         ShoppingCart cart = getOrCreateCart(user, shoppingCartRepository, timeProvider);
-        Product product = productOrThrow(request.getProductId(), productRepository);
+        BaseProduct product = productOrThrow(request.getProductId(), unifiedProductService);
         Optional<ProductVariant> variant = resolveVariant(request.getProductVariantId(), product, productVariantRepository);
         int existingCartQuantity = resolveCartQuantity(
                 cart,

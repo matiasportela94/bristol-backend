@@ -1,6 +1,7 @@
 package com.bristol.domain.order;
 
 import com.bristol.domain.coupon.CouponId;
+import com.bristol.domain.distributor.DistributorBranchId;
 import com.bristol.domain.distributor.DistributorId;
 import com.bristol.domain.shared.exception.ValidationException;
 import com.bristol.domain.shared.valueobject.Money;
@@ -26,7 +27,8 @@ public class Order {
     private final Long orderNumber;
     private final UserId userId;
     private final OrderStatus status;
-    private final DistributorId distributorId; // nullable
+    private final DistributorId distributorId;   // nullable — assigned delivery distributor
+    private final DistributorBranchId branchId; // nullable — branch that placed this order
     private final Instant orderDate;
     private final ShippingAddress shippingAddress;
 

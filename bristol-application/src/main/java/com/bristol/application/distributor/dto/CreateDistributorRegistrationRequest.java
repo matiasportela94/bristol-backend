@@ -46,17 +46,5 @@ public class CreateDistributorRegistrationRequest {
 
     String codigoPostal;
 
-    // Dirección de envío (opcional si sameAsAddress = true)
-    String provinciaEnvio;
-    String ciudadEnvio;
-    String direccionEnvio;
-    String codigoPostalEnvio;
-
-    List<RegistrationShippingAddressPayload> shippingAddresses;
-
-    @Pattern(regexp = "^(sur|norte|centro)$", flags = Pattern.Flag.CASE_INSENSITIVE,
-             message = "Delivery zone must be one of: sur, norte, centro")
-    String deliveryZone;
-
     List<RegistrationDocumentPayload> documents;
 }

@@ -3,7 +3,7 @@ spring:
     name: bristol-backend
 
   datasource:
-    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:bristol}
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:bristol}?currentSchema=public
     username: ${DB_USER:admin}
     password: ${DB_PASSWORD:secret}
     driver-class-name: org.postgresql.Driver
@@ -29,8 +29,8 @@ spring:
 
   flyway:
     enabled: true
-    baseline-on-migrate: ${FLYWAY_BASELINE_ON_MIGRATE:false}
-    baseline-version: ${FLYWAY_BASELINE_VERSION:1}
+    baseline-on-migrate: ${FLYWAY_BASELINE_ON_MIGRATE:true}
+    baseline-version: ${FLYWAY_BASELINE_VERSION:0}
     locations: classpath:db/migration
     validate-on-migrate: ${FLYWAY_VALIDATE_ON_MIGRATE:false}
 
@@ -55,6 +55,10 @@ spring:
     multipart:
       max-file-size: 5MB
       max-request-size: 10MB
+
+google:
+  maps:
+    api-key: ${GOOGLE_MAPS_API_KEY:AIzaSyAffFs3hVS4Fi_WJptaEowq0bgARoim9aM}
 
 server:
   port: ${SERVER_PORT:8080}
@@ -92,6 +96,19 @@ logging:
 
 # Application specific properties
 bristol:
+  depot:
+    address: ${BRISTOL_DEPOT_ADDRESS:Olavarria 4751, Mar del Plata}
+    departure-time: ${BRISTOL_DEPOT_DEPARTURE_TIME:08:00}
+
+  zones:
+    centro:
+      # 4 vertices of the CENTRO polygon, resolved via Google Geocoding at startup.
+      # Update these addresses if Google geocodes any vertex incorrectly.
+      vertex-nw: ${BRISTOL_ZONE_CENTRO_NW:Avenida Independencia y Avenida Luro, Mar del Plata, Argentina}
+      vertex-ne: ${BRISTOL_ZONE_CENTRO_NE:Avenida Luro y Avenida Patricio Peralta Ramos, Mar del Plata, Argentina}
+      vertex-se: ${BRISTOL_ZONE_CENTRO_SE:Avenida Juan B Justo y Avenida Patricio Peralta Ramos, Mar del Plata, Argentina}
+      vertex-sw: ${BRISTOL_ZONE_CENTRO_SW:Avenida Juan B Justo y Avenida Independencia, Mar del Plata, Argentina}
+
   jwt:
     secret: ${JWT_SECRET:bristol-backend-jwt-secret-key-hs512-minimum-512-bits-required-for-secure-signing-operations-2024}
     expiration: ${JWT_EXPIRATION:86400000} # 24 hours in milliseconds

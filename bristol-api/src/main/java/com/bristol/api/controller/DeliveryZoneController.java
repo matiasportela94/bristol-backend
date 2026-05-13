@@ -36,7 +36,7 @@ public class DeliveryZoneController {
      * Get all delivery zones.
      */
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER', 'DISTRIBUTOR', 'DISTRIBUTOR_BRANCH')")
     @Operation(summary = "Get all delivery zones", description = "Retrieve all delivery zones")
     public ResponseEntity<List<DeliveryZoneDto>> getAllDeliveryZones() {
         return ResponseEntity.ok(getAllDeliveryZonesUseCase.execute());
@@ -46,7 +46,7 @@ public class DeliveryZoneController {
      * Get delivery zone by ID.
      */
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER', 'DISTRIBUTOR', 'DISTRIBUTOR_BRANCH')")
     @Operation(summary = "Get delivery zone by ID", description = "Retrieve a delivery zone by its ID")
     public ResponseEntity<DeliveryZoneDto> getDeliveryZoneById(@PathVariable String id) {
         return ResponseEntity.ok(getDeliveryZoneByIdUseCase.execute(id));

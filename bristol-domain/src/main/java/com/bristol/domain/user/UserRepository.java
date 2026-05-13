@@ -17,6 +17,8 @@ public interface UserRepository {
 
     List<User> findAll();
 
+    List<User> findByBranchId(com.bristol.domain.distributor.DistributorBranchId branchId);
+
     boolean existsByEmail(String email);
 
     void delete(UserId id);

@@ -47,7 +47,7 @@ public class StatsController {
     }
 
     @GetMapping("/distributors/{distributorId}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER', 'DISTRIBUTOR', 'DISTRIBUTOR_BRANCH')")
     @Operation(summary = "Get distributor statistics", description = "Retrieve statistics for a specific distributor")
     public ResponseEntity<DistributorStatsDto> getDistributorStats(
             @PathVariable String distributorId,
@@ -58,7 +58,7 @@ public class StatsController {
     }
 
     @GetMapping("/rankings/monthly")
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER', 'DISTRIBUTOR', 'DISTRIBUTOR_BRANCH')")
     @Operation(summary = "Get monthly ranking", description = "Retrieve monthly ranking of distributors based on real order data")
     public ResponseEntity<RankingResponseDto> getMonthlyRanking(
             @RequestParam(required = false) String month,

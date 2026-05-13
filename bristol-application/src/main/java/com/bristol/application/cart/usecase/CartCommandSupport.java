@@ -1,5 +1,6 @@
 package com.bristol.application.cart.usecase;
 
+import com.bristol.application.product.service.UnifiedProductService;
 import com.bristol.domain.cart.CartItem;
 import com.bristol.domain.cart.ShoppingCart;
 import com.bristol.domain.cart.ShoppingCartRepository;
@@ -30,14 +31,14 @@ abstract class CartCommandSupport {
                 .orElseGet(() -> ShoppingCart.create(user.getId(), timeProvider.now()));
     }
 
-    protected Product productOrThrow(String productId, ProductRepository productRepository) {
-        return productRepository.findById(new ProductId(productId))
+    protected BaseProduct productOrThrow(String productId, UnifiedProductService unifiedProductService) {
+        return unifiedProductService.findById(new ProductId(productId))
                 .orElseThrow(() -> new ValidationException("Product not found: " + productId));
     }
 
     protected Optional<ProductVariant> resolveVariant(
             String productVariantId,
-            Product product,
+            BaseProduct product,
             ProductVariantRepository productVariantRepository
     ) {
         if (productVariantId == null || productVariantId.isBlank()) {
@@ -55,7 +56,7 @@ abstract class CartCommandSupport {
     }
 
     private Optional<ProductVariant> resolveSingleAvailableVariant(
-            Product product,
+            BaseProduct product,
             ProductVariantRepository productVariantRepository
     ) {
         List<ProductVariant> allVariants = productVariantRepository.findByProductId(product.getId());
@@ -68,15 +69,14 @@ abstract class CartCommandSupport {
             return Optional.empty();
         }
 
-        ProductVariant onlyVariant = availableVariants.get(0);
-        if (!onlyVariant.getId().equals(allVariants.get(0).getId())) {
+        if (!availableVariants.get(0).getId().equals(allVariants.get(0).getId())) {
             return Optional.empty();
         }
 
-        return Optional.of(onlyVariant);
+        return Optional.of(availableVariants.get(0));
     }
 
-    protected void validateProductAvailability(Product product) {
+    protected void validateProductAvailability(BaseProduct product) {
         if (product.isDeleted()) {
             throw new ValidationException("Product is no longer available: " + product.getName());
         }
@@ -86,12 +86,12 @@ abstract class CartCommandSupport {
         }
     }
 
-    protected void validateRequestedQuantity(Product product, Optional<ProductVariant> variant, Integer quantity) {
+    protected void validateRequestedQuantity(BaseProduct product, Optional<ProductVariant> variant, Integer quantity) {
         validateRequestedQuantity(product, variant, quantity, 0);
     }
 
     protected void validateRequestedQuantity(
-            Product product,
+            BaseProduct product,
             Optional<ProductVariant> variant,
             Integer quantity,
             Integer existingCartQuantity
@@ -117,8 +117,8 @@ abstract class CartCommandSupport {
                 .sum();
     }
 
-    protected Money resolveUnitPrice(Product product, Optional<ProductVariant> variant) {
-        return variant.map(productVariant -> product.getBasePrice().add(productVariant.getAdditionalPrice()))
+    protected Money resolveUnitPrice(BaseProduct product, Optional<ProductVariant> variant) {
+        return variant.map(v -> product.getBasePrice().add(v.getAdditionalPrice()))
                 .orElse(product.getBasePrice());
     }
 

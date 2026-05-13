@@ -29,14 +29,14 @@ public class CartController {
     private final CheckoutCartUseCase checkoutCartUseCase;
 
     @GetMapping
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasAnyRole('USER', 'DISTRIBUTOR', 'DISTRIBUTOR_BRANCH')")
     @Operation(summary = "Get current cart", description = "Retrieve the authenticated user's cart")
     public ResponseEntity<CartDto> getMyCart(Authentication authentication) {
         return ResponseEntity.ok(getMyCartUseCase.execute(authentication.getName()));
     }
 
     @PostMapping("/preview")
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasAnyRole('USER', 'DISTRIBUTOR', 'DISTRIBUTOR_BRANCH')")
     @Operation(summary = "Preview current cart", description = "Preview the authenticated user's cart with an optional coupon applied")
     public ResponseEntity<CartDto> previewCart(
             @RequestBody(required = false) PreviewCartRequest request,
@@ -46,7 +46,7 @@ public class CartController {
     }
 
     @PostMapping("/items")
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasAnyRole('USER', 'DISTRIBUTOR', 'DISTRIBUTOR_BRANCH')")
     @Operation(summary = "Add item to cart", description = "Add a product to the authenticated user's cart")
     public ResponseEntity<CartDto> addItem(
             @Valid @RequestBody AddCartItemRequest request,
@@ -56,7 +56,7 @@ public class CartController {
     }
 
     @PatchMapping("/items/{itemId}")
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasAnyRole('USER', 'DISTRIBUTOR', 'DISTRIBUTOR_BRANCH')")
     @Operation(summary = "Update cart item quantity", description = "Update the quantity of an existing cart item")
     public ResponseEntity<CartDto> updateItemQuantity(
             @PathVariable String itemId,
@@ -67,7 +67,7 @@ public class CartController {
     }
 
     @DeleteMapping("/items/{itemId}")
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasAnyRole('USER', 'DISTRIBUTOR', 'DISTRIBUTOR_BRANCH')")
     @Operation(summary = "Remove cart item", description = "Remove an item from the authenticated user's cart")
     public ResponseEntity<Void> removeItem(@PathVariable String itemId, Authentication authentication) {
         removeCartItemUseCase.execute(authentication.getName(), itemId);
@@ -75,7 +75,7 @@ public class CartController {
     }
 
     @DeleteMapping
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasAnyRole('USER', 'DISTRIBUTOR', 'DISTRIBUTOR_BRANCH')")
     @Operation(summary = "Clear cart", description = "Remove all items from the authenticated user's cart")
     public ResponseEntity<Void> clearCart(Authentication authentication) {
         clearCartUseCase.execute(authentication.getName());
@@ -83,7 +83,7 @@ public class CartController {
     }
 
     @PostMapping("/checkout")
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasAnyRole('USER', 'DISTRIBUTOR', 'DISTRIBUTOR_BRANCH')")
     @Operation(summary = "Checkout cart", description = "Create an order from the authenticated user's cart")
     public ResponseEntity<CheckoutCartResponse> checkout(
             @Valid @RequestBody CheckoutCartRequest request,

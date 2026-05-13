@@ -1,6 +1,7 @@
 package com.bristol.application.order.usecase;
 
 import com.bristol.application.delivery.service.DeliverySchedulingService;
+import com.bristol.application.distributor.usecase.DistributorOrderStatsService;
 import com.bristol.application.order.dto.OrderDto;
 import com.bristol.application.order.dto.UpdateOrderStatusRequest;
 import com.bristol.application.order.service.StockManagementService;
@@ -41,11 +42,13 @@ class UpdateOrderStatusUseCaseTest {
         CouponRedemptionApplicationService couponRedemptionApplicationService = mock(CouponRedemptionApplicationService.class);
         DeliverySchedulingService deliverySchedulingService = mock(DeliverySchedulingService.class);
         OrderMapper orderMapper = mock(OrderMapper.class);
+        DistributorOrderStatsService distributorOrderStatsService = mock(DistributorOrderStatsService.class);
         UpdateOrderStatusUseCase useCase = new UpdateOrderStatusUseCase(
                 orderRepository,
                 stockManagementService,
                 couponRedemptionApplicationService,
                 deliverySchedulingService,
+                distributorOrderStatsService,
                 orderMapper,
                 fixedTimeProvider()
         );
@@ -72,11 +75,13 @@ class UpdateOrderStatusUseCaseTest {
         CouponRedemptionApplicationService couponRedemptionApplicationService = mock(CouponRedemptionApplicationService.class);
         DeliverySchedulingService deliverySchedulingService = mock(DeliverySchedulingService.class);
         OrderMapper orderMapper = mock(OrderMapper.class);
+        DistributorOrderStatsService distributorOrderStatsService = mock(DistributorOrderStatsService.class);
         UpdateOrderStatusUseCase useCase = new UpdateOrderStatusUseCase(
                 orderRepository,
                 stockManagementService,
                 couponRedemptionApplicationService,
                 deliverySchedulingService,
+                distributorOrderStatsService,
                 orderMapper,
                 fixedTimeProvider()
         );
@@ -103,11 +108,13 @@ class UpdateOrderStatusUseCaseTest {
         CouponRedemptionApplicationService couponRedemptionApplicationService = mock(CouponRedemptionApplicationService.class);
         DeliverySchedulingService deliverySchedulingService = mock(DeliverySchedulingService.class);
         OrderMapper orderMapper = mock(OrderMapper.class);
+        DistributorOrderStatsService distributorOrderStatsService = mock(DistributorOrderStatsService.class);
         UpdateOrderStatusUseCase useCase = new UpdateOrderStatusUseCase(
                 orderRepository,
                 stockManagementService,
                 couponRedemptionApplicationService,
                 deliverySchedulingService,
+                distributorOrderStatsService,
                 orderMapper,
                 fixedTimeProvider()
         );

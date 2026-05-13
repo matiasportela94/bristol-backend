@@ -44,7 +44,7 @@ public class UserController {
      * Get user by ID.
      */
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER', 'DISTRIBUTOR', 'DISTRIBUTOR_BRANCH')")
     @Operation(summary = "Get user by ID", description = "Retrieve a user by their ID")
     public ResponseEntity<UserDto> getUserById(@PathVariable String id) {
         UserDto user = getUserByIdUseCase.execute(id);
@@ -55,7 +55,7 @@ public class UserController {
      * Update user profile.
      */
     @PutMapping("/{id}/profile")
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER', 'DISTRIBUTOR', 'DISTRIBUTOR_BRANCH')")
     @Operation(summary = "Update user profile", description = "Update user's first and last name")
     public ResponseEntity<UserDto> updateUserProfile(
             @PathVariable String id,
@@ -69,7 +69,7 @@ public class UserController {
      * Change user password.
      */
     @PutMapping("/{id}/password")
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER', 'DISTRIBUTOR', 'DISTRIBUTOR_BRANCH')")
     @Operation(summary = "Change password", description = "Change user's password")
     public ResponseEntity<Void> changePassword(
             @PathVariable String id,

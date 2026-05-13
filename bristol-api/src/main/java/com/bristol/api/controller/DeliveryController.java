@@ -2,6 +2,7 @@ package com.bristol.api.controller;
 
 import com.bristol.application.delivery.dto.*;
 import com.bristol.application.delivery.usecase.*;
+import com.bristol.application.delivery.usecase.GenerateDeliveryRouteUseCase;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -29,6 +30,17 @@ public class DeliveryController {
     private final StartDeliveryTransitUseCase startDeliveryTransitUseCase;
     private final CompleteDeliveryUseCase completeDeliveryUseCase;
     private final MarkDeliveryFailedUseCase markDeliveryFailedUseCase;
+    private final GenerateDeliveryRouteUseCase generateDeliveryRouteUseCase;
+
+    @GetMapping("/route")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Generate delivery route",
+               description = "Returns the optimized delivery route for a given date with a Google Maps URL ready to share with the driver")
+    public ResponseEntity<DeliveryRouteDto> getDeliveryRoute(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date
+    ) {
+        return ResponseEntity.ok(generateDeliveryRouteUseCase.execute(date));
+    }
 
     /**
      * Get deliveries with optional date filters.
@@ -51,7 +63,7 @@ public class DeliveryController {
      * Get deliveries by order ID.
      */
     @GetMapping("/order/{orderId}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'DISTRIBUTOR', 'DISTRIBUTOR_BRANCH')")
     @Operation(summary = "Get deliveries by order", description = "Retrieve deliveries linked to an order")
     public ResponseEntity<java.util.List<DeliveryDto>> getDeliveriesByOrder(@PathVariable String orderId) {
         return ResponseEntity.ok(getDeliveriesByOrderUseCase.execute(orderId));
@@ -61,7 +73,7 @@ public class DeliveryController {
      * Get deliveries by user email.
      */
     @GetMapping("/user/{email}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER', 'DISTRIBUTOR', 'DISTRIBUTOR_BRANCH')")
     @Operation(summary = "Get deliveries by user email", description = "Retrieve deliveries for a user email")
     public ResponseEntity<java.util.List<DeliveryDto>> getDeliveriesByUserEmail(@PathVariable String email) {
         return ResponseEntity.ok(getDeliveriesByUserEmailUseCase.execute(email));
@@ -71,7 +83,7 @@ public class DeliveryController {
      * Get delivery by ID.
      */
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER', 'DISTRIBUTOR', 'DISTRIBUTOR_BRANCH')")
     @Operation(summary = "Get delivery by ID", description = "Retrieve a delivery by its ID")
     public ResponseEntity<DeliveryDto> getDeliveryById(@PathVariable String id) {
         return ResponseEntity.ok(getDeliveryByIdUseCase.execute(id));

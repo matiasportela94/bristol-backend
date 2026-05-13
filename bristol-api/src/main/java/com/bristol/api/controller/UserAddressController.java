@@ -28,21 +28,21 @@ public class UserAddressController {
     private final DeleteUserAddressUseCase deleteUserAddressUseCase;
 
     @GetMapping("/user/{userId}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER', 'DISTRIBUTOR', 'DISTRIBUTOR_BRANCH')")
     @Operation(summary = "Get user addresses", description = "Get all addresses for a user")
     public ResponseEntity<List<UserAddressDto>> getUserAddresses(@PathVariable String userId) {
         return ResponseEntity.ok(getUserAddressesUseCase.execute(userId));
     }
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER', 'DISTRIBUTOR', 'DISTRIBUTOR_BRANCH')")
     @Operation(summary = "Create address", description = "Create a new address for a user")
     public ResponseEntity<UserAddressDto> createAddress(@Valid @RequestBody CreateUserAddressRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(createUserAddressUseCase.execute(request));
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER', 'DISTRIBUTOR', 'DISTRIBUTOR_BRANCH')")
     @Operation(summary = "Update address", description = "Update an existing address")
     public ResponseEntity<UserAddressDto> updateAddress(
             @PathVariable String id,
@@ -52,7 +52,7 @@ public class UserAddressController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER', 'DISTRIBUTOR', 'DISTRIBUTOR_BRANCH')")
     @Operation(summary = "Delete address", description = "Delete an address")
     public ResponseEntity<Void> deleteAddress(@PathVariable String id) {
         deleteUserAddressUseCase.execute(id);

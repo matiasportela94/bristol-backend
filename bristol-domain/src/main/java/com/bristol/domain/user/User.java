@@ -1,5 +1,7 @@
 package com.bristol.domain.user;
 
+import com.bristol.domain.distributor.DistributorBranchId;
+import com.bristol.domain.distributor.DistributorId;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -23,6 +25,10 @@ public class User {
     private final LocalDate dateOfBirth;
     private final UserRole role;
     private final boolean isDistributor;
+    /** Set when role is DISTRIBUTOR or DISTRIBUTOR_BRANCH. */
+    private final DistributorId distributorId;
+    /** Set when role is DISTRIBUTOR_BRANCH. */
+    private final DistributorBranchId branchId;
     private final Instant createdAt;
     private final Instant updatedAt;
 

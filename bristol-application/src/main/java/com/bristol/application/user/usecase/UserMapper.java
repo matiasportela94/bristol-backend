@@ -20,6 +20,8 @@ public class UserMapper {
                 .dateOfBirth(user.getDateOfBirth())
                 .role(user.getRole())
                 .isDistributor(user.isDistributor())
+                .distributorId(user.getDistributorId() != null ? user.getDistributorId().getValue().toString() : null)
+                .branchId(user.getBranchId() != null ? user.getBranchId().getValue().toString() : null)
                 .createdAt(user.getCreatedAt())
                 .updatedAt(user.getUpdatedAt())
                 .build();

@@ -1,9 +1,9 @@
 package com.bristol.application.order.service;
 
+import com.bristol.application.product.service.UnifiedProductService;
 import com.bristol.domain.order.Order;
 import com.bristol.domain.order.OrderItem;
-import com.bristol.domain.product.Product;
-import com.bristol.domain.product.ProductRepository;
+import com.bristol.domain.product.BaseProduct;
 import com.bristol.domain.product.ProductVariant;
 import com.bristol.domain.product.ProductVariantRepository;
 import com.bristol.domain.shared.exception.ValidationException;
@@ -12,22 +12,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Instant;
-
-/**
- * Service for managing product stock in relation to orders.
- */
 @Service
 @RequiredArgsConstructor
 public class StockManagementService {
 
-    private final ProductRepository productRepository;
+    private final UnifiedProductService unifiedProductService;
     private final ProductVariantRepository productVariantRepository;
     private final TimeProvider timeProvider;
 
-    /**
-     * Deduct stock for all items in an order.
-     */
     @Transactional
     public void deductStockForOrder(Order order) {
         if (order.isStockUpdated()) {
@@ -35,7 +27,7 @@ public class StockManagementService {
         }
 
         for (OrderItem item : order.getItems()) {
-            Product product = productRepository.findById(item.getProductId())
+            BaseProduct product = unifiedProductService.findById(item.getProductId())
                     .orElseThrow(() -> new ValidationException(
                             "Product not found: " + item.getProductId().getValue()));
 
@@ -67,13 +59,10 @@ public class StockManagementService {
                         ", Required: " + item.getQuantity());
             }
 
-            productRepository.save(product.reduceStock(item.getQuantity(), timeProvider.now()));
+            unifiedProductService.save(product.reduceStock(item.getQuantity(), timeProvider.now()));
         }
     }
 
-    /**
-     * Restore stock for all items in an order.
-     */
     @Transactional
     public void restoreStockForOrder(Order order) {
         if (!order.isStockUpdated()) {
@@ -81,7 +70,7 @@ public class StockManagementService {
         }
 
         for (OrderItem item : order.getItems()) {
-            Product product = productRepository.findById(item.getProductId())
+            BaseProduct product = unifiedProductService.findById(item.getProductId())
                     .orElseThrow(() -> new ValidationException(
                             "Product not found: " + item.getProductId().getValue()));
 
@@ -102,7 +91,7 @@ public class StockManagementService {
                 continue;
             }
 
-            productRepository.save(product.increaseStock(item.getQuantity(), timeProvider.now()));
+            unifiedProductService.save(product.increaseStock(item.getQuantity(), timeProvider.now()));
         }
     }
 }

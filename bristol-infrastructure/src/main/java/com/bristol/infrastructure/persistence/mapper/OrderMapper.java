@@ -2,6 +2,7 @@ package com.bristol.infrastructure.persistence.mapper;
 
 import com.bristol.domain.coupon.CouponId;
 import com.bristol.domain.delivery.DeliveryZoneId;
+import com.bristol.domain.distributor.DistributorBranchId;
 import com.bristol.domain.distributor.DistributorId;
 import com.bristol.domain.order.Order;
 import com.bristol.domain.order.OrderId;
@@ -27,6 +28,7 @@ public interface OrderMapper {
     @Mapping(target = "userId", expression = "java(toUserId(entity.getUserId()))")
     @Mapping(target = "status", expression = "java(toDomainStatus(entity.getOrderStatus()))")
     @Mapping(target = "distributorId", expression = "java(toDistributorId(entity.getDistributorId()))")
+    @Mapping(target = "branchId", expression = "java(toBranchId(entity.getBranchId()))")
     @Mapping(target = "shippingAddress", expression = "java(toShippingAddress(entity))")
     @Mapping(target = "subtotal", expression = "java(toMoney(entity.getSubtotal()))")
     @Mapping(target = "orderDiscountCouponId", expression = "java(toCouponId(entity.getOrderDiscountCouponId()))")
@@ -43,6 +45,7 @@ public interface OrderMapper {
     @Mapping(target = "userId", expression = "java(toUUID(domain.getUserId()))")
     @Mapping(target = "orderStatus", expression = "java(toEntityStatus(domain.getStatus()))")
     @Mapping(target = "distributorId", expression = "java(toUUID(domain.getDistributorId()))")
+    @Mapping(target = "branchId", expression = "java(toUUID(domain.getBranchId()))")
     @Mapping(target = "shippingAddressLine1", expression = "java(domain.getShippingAddress().getAddressLine1())")
     @Mapping(target = "shippingAddressLine2", expression = "java(domain.getShippingAddress().getAddressLine2())")
     @Mapping(target = "shippingCity", expression = "java(domain.getShippingAddress().getCity())")
@@ -71,6 +74,10 @@ public interface OrderMapper {
         return uuid != null ? new DistributorId(uuid) : null;
     }
 
+    default DistributorBranchId toBranchId(UUID uuid) {
+        return uuid != null ? new DistributorBranchId(uuid) : null;
+    }
+
     default CouponId toCouponId(UUID uuid) {
         return uuid != null ? new CouponId(uuid) : null;
     }
@@ -88,6 +95,10 @@ public interface OrderMapper {
     }
 
     default UUID toUUID(DistributorId id) {
+        return id != null ? id.getValue() : null;
+    }
+
+    default UUID toUUID(DistributorBranchId id) {
         return id != null ? id.getValue() : null;
     }
 

@@ -29,7 +29,7 @@ public class DistributorAccessService {
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new AccessDeniedException("Authenticated user not found"));
 
-        if (!distributor.getUserId().equals(user.getId())) {
+        if (!canAccessDistributor(user, distributor)) {
             throw new AccessDeniedException("Distributor does not belong to the authenticated user");
         }
 
@@ -47,7 +47,7 @@ public class DistributorAccessService {
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new AccessDeniedException("Authenticated user not found"));
 
-        if (!user.getId().equals(distributor.getUserId())) {
+        if (!canAccessDistributor(user, distributor)) {
             throw new AccessDeniedException("Distributor does not belong to the authenticated user");
         }
 
@@ -56,5 +56,18 @@ public class DistributorAccessService {
 
     public boolean isAdmin(java.util.Collection<?> authorities) {
         return authorities.stream().anyMatch(authority -> authority.toString().equals("ROLE_ADMIN"));
+    }
+
+    /**
+     * A user can access a distributor if:
+     * - They are the main distributor user (distributor.userId == user.id), or
+     * - They are a branch user belonging to this distributor (user.distributorId == distributor.id)
+     */
+    private boolean canAccessDistributor(User user, Distributor distributor) {
+        if (distributor.getUserId().equals(user.getId())) {
+            return true;
+        }
+        return user.getDistributorId() != null
+                && user.getDistributorId().getValue().equals(distributor.getId().getValue());
     }
 }

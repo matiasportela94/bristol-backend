@@ -21,7 +21,6 @@ public class GetPendingRegistrationsUseCase {
     private final DistributorRegistrationRepository registrationRepository;
     private final DistributorRegistrationMapper mapper;
     private final RegistrationDocumentService registrationDocumentService;
-    private final DistributorRegistrationAddressService registrationAddressService;
 
     @Transactional(readOnly = true)
     public List<DistributorRegistrationDto> execute() {
@@ -29,7 +28,6 @@ public class GetPendingRegistrationsUseCase {
                 .stream()
                 .map(registration -> mapper.toDto(
                         registration,
-                        registrationAddressService.toDtos(registration.getId()),
                         registrationDocumentService.toDtos(registration.getId())
                 ))
                 .collect(Collectors.toList());

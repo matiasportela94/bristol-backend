@@ -18,7 +18,6 @@ public class GetDistributorRegistrationByIdUseCase {
     private final DistributorRegistrationRepository registrationRepository;
     private final DistributorRegistrationMapper mapper;
     private final RegistrationDocumentService registrationDocumentService;
-    private final DistributorRegistrationAddressService registrationAddressService;
 
     @Transactional(readOnly = true)
     public DistributorRegistrationDto execute(String registrationId) {
@@ -27,7 +26,6 @@ public class GetDistributorRegistrationByIdUseCase {
         return registrationRepository.findById(id)
                 .map(registration -> mapper.toDto(
                         registration,
-                        registrationAddressService.toDtos(registration.getId()),
                         registrationDocumentService.toDtos(registration.getId())
                 ))
                 .orElseThrow(() -> new ValidationException("Registration request not found: " + registrationId));

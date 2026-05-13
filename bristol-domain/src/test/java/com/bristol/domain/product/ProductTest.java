@@ -1,6 +1,7 @@
 package com.bristol.domain.product;
 
 import com.bristol.domain.shared.exception.ValidationException;
+import com.bristol.domain.shared.valueobject.Money;
 import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
@@ -11,14 +12,14 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 class ProductTest {
 
     @Test
-    void shouldAllowSpecialProductsWithoutPrice() {
-        assertThatCode(() -> Product.create(
+    void shouldAllowSpecialProductsWithRequiresQuote() {
+        assertThatCode(() -> SpecialProduct.create(
                 "Ploteado de ventana",
                 "Precio a convenir",
-                ProductCategory.ESPECIALES,
-                ProductSubcategory.PLOTEO,
                 null,
                 null,
+                null,
+                true,
                 0,
                 0,
                 Instant.parse("2026-04-02T15:00:00Z")
@@ -26,18 +27,21 @@ class ProductTest {
     }
 
     @Test
-    void shouldRequirePriceForNonSpecialProducts() {
-        assertThatThrownBy(() -> Product.create(
+    void shouldRequirePriceForBeerProducts() {
+        assertThatThrownBy(() -> BeerProduct.create(
                 "Six Pack IPA",
                 "Beer product",
-                ProductCategory.PRODUCTOS,
-                ProductSubcategory.SIX_PACK,
-                BeerType.IPA,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
                 null,
                 10,
                 2,
                 Instant.parse("2026-04-02T15:00:00Z")
-        )).isInstanceOf(ValidationException.class)
-                .hasMessage("Product price must be positive");
+        )).isInstanceOf(ValidationException.class);
     }
 }

@@ -8,6 +8,7 @@ import com.bristol.application.order.dto.OrderDto;
 import com.bristol.application.order.service.StockManagementService;
 import com.bristol.application.order.usecase.OrderMapper;
 import com.bristol.application.order.usecase.OrderPromotionApplicationService;
+import com.bristol.application.product.service.UnifiedProductService;
 import com.bristol.domain.address.UserAddress;
 import com.bristol.domain.address.UserAddressId;
 import com.bristol.domain.address.UserAddressRepository;
@@ -18,8 +19,7 @@ import com.bristol.domain.order.Order;
 import com.bristol.domain.order.OrderItem;
 import com.bristol.domain.order.OrderRepository;
 import com.bristol.domain.order.ShippingAddress;
-import com.bristol.domain.product.Product;
-import com.bristol.domain.product.ProductRepository;
+import com.bristol.domain.product.BaseProduct;
 import com.bristol.domain.product.ProductVariantRepository;
 import com.bristol.domain.shared.exception.ValidationException;
 import com.bristol.domain.shared.time.TimeProvider;
@@ -39,7 +39,7 @@ import java.util.List;
 public class CheckoutCartUseCase extends CartCommandSupport {
 
     private final ShoppingCartRepository shoppingCartRepository;
-    private final ProductRepository productRepository;
+    private final UnifiedProductService unifiedProductService;
     private final ProductVariantRepository productVariantRepository;
     private final UserAddressRepository userAddressRepository;
     private final OrderRepository orderRepository;
@@ -138,7 +138,7 @@ public class CheckoutCartUseCase extends CartCommandSupport {
     private List<OrderItem> toOrderItems(ShoppingCart cart) {
         List<OrderItem> orderItems = new ArrayList<>();
         for (CartItem item : cart.getItems()) {
-            Product product = productRepository.findById(item.getProductId())
+            BaseProduct product = unifiedProductService.findById(item.getProductId())
                     .orElseThrow(() -> new ValidationException("Product not found: " + item.getProductId().getValue()));
             orderItems.add(OrderItem.create(
                     com.bristol.domain.order.OrderId.generate(),

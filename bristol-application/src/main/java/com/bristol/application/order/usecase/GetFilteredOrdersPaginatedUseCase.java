@@ -3,6 +3,7 @@ package com.bristol.application.order.usecase;
 import com.bristol.application.order.dto.OrderDto;
 import com.bristol.application.order.dto.OrderFilterRequest;
 import com.bristol.application.shared.dto.PagedResponse;
+import com.bristol.domain.distributor.DistributorBranchId;
 import com.bristol.domain.distributor.DistributorId;
 import com.bristol.domain.distributor.DistributorRepository;
 import com.bristol.domain.order.OrderRepository;
@@ -47,6 +48,10 @@ public class GetFilteredOrdersPaginatedUseCase {
                 ? new UserId(UUID.fromString(filter.getUserId()))
                 : null;
 
+        DistributorBranchId branchId = filter.getBranchId() != null && !filter.getBranchId().isBlank()
+                ? new DistributorBranchId(UUID.fromString(filter.getBranchId()))
+                : null;
+
         // Use optimized database-level filtering with pagination
         Page<com.bristol.domain.order.Order> ordersPage = orderRepository.findWithFiltersPaginated(
                 orderId,
@@ -55,6 +60,7 @@ public class GetFilteredOrdersPaginatedUseCase {
                 filter.getEndDate(),
                 distributorId,
                 userId,
+                branchId,
                 page,
                 size
         );

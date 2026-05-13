@@ -1,5 +1,6 @@
 package com.bristol.domain.order;
 
+import com.bristol.domain.distributor.DistributorBranchId;
 import com.bristol.domain.distributor.DistributorId;
 import com.bristol.domain.shared.Page;
 import com.bristol.domain.user.UserId;
@@ -72,7 +73,8 @@ public interface OrderRepository {
             LocalDate startDate,
             LocalDate endDate,
             DistributorId distributorId,
-            UserId userId
+            UserId userId,
+            DistributorBranchId branchId
     );
 
     /**
@@ -96,6 +98,7 @@ public interface OrderRepository {
             LocalDate endDate,
             DistributorId distributorId,
             UserId userId,
+            DistributorBranchId branchId,
             int pageNumber,
             int pageSize
     );

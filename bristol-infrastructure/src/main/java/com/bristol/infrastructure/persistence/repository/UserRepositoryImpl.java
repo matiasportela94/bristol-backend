@@ -1,5 +1,6 @@
 package com.bristol.infrastructure.persistence.repository;
 
+import com.bristol.domain.distributor.DistributorBranchId;
 import com.bristol.domain.user.User;
 import com.bristol.domain.user.UserId;
 import com.bristol.domain.user.UserRepository;
@@ -45,6 +46,12 @@ public class UserRepositoryImpl implements UserRepository {
         return jpaRepository.findAll().stream()
                 .map(mapper::toDomain)
                 .toList();
+    }
+
+    @Override
+    public List<User> findByBranchId(DistributorBranchId branchId) {
+        return jpaRepository.findByBranchId(branchId.getValue())
+                .stream().map(mapper::toDomain).toList();
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.bristol.application.distributor.dto;
 
+import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -27,6 +28,6 @@ public class UpdateDistributorRequest {
     @NotBlank(message = "Razon Social is required")
     private String razonSocial;
 
-    @NotBlank(message = "Delivery zone ID is required")
+    @Nullable
     private String deliveryZoneId;
 }

@@ -16,8 +16,8 @@ import com.bristol.domain.coupon.PromotionEvaluationResult;
 import com.bristol.domain.order.Order;
 import com.bristol.domain.order.OrderItem;
 import com.bristol.domain.order.ShippingAddress;
-import com.bristol.domain.product.Product;
-import com.bristol.domain.product.ProductRepository;
+import com.bristol.application.product.service.UnifiedProductService;
+import com.bristol.domain.product.BaseProduct;
 import com.bristol.domain.shared.exception.ValidationException;
 import com.bristol.domain.shared.time.TimeProvider;
 import com.bristol.domain.shared.valueobject.Money;
@@ -51,7 +51,7 @@ public class CartPricingPreviewService {
             null
     );
 
-    private final ProductRepository productRepository;
+    private final UnifiedProductService unifiedProductService;
     private final CouponRepository couponRepository;
     private final CouponRedemptionRepository couponRedemptionRepository;
     private final TimeProvider timeProvider;
@@ -159,7 +159,7 @@ public class CartPricingPreviewService {
     private List<OrderItem> buildOrderItems(ShoppingCart cart) {
         List<OrderItem> orderItems = new ArrayList<>();
         for (CartItem item : cart.getItems()) {
-            Product product = productRepository.findById(item.getProductId()).orElse(null);
+            BaseProduct product = unifiedProductService.findById(item.getProductId()).orElse(null);
             orderItems.add(OrderItem.create(
                     com.bristol.domain.order.OrderId.generate(),
                     item.getProductId(),

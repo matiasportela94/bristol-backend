@@ -44,14 +44,16 @@ public interface JpaOrderRepository extends JpaRepository<OrderEntity, UUID> {
            "(CAST(:startDate AS TIMESTAMP) IS NULL OR o.order_date >= CAST(:startDate AS TIMESTAMP)) AND " +
            "(CAST(:endDate AS TIMESTAMP) IS NULL OR o.order_date <= CAST(:endDate AS TIMESTAMP)) AND " +
            "(CAST(:distributorId AS VARCHAR) IS NULL OR o.distributor_id = CAST(:distributorId AS UUID)) AND " +
-           "(CAST(:userId AS VARCHAR) IS NULL OR o.user_id = CAST(:userId AS UUID)) " +
+           "(CAST(:userId AS VARCHAR) IS NULL OR o.user_id = CAST(:userId AS UUID)) AND " +
+           "(CAST(:branchId AS VARCHAR) IS NULL OR o.branch_id = CAST(:branchId AS UUID)) " +
            "ORDER BY o.order_date DESC", nativeQuery = true)
     List<OrderEntity> findWithFilters(
             @Param("status") String status,
             @Param("startDate") Instant startDate,
             @Param("endDate") Instant endDate,
             @Param("distributorId") UUID distributorId,
-            @Param("userId") UUID userId
+            @Param("userId") UUID userId,
+            @Param("branchId") UUID branchId
     );
 
     @Query(value = "SELECT * FROM orders o WHERE " +
@@ -60,7 +62,8 @@ public interface JpaOrderRepository extends JpaRepository<OrderEntity, UUID> {
            "(CAST(:startDate AS TIMESTAMP) IS NULL OR o.order_date >= CAST(:startDate AS TIMESTAMP)) AND " +
            "(CAST(:endDate AS TIMESTAMP) IS NULL OR o.order_date <= CAST(:endDate AS TIMESTAMP)) AND " +
            "(CAST(:distributorId AS VARCHAR) IS NULL OR o.distributor_id = CAST(:distributorId AS UUID)) AND " +
-           "(CAST(:userId AS VARCHAR) IS NULL OR o.user_id = CAST(:userId AS UUID)) " +
+           "(CAST(:userId AS VARCHAR) IS NULL OR o.user_id = CAST(:userId AS UUID)) AND " +
+           "(CAST(:branchId AS VARCHAR) IS NULL OR o.branch_id = CAST(:branchId AS UUID)) " +
            "ORDER BY o.order_date DESC",
            countQuery = "SELECT COUNT(*) FROM orders o WHERE " +
            "(CAST(:orderId AS VARCHAR) IS NULL OR o.id = CAST(:orderId AS UUID)) AND " +
@@ -68,7 +71,8 @@ public interface JpaOrderRepository extends JpaRepository<OrderEntity, UUID> {
            "(CAST(:startDate AS TIMESTAMP) IS NULL OR o.order_date >= CAST(:startDate AS TIMESTAMP)) AND " +
            "(CAST(:endDate AS TIMESTAMP) IS NULL OR o.order_date <= CAST(:endDate AS TIMESTAMP)) AND " +
            "(CAST(:distributorId AS VARCHAR) IS NULL OR o.distributor_id = CAST(:distributorId AS UUID)) AND " +
-           "(CAST(:userId AS VARCHAR) IS NULL OR o.user_id = CAST(:userId AS UUID))",
+           "(CAST(:userId AS VARCHAR) IS NULL OR o.user_id = CAST(:userId AS UUID)) AND " +
+           "(CAST(:branchId AS VARCHAR) IS NULL OR o.branch_id = CAST(:branchId AS UUID))",
            nativeQuery = true)
     Page<OrderEntity> findWithFiltersPaginated(
             @Param("orderId") String orderId,
@@ -77,6 +81,7 @@ public interface JpaOrderRepository extends JpaRepository<OrderEntity, UUID> {
             @Param("endDate") Instant endDate,
             @Param("distributorId") String distributorId,
             @Param("userId") String userId,
+            @Param("branchId") String branchId,
             Pageable pageable
     );
 

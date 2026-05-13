@@ -4,15 +4,6 @@ import com.bristol.domain.delivery.DeliveryZoneType;
 import com.bristol.domain.distributor.Distributor;
 import com.bristol.domain.distributor.DistributorId;
 import com.bristol.domain.distributor.DistributorRepository;
-import com.bristol.domain.product.BeerType;
-import com.bristol.domain.product.Product;
-import com.bristol.domain.product.ProductCategory;
-import com.bristol.domain.product.ProductId;
-import com.bristol.domain.product.ProductRepository;
-import com.bristol.domain.product.ProductSubcategory;
-import com.bristol.domain.product.ProductVariant;
-import com.bristol.domain.product.ProductVariantId;
-import com.bristol.domain.product.ProductVariantRepository;
 import com.bristol.domain.shared.valueobject.Money;
 import com.bristol.domain.user.User;
 import com.bristol.domain.user.UserId;
@@ -39,14 +30,10 @@ public class InitialDataLoader implements CommandLineRunner {
 
     private static final UUID DEMO_USER_ID = UUID.fromString("88888888-8888-8888-8888-888888888888");
     private static final UUID DEMO_DISTRIBUTOR_USER_ID = UUID.fromString("66666666-6666-6666-6666-666666666666");
-    private static final UUID DEMO_PRODUCT_ID = UUID.fromString("44444444-4444-4444-4444-444444444444");
-    private static final UUID DEMO_VARIANT_ID = UUID.fromString("55555555-5555-5555-5555-555555555555");
     private static final UUID DEMO_DISTRIBUTOR_ID = UUID.fromString("77777777-7777-7777-7777-777777777777");
 
     private final UserRepository userRepository;
     private final DistributorRepository distributorRepository;
-    private final ProductRepository productRepository;
-    private final ProductVariantRepository productVariantRepository;
     private final PasswordEncoder passwordEncoder;
 
     @Value("${bristol.bootstrap.demo-data:false}")
@@ -120,7 +107,6 @@ public class InitialDataLoader implements CommandLineRunner {
 
     private void createDemoDataIfEnabled() {
         User demoUser = createDemoUserIfNotExists();
-        createDemoProductIfNotExists();
         createDemoDistributorIfNotExists();
         log.info("Development demo data ensured for user {}", demoUser.getEmail());
     }
@@ -146,50 +132,6 @@ public class InitialDataLoader implements CommandLineRunner {
                 });
     }
 
-    private void createDemoProductIfNotExists() {
-        boolean productExists = productRepository.findById(new ProductId(DEMO_PRODUCT_ID)).isPresent();
-        if (!productExists) {
-            Instant now = Instant.now();
-            Product demoProduct = Product.create(
-                    "Demo IPA 473",
-                    "Producto demo para desarrollo y smoke tests",
-                    ProductCategory.PRODUCTOS,
-                    ProductSubcategory.SIX_PACK,
-                    BeerType.IPA,
-                    Money.of(3500),
-                    48,
-                    5,
-                    now
-            ).toBuilder()
-                    .id(new ProductId(DEMO_PRODUCT_ID))
-                    .featured(true)
-                    .build();
-
-            productRepository.save(demoProduct);
-            log.info("Created demo product: {}", demoProduct.getName());
-        }
-
-        boolean variantExists = productVariantRepository.findById(new ProductVariantId(DEMO_VARIANT_ID)).isPresent();
-        if (!variantExists) {
-            Instant now = Instant.now();
-            ProductVariant demoVariant = ProductVariant.create(
-                    new ProductId(DEMO_PRODUCT_ID),
-                    "DEMO-IPA-473",
-                    "473ml",
-                    "Amber",
-                    Money.zero(),
-                    24,
-                    "https://example.com/demo-ipa-473.png",
-                    now
-            ).toBuilder()
-                    .id(new ProductVariantId(DEMO_VARIANT_ID))
-                    .build();
-
-            productVariantRepository.save(demoVariant);
-            log.info("Created demo product variant: {}", demoVariant.getSku());
-        }
-    }
-
     private void createDemoDistributorIfNotExists() {
         User distributorUser = userRepository.findByEmail(demoDistributorEmail)
                 .orElseGet(() -> {
@@ -199,7 +141,7 @@ public class InitialDataLoader implements CommandLineRunner {
                             passwordEncoder.encode(demoDistributorPassword),
                             "Demo",
                             "Distributor",
-                            UserRole.USER,
+                            UserRole.DISTRIBUTOR,
                             now
                     ).toBuilder()
                             .id(new UserId(DEMO_DISTRIBUTOR_USER_ID))

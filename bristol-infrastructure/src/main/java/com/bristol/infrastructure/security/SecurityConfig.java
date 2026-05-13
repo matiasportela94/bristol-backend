@@ -73,7 +73,7 @@ public class SecurityConfig {
                         // Admin-only endpoints
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         // Distributor endpoints (protected)
-                        .requestMatchers("/api/distributors/**").hasAnyRole("ADMIN", "USER")
+                        .requestMatchers("/api/distributors/**").hasAnyRole("ADMIN", "USER", "DISTRIBUTOR", "DISTRIBUTOR_BRANCH")
                         // All other endpoints require authentication
                         .anyRequest().authenticated()
                 );

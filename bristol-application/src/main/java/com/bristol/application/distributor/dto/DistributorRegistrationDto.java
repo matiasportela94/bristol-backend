@@ -20,11 +20,9 @@ public class DistributorRegistrationDto {
     String ciudad;
     String direccion;
     String codigoPostal;
-    String deliveryZone;  // SUR, NORTE, CENTRO
     String status;
     String rejectionReason;
     String createdAt;
     String updatedAt;
-    List<RegistrationShippingAddressDto> shippingAddresses;
     List<UploadedFileDto> uploadedFiles;
 }

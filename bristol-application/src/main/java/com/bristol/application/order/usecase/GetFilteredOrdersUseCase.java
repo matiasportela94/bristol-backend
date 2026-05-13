@@ -2,6 +2,7 @@ package com.bristol.application.order.usecase;
 
 import com.bristol.application.order.dto.OrderDto;
 import com.bristol.application.order.dto.OrderFilterRequest;
+import com.bristol.domain.distributor.DistributorBranchId;
 import com.bristol.domain.distributor.DistributorId;
 import com.bristol.domain.distributor.DistributorRepository;
 import com.bristol.domain.order.Order;
@@ -43,13 +44,18 @@ public class GetFilteredOrdersUseCase {
                 ? new UserId(UUID.fromString(filter.getUserId()))
                 : null;
 
+        DistributorBranchId branchId = filter.getBranchId() != null && !filter.getBranchId().isBlank()
+                ? new DistributorBranchId(UUID.fromString(filter.getBranchId()))
+                : null;
+
         // Use optimized database-level filtering
         List<Order> orders = orderRepository.findWithFilters(
                 filter.getStatus(),
                 filter.getStartDate(),
                 filter.getEndDate(),
                 distributorId,
-                userId
+                userId,
+                branchId
         );
 
         // Extract unique IDs from the current result set (avoid loading all users/distributors)

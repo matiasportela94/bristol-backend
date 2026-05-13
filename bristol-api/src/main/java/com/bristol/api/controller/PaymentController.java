@@ -39,21 +39,21 @@ public class PaymentController {
     private final RejectPaymentUseCase rejectPaymentUseCase;
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER', 'DISTRIBUTOR', 'DISTRIBUTOR_BRANCH')")
     @Operation(summary = "Create payment", description = "Create a payment record for an order")
     public ResponseEntity<PaymentDto> createPayment(@Valid @RequestBody CreatePaymentRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(createPaymentUseCase.execute(request));
     }
 
     @GetMapping("/order/{orderId}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER', 'DISTRIBUTOR', 'DISTRIBUTOR_BRANCH')")
     @Operation(summary = "Get payments by order", description = "Retrieve all payments for an order")
     public ResponseEntity<List<PaymentDto>> getPaymentsByOrder(@PathVariable String orderId) {
         return ResponseEntity.ok(getPaymentsByOrderUseCase.execute(orderId));
     }
 
     @GetMapping("/user/{userId}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER', 'DISTRIBUTOR', 'DISTRIBUTOR_BRANCH')")
     @Operation(summary = "Get payments by user", description = "Retrieve all payments for a user")
     public ResponseEntity<List<PaymentDto>> getUserPayments(@PathVariable String userId) {
         return ResponseEntity.ok(getUserPaymentsUseCase.execute(userId));
@@ -67,7 +67,7 @@ public class PaymentController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER', 'DISTRIBUTOR', 'DISTRIBUTOR_BRANCH')")
     @Operation(summary = "Get payment by ID", description = "Retrieve a single payment by its ID")
     public ResponseEntity<PaymentDto> getPaymentById(@PathVariable String id) {
         return ResponseEntity.ok(getPaymentByIdUseCase.execute(id));

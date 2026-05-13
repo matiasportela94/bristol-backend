@@ -26,6 +26,8 @@ public class UserDto {
     private LocalDate dateOfBirth;
     private UserRole role;
     private boolean isDistributor;
+    private String distributorId;
+    private String branchId;
     private Instant createdAt;
     private Instant updatedAt;
 }

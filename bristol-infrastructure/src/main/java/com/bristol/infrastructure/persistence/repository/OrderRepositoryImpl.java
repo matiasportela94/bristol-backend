@@ -1,5 +1,6 @@
 package com.bristol.infrastructure.persistence.repository;
 
+import com.bristol.domain.distributor.DistributorBranchId;
 import com.bristol.domain.distributor.DistributorId;
 import com.bristol.domain.order.Order;
 import com.bristol.domain.order.OrderId;
@@ -129,11 +130,13 @@ public class OrderRepositoryImpl implements OrderRepository {
             LocalDate startDate,
             LocalDate endDate,
             DistributorId distributorId,
-            UserId userId
+            UserId userId,
+            DistributorBranchId branchId
     ) {
         String statusString = status != null ? status.name() : null;
         UUID distributorUuid = distributorId != null ? distributorId.getValue() : null;
         UUID userUuid = userId != null ? userId.getValue() : null;
+        UUID branchUuid = branchId != null ? branchId.getValue() : null;
         Instant startInstant = startDate != null ? timeProvider.startOfDay(startDate) : null;
         Instant endInstant = endDate != null ? timeProvider.endOfDay(endDate) : null;
 
@@ -142,7 +145,8 @@ public class OrderRepositoryImpl implements OrderRepository {
                 startInstant,
                 endInstant,
                 distributorUuid,
-                userUuid
+                userUuid,
+                branchUuid
         ).stream()
                 .map(orderMapper::toDomain)
                 .collect(Collectors.toList()));
@@ -156,6 +160,7 @@ public class OrderRepositoryImpl implements OrderRepository {
             LocalDate endDate,
             DistributorId distributorId,
             UserId userId,
+            DistributorBranchId branchId,
             int pageNumber,
             int pageSize
     ) {
@@ -163,10 +168,10 @@ public class OrderRepositoryImpl implements OrderRepository {
         String statusString = status != null ? status.name() : null;
         String distributorIdString = distributorId != null ? distributorId.getValue().toString() : null;
         String userIdString = userId != null ? userId.getValue().toString() : null;
+        String branchIdString = branchId != null ? branchId.getValue().toString() : null;
         Instant startInstant = startDate != null ? timeProvider.startOfDay(startDate) : null;
         Instant endInstant = endDate != null ? timeProvider.endOfDay(endDate) : null;
 
-        // Create pageable without sort (query already has ORDER BY)
         PageRequest pageRequest = PageRequest.of(pageNumber, pageSize);
 
         org.springframework.data.domain.Page<OrderEntity> entityPage = jpaRepository.findWithFiltersPaginated(
@@ -176,6 +181,7 @@ public class OrderRepositoryImpl implements OrderRepository {
                 endInstant,
                 distributorIdString,
                 userIdString,
+                branchIdString,
                 pageRequest
         );
 
