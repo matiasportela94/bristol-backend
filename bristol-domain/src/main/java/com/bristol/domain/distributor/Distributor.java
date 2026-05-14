@@ -1,6 +1,5 @@
 package com.bristol.domain.distributor;
 
-import com.bristol.domain.delivery.DeliveryZoneId;
 import com.bristol.domain.shared.exception.ValidationException;
 import com.bristol.domain.user.UserId;
 import lombok.Builder;
@@ -26,7 +25,6 @@ public class Distributor {
     private final String cuit;
     private final String razonSocial;
     private final LocalDate dateOfBirth;
-    private final DeliveryZoneId deliveryZoneId;
     private final DistributorStatus status;
 
     // Metrics
@@ -52,7 +50,6 @@ public class Distributor {
             String cuit,
             String razonSocial,
             LocalDate dateOfBirth,
-            DeliveryZoneId deliveryZoneId,
             Instant now
     ) {
         validateBusinessInfo(cuit, razonSocial);
@@ -66,7 +63,6 @@ public class Distributor {
                 .cuit(cuit)
                 .razonSocial(razonSocial)
                 .dateOfBirth(dateOfBirth)
-                .deliveryZoneId(deliveryZoneId)
                 .status(DistributorStatus.PENDING)
                 .totalOrders(0)
                 .totalSpent(BigDecimal.ZERO)
@@ -113,7 +109,6 @@ public class Distributor {
             String phone,
             String cuit,
             String razonSocial,
-            DeliveryZoneId deliveryZoneId,
             Instant now
     ) {
         validateBusinessInfo(cuit, razonSocial);
@@ -123,7 +118,6 @@ public class Distributor {
                 .phone(phone)
                 .cuit(cuit)
                 .razonSocial(razonSocial)
-                .deliveryZoneId(deliveryZoneId)
                 .updatedAt(now)
                 .build();
     }

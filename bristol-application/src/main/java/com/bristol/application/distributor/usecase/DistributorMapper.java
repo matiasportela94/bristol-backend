@@ -2,12 +2,10 @@ package com.bristol.application.distributor.usecase;
 
 import com.bristol.application.distributor.dto.DistributorDto;
 import com.bristol.application.distributor.dto.UploadedFileDto;
-import com.bristol.domain.delivery.DeliveryZoneType;
 import com.bristol.domain.distributor.Distributor;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.Arrays;
 
 @Component
 public class DistributorMapper {
@@ -28,9 +26,6 @@ public class DistributorMapper {
                 .phone(distributor.getPhone())
                 .cuit(distributor.getCuit())
                 .razonSocial(distributor.getRazonSocial())
-                .deliveryZoneId(distributor.getDeliveryZoneId() != null ?
-                        distributor.getDeliveryZoneId().getValue().toString() : null)
-                .deliveryZone(mapDeliveryZoneIdToName(distributor))
                 .status(distributor.getStatus())
                 .totalOrders(distributor.getTotalOrders())
                 .totalSpent(distributor.getTotalSpent())
@@ -40,17 +35,5 @@ public class DistributorMapper {
                 .updatedAt(distributor.getUpdatedAt())
                 .uploadedFiles(uploadedFiles)
                 .build();
-    }
-
-    private String mapDeliveryZoneIdToName(Distributor distributor) {
-        if (distributor.getDeliveryZoneId() == null) {
-            return null;
-        }
-
-        return Arrays.stream(DeliveryZoneType.values())
-                .filter(type -> type.getUuid().equals(distributor.getDeliveryZoneId().getValue()))
-                .findFirst()
-                .map(type -> type.name().toLowerCase())
-                .orElse(null);
     }
 }

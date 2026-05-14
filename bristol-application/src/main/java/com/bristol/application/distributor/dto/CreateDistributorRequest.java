@@ -34,7 +34,4 @@ public class CreateDistributorRequest {
 
     @NotNull(message = "Date of birth is required")
     private LocalDate dateOfBirth;
-
-    @NotBlank(message = "Delivery zone ID is required")
-    private String deliveryZoneId;
 }

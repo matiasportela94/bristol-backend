@@ -34,8 +34,8 @@ public class DistributorBranchController {
     private final GetBranchUsersUseCase getBranchUsersUseCase;
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'DISTRIBUTOR')")
-    @Operation(summary = "List branches", description = "List all branches of a distributor (Admin or distributor owner)")
+    @PreAuthorize("hasAnyRole('ADMIN', 'DISTRIBUTOR', 'DISTRIBUTOR_BRANCH')")
+    @Operation(summary = "List branches", description = "DISTRIBUTOR: all branches. DISTRIBUTOR_BRANCH: only their own branch.")
     public ResponseEntity<List<DistributorBranchDto>> getBranches(@PathVariable String distributorId) {
         return ResponseEntity.ok(getBranchesUseCase.execute(distributorId));
     }

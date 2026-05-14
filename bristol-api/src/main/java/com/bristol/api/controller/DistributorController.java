@@ -8,6 +8,8 @@ import com.bristol.application.distributor.dto.RegistrationDocumentPayload;
 import com.bristol.application.distributor.dto.RejectDistributorRegistrationRequest;
 import com.bristol.application.distributor.dto.UpdateDistributorRequest;
 import com.bristol.application.distributor.usecase.*;
+import com.bristol.application.distributorbranch.dto.DistributorBranchDto;
+import com.bristol.application.distributorbranch.usecase.GetMyBranchesUseCase;
 import com.bristol.domain.distributor.DistributorRegistrationRequestId;
 import com.bristol.domain.distributor.RegistrationDocument;
 import com.bristol.domain.distributor.RegistrationDocumentId;
@@ -58,6 +60,14 @@ public class DistributorController {
     private final DistributorAccessService distributorAccessService;
     private final AddDistributorDocumentUseCase addDistributorDocumentUseCase;
     private final DeleteDistributorDocumentUseCase deleteDistributorDocumentUseCase;
+    private final GetMyBranchesUseCase getMyBranchesUseCase;
+
+    @GetMapping("/me/branches")
+    @PreAuthorize("hasAnyRole('ADMIN', 'DISTRIBUTOR', 'DISTRIBUTOR_BRANCH')")
+    @Operation(summary = "Get my branches", description = "Returns branches visible to the authenticated user. DISTRIBUTOR → all their branches. DISTRIBUTOR_BRANCH → only their own branch.")
+    public ResponseEntity<List<DistributorBranchDto>> getMyBranches(Authentication authentication) {
+        return ResponseEntity.ok(getMyBranchesUseCase.execute(authentication.getName()));
+    }
 
     /**
      * Get all distributors.

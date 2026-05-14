@@ -60,13 +60,6 @@ public class DistributorRepositoryImpl implements DistributorRepository {
     }
 
     @Override
-    public List<Distributor> findByDeliveryZone(com.bristol.domain.delivery.DeliveryZoneId zoneId) {
-        // TODO: This requires adding delivery_zone_id to DistributorEntity
-        // For now, return empty list as this field is not in the current schema
-        return List.of();
-    }
-
-    @Override
     public boolean existsByCuit(String cuit) {
         return jpaRepository.existsByCuit(cuit);
     }

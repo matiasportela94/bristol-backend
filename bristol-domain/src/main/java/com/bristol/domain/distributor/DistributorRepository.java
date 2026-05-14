@@ -1,6 +1,5 @@
 package com.bristol.domain.distributor;
 
-import com.bristol.domain.delivery.DeliveryZoneId;
 import com.bristol.domain.user.UserId;
 
 import java.util.List;
@@ -20,8 +19,6 @@ public interface DistributorRepository {
     Optional<Distributor> findByCuit(String cuit);
 
     List<Distributor> findByStatus(DistributorStatus status);
-
-    List<Distributor> findByDeliveryZone(DeliveryZoneId zoneId);
 
     List<Distributor> findAll();
 

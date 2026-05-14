@@ -46,4 +46,10 @@ public class UpdateBeerProductRequest {
     private String origin;
 
     private String brewery;
+
+    @PositiveOrZero(message = "Stock quantity must be zero or positive")
+    private Integer stockQuantity;
+
+    @PositiveOrZero(message = "Low stock threshold must be zero or positive")
+    private Integer lowStockThreshold;
 }

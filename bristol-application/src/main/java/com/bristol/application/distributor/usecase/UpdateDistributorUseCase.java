@@ -2,7 +2,6 @@ package com.bristol.application.distributor.usecase;
 
 import com.bristol.application.distributor.dto.DistributorDto;
 import com.bristol.application.distributor.dto.UpdateDistributorRequest;
-import com.bristol.domain.delivery.DeliveryZoneId;
 import com.bristol.domain.distributor.Distributor;
 import com.bristol.domain.distributor.DistributorId;
 import com.bristol.domain.distributor.DistributorRepository;
@@ -33,14 +32,12 @@ public class UpdateDistributorUseCase {
         Distributor distributor = distributorRepository.findById(distributorId)
                 .orElseThrow(() -> new NotFoundException("Distributor", id));
 
-        DeliveryZoneId deliveryZoneId = new DeliveryZoneId(UUID.fromString(request.getDeliveryZoneId()));
 
         Distributor updatedDistributor = distributor.updateBusinessInfo(
                 request.getAddress(),
                 request.getPhone(),
                 request.getCuit(),
                 request.getRazonSocial(),
-                deliveryZoneId,
                 timeProvider.now()
         );
 

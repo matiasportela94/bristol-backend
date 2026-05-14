@@ -1,18 +1,30 @@
 package com.bristol.api.controller;
 
 import com.bristol.application.product.dto.ProductDto;
+import com.bristol.application.product.dto.ProductImageDto;
+import com.bristol.application.product.dto.ProductImageRequest;
 import com.bristol.application.product.dto.UpdateProductStockRequest;
 import com.bristol.application.product.usecase.*;
 import com.bristol.application.shared.dto.PagedResponse;
 import com.bristol.domain.product.ProductCategory;
+import com.bristol.domain.product.ProductId;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.util.Base64;
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.IntStream;
 
 import java.util.List;
 
@@ -36,6 +48,7 @@ public class ProductController {
     private final GetProductsByCategoryPaginatedUseCase getProductsByCategoryPaginatedUseCase;
     private final GetFeaturedProductsPaginatedUseCase getFeaturedProductsPaginatedUseCase;
     private final SearchProductsPaginatedUseCase searchProductsPaginatedUseCase;
+    private final ProductImageService productImageService;
 
     @GetMapping
     @Operation(summary = "Get all products")
@@ -106,6 +119,35 @@ public class ProductController {
     public ResponseEntity<Void> deleteProduct(@PathVariable String id) {
         deleteProductUseCase.execute(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping(value = "/{id}/images", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("hasRole('ADMIN')")
+    @SecurityRequirement(name = "Bearer Authentication")
+    @Operation(summary = "Add images to existing product", description = "Admin only")
+    public ResponseEntity<List<ProductImageDto>> addProductImages(
+            @PathVariable String id,
+            @RequestParam("images") List<MultipartFile> imageFiles
+    ) throws IOException {
+        ProductId productId = new ProductId(UUID.fromString(id));
+        List<ProductImageRequest> requests = IntStream.range(0, imageFiles.size())
+                .mapToObj(i -> {
+                    try {
+                        MultipartFile file = imageFiles.get(i);
+                        return ProductImageRequest.builder()
+                                .fileName(file.getOriginalFilename())
+                                .contentType(file.getContentType())
+                                .dataBase64(Base64.getEncoder().encodeToString(file.getBytes()))
+                                .displayOrder(i)
+                                .primary(i == 0)
+                                .build();
+                    } catch (IOException e) {
+                        throw new RuntimeException("Failed to read image file", e);
+                    }
+                })
+                .toList();
+        var images = productImageService.createImages(productId, requests);
+        return ResponseEntity.status(HttpStatus.CREATED).body(productImageService.toDtos(images));
     }
 
     @PutMapping("/{id}/stock")

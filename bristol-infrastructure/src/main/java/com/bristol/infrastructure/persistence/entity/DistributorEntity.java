@@ -38,9 +38,6 @@ public class DistributorEntity {
     @Column(name = "business_name", nullable = false, length = 255)
     private String businessName;
 
-    @Column(name = "delivery_zone_id", columnDefinition = "UUID")
-    private UUID deliveryZoneId;
-
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private DistributorStatusEnum status;

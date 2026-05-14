@@ -1,6 +1,5 @@
 package com.bristol.infrastructure.persistence.mapper;
 
-import com.bristol.domain.delivery.DeliveryZoneId;
 import com.bristol.domain.distributor.Distributor;
 import com.bristol.domain.distributor.DistributorId;
 import com.bristol.domain.distributor.DistributorStatus;
@@ -32,7 +31,6 @@ public class DistributorMapper {
                 .cuit(entity.getCuit())
                 .razonSocial(entity.getBusinessName())
                 .dateOfBirth(null)
-                .deliveryZoneId(toDeliveryZoneId(entity.getDeliveryZoneId()))
                 .status(toDomainStatus(entity.getStatus()))
                 .totalOrders(0)
                 .totalSpent(entity.getTotalSpent() != null ? entity.getTotalSpent() : BigDecimal.ZERO)
@@ -58,7 +56,6 @@ public class DistributorMapper {
                 .phone(domain.getPhone())
                 .cuit(domain.getCuit())
                 .businessName(domain.getRazonSocial())
-                .deliveryZoneId(toUUID(domain.getDeliveryZoneId()))
                 .status(toEntityStatus(domain.getStatus()))
                 .totalSpent(domain.getTotalSpent() != null ? domain.getTotalSpent() : BigDecimal.ZERO)
                 .totalBeersPurchased(domain.getTotalBeers() != null ? domain.getTotalBeers() : 0)
@@ -75,19 +72,11 @@ public class DistributorMapper {
         return uuid != null ? new UserId(uuid) : null;
     }
 
-    private DeliveryZoneId toDeliveryZoneId(UUID uuid) {
-        return uuid != null ? new DeliveryZoneId(uuid) : null;
-    }
-
     private UUID toUUID(DistributorId id) {
         return id != null ? id.getValue() : null;
     }
 
     private UUID toUUID(UserId id) {
-        return id != null ? id.getValue() : null;
-    }
-
-    private UUID toUUID(DeliveryZoneId id) {
         return id != null ? id.getValue() : null;
     }
 

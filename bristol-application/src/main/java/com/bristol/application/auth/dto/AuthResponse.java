@@ -22,6 +22,8 @@ public class AuthResponse {
     private String lastName;
     private String role;
     private boolean isDistributor;
+    private String distributorId;
+    private String branchId;
 
     public static AuthResponse of(String token, UserDto user) {
         return AuthResponse.builder()
@@ -33,6 +35,8 @@ public class AuthResponse {
                 .lastName(user.getLastName())
                 .role(user.getRole())
                 .isDistributor(user.isDistributor())
+                .distributorId(user.getDistributorId())
+                .branchId(user.getBranchId())
                 .build();
     }
 }

@@ -50,6 +50,8 @@ public class LoginUseCase {
                 .dateOfBirth(user.getDateOfBirth())
                 .role(user.getRole().name())
                 .isDistributor(user.isDistributor())
+                .distributorId(user.getDistributorId() != null ? user.getDistributorId().getValue().toString() : null)
+                .branchId(user.getBranchId() != null ? user.getBranchId().getValue().toString() : null)
                 .build();
 
         return AuthResponse.of(token, userDto);

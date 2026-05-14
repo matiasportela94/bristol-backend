@@ -125,7 +125,6 @@ public class ApproveDistributorRegistrationUseCase {
                                 registration.getCuit(),
                                 registration.getRazonSocial(),
                                 null,
-                                null,
                                 now
                         ).approve(now));
     }

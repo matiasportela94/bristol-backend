@@ -1,6 +1,5 @@
 package com.bristol.infrastructure.loader;
 
-import com.bristol.domain.delivery.DeliveryZoneType;
 import com.bristol.domain.distributor.Distributor;
 import com.bristol.domain.distributor.DistributorId;
 import com.bristol.domain.distributor.DistributorRepository;
@@ -165,7 +164,6 @@ public class InitialDataLoader implements CommandLineRunner {
                 "20-30111222-3",
                 "Distribuidora Demo SRL",
                 null,
-                DeliveryZoneType.SUR.getDeliveryZoneId(),
                 Instant.now()
         ).approve(Instant.now()).toBuilder()
                 .id(new DistributorId(DEMO_DISTRIBUTOR_ID))

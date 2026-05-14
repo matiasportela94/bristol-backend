@@ -22,8 +22,6 @@ public class DistributorDto {
     private String phone;
     private String cuit;
     private String razonSocial;
-    private String deliveryZoneId;
-    private String deliveryZone;
     private DistributorStatus status;
     private Integer totalOrders;
     private BigDecimal totalSpent;

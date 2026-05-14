@@ -14,10 +14,30 @@
       "Bash(mvn clean compile:*)",
       "Bash(test:*)",
       "Bash(mvn compile:*)",
-      "Bash(\")",
       "Bash(mvn clean package:*)",
       "Bash(java:*)",
-      "Bash(timeout 30 java:*)"
+      "Bash(timeout 30 java:*)",
+      "Bash(cat:*)",
+      "Bash(mvn -pl bristol-infrastructure flyway:info -Dflyway.url=jdbc:postgresql://localhost:5432/bristol -Dflyway.user=admin -Dflyway.password=secret)",
+      "Bash(Get-ChildItem -Path \"C:\\\\dev\\\\CITRINO\\\\git\\\\bristol-ecommerce\" -Recurse -ErrorAction SilentlyContinue)",
+      "Bash(Select-Object -First 20)",
+      "Bash(sed -n '50,75p' \"C:/dev/CITRINO/git/bristol-core/bristol-backend/bristol-domain/src/main/java/com/bristol/domain/product/SpecialProduct.java\")",
+      "Bash(sed -n '53,80p' \"C:/dev/CITRINO/git/bristol-core/bristol-backend/bristol-domain/src/main/java/com/bristol/domain/product/BeerProduct.java\")",
+      "WebFetch(domain:developers.google.com)",
+      "WebSearch",
+      "Bash(grep -n \"onAddressInput\\\\|addressInput\\\\$\\\\|showSuggestions\\\\|addressSuggestions\" \"C:/dev/CITRINO/git/bristol-platform/src/app/features/customer/branches/branches.component.ts\")",
+      "PowerShell(head *)",
+      "Bash(Get-ChildItem -Path \"C:\\\\dev\\\\CITRINO\\\\git\\\\bristol-core\" -Directory)",
+      "Bash(Select-Object Name)",
+      "PowerShell(tree \"C:\\\\dev\\\\CITRINO\\\\git\\\\bristol-ecommerce\\\\app\" /d /L 3 2>$null | Select-Object -First 100)",
+      "PowerShell(ls -Recurse \"C:\\\\dev\\\\CITRINO\\\\git\\\\bristol-ecommerce\\\\app\" -Depth 2 | Where-Object {$_.PSIsContainer} | ForEach-Object {$_.FullName.Substring\\(42\\)})",
+      "Bash(Get-ChildItem \"C:\\\\dev\\\\CITRINO\\\\git\\\\bristol-ecommerce\\\\app\\\\dashboard\" -Recurse -Name)",
+      "Bash(npx tsc *)",
+      "Bash(npm install *)",
+      "Bash(Get-ChildItem -Path \"C:\\\\dev\\\\CITRINO\\\\git\\\\bristol-platform\" -Directory)",
+      "Bash(Select-Object -ExpandProperty Name)",
+      "Bash(grep -v \"^$\")",
+      "Bash(npm ci *)"
     ]
   }
 }

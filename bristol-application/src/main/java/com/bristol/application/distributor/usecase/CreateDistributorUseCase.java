@@ -2,7 +2,6 @@ package com.bristol.application.distributor.usecase;
 
 import com.bristol.application.distributor.dto.CreateDistributorRequest;
 import com.bristol.application.distributor.dto.DistributorDto;
-import com.bristol.domain.delivery.DeliveryZoneId;
 import com.bristol.domain.distributor.Distributor;
 import com.bristol.domain.distributor.DistributorRepository;
 import com.bristol.domain.shared.time.TimeProvider;
@@ -21,7 +20,6 @@ public class CreateDistributorUseCase {
     @Transactional
     public DistributorDto execute(CreateDistributorRequest request) {
         UserId userId = new UserId(request.getUserId());
-        DeliveryZoneId zoneId = new DeliveryZoneId(request.getDeliveryZoneId());
 
         Distributor distributor = Distributor.create(
                 userId,
@@ -31,7 +29,6 @@ public class CreateDistributorUseCase {
                 request.getCuit(),
                 request.getRazonSocial(),
                 request.getDateOfBirth(),
-                zoneId,
                 timeProvider.now()
         );
 

@@ -12,6 +12,9 @@ import com.bristol.application.product.service.UnifiedProductService;
 import com.bristol.domain.address.UserAddress;
 import com.bristol.domain.address.UserAddressId;
 import com.bristol.domain.address.UserAddressRepository;
+import com.bristol.domain.distributor.DistributorBranch;
+import com.bristol.domain.distributor.DistributorBranchId;
+import com.bristol.domain.distributor.DistributorBranchRepository;
 import com.bristol.domain.cart.CartItem;
 import com.bristol.domain.cart.ShoppingCart;
 import com.bristol.domain.cart.ShoppingCartRepository;
@@ -42,6 +45,7 @@ public class CheckoutCartUseCase extends CartCommandSupport {
     private final UnifiedProductService unifiedProductService;
     private final ProductVariantRepository productVariantRepository;
     private final UserAddressRepository userAddressRepository;
+    private final DistributorBranchRepository distributorBranchRepository;
     private final OrderRepository orderRepository;
     private final UserRepository userRepository;
     private final CartMapper cartMapper;
@@ -85,13 +89,11 @@ public class CheckoutCartUseCase extends CartCommandSupport {
                     .build();
         }
 
-        UserAddress address = userAddressRepository.findById(new UserAddressId(request.getShippingAddressId()))
-                .filter(existing -> existing.getUserId().equals(user.getId()))
-                .orElseThrow(() -> new ValidationException("Shipping address not found for authenticated user"));
+        ShippingAddress shippingAddress = resolveShippingAddress(request, user);
 
         Order order = Order.create(
                 user.getId(),
-                toShippingAddress(address),
+                shippingAddress,
                 toOrderItems(reconciliation.cart()),
                 Money.zero(),
                 request.getNotes(),
@@ -124,6 +126,22 @@ public class CheckoutCartUseCase extends CartCommandSupport {
                 .build();
     }
 
+    private ShippingAddress resolveShippingAddress(CheckoutCartRequest request, User user) {
+        if (request.getBranchId() != null && !request.getBranchId().isBlank()) {
+            DistributorBranch branch = distributorBranchRepository
+                    .findById(new DistributorBranchId(java.util.UUID.fromString(request.getBranchId())))
+                    .orElseThrow(() -> new ValidationException("Branch not found"));
+            if (user.getDistributorId() == null || !branch.getDistributorId().equals(user.getDistributorId())) {
+                throw new ValidationException("Branch does not belong to the authenticated distributor");
+            }
+            return toShippingAddressFromBranch(branch);
+        }
+        UserAddress address = userAddressRepository.findById(new UserAddressId(request.getShippingAddressId()))
+                .filter(existing -> existing.getUserId().equals(user.getId()))
+                .orElseThrow(() -> new ValidationException("Shipping address not found for authenticated user"));
+        return toShippingAddress(address);
+    }
+
     private ShippingAddress toShippingAddress(UserAddress address) {
         return ShippingAddress.of(
                 address.getAddressLine1(),
@@ -132,6 +150,17 @@ public class CheckoutCartUseCase extends CartCommandSupport {
                 address.getProvince(),
                 address.getPostalCode(),
                 address.getDeliveryZoneId()
+        );
+    }
+
+    private ShippingAddress toShippingAddressFromBranch(DistributorBranch branch) {
+        return ShippingAddress.of(
+                branch.getAddress(),
+                null,
+                branch.getCity(),
+                branch.getProvince(),
+                branch.getCodigoPostal(),
+                branch.getDeliveryZoneId()
         );
     }
 
