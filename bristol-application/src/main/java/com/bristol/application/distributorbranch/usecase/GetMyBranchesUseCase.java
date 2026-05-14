@@ -30,7 +30,7 @@ public class GetMyBranchesUseCase {
 
     @Transactional(readOnly = true)
     public List<DistributorBranchDto> execute(String email) {
-        User user = userRepository.findByEmail(email)
+claude        User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new NotFoundException("User", email));
 
         // DISTRIBUTOR_BRANCH: return only the user's own branch

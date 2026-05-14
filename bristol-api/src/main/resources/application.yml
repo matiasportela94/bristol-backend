@@ -58,7 +58,7 @@ spring:
 
 google:
   maps:
-    api-key: ${GOOGLE_MAPS_API_KEY:AIzaSyAffFs3hVS4Fi_WJptaEowq0bgARoim9aM}
+    api-key: ${GOOGLE_MAPS_API_KEY}
 
 server:
   port: ${SERVER_PORT:8080}
