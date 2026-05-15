@@ -1,9 +1,11 @@
 package com.bristol.application.order.service;
 
+import com.bristol.application.brewery.service.BreweryInventoryService;
 import com.bristol.application.product.service.UnifiedProductService;
 import com.bristol.domain.order.Order;
 import com.bristol.domain.order.OrderItem;
 import com.bristol.domain.product.BaseProduct;
+import com.bristol.domain.product.BeerProduct;
 import com.bristol.domain.product.ProductVariant;
 import com.bristol.domain.product.ProductVariantRepository;
 import com.bristol.domain.shared.exception.ValidationException;
@@ -18,6 +20,7 @@ public class StockManagementService {
 
     private final UnifiedProductService unifiedProductService;
     private final ProductVariantRepository productVariantRepository;
+    private final BreweryInventoryService breweryInventoryService;
     private final TimeProvider timeProvider;
 
     @Transactional
@@ -60,6 +63,10 @@ public class StockManagementService {
             }
 
             unifiedProductService.save(product.reduceStock(item.getQuantity(), timeProvider.now()));
+
+            if (product instanceof BeerProduct beerProduct) {
+                breweryInventoryService.deductCansForSale(beerProduct, item.getQuantity());
+            }
         }
     }
 
@@ -92,6 +99,10 @@ public class StockManagementService {
             }
 
             unifiedProductService.save(product.increaseStock(item.getQuantity(), timeProvider.now()));
+
+            if (product instanceof BeerProduct beerProduct) {
+                breweryInventoryService.restoreCansForCancellation(beerProduct, item.getQuantity());
+            }
         }
     }
 }

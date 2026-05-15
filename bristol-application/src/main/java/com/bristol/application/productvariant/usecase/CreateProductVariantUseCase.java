@@ -1,5 +1,6 @@
 package com.bristol.application.productvariant.usecase;
 
+import com.bristol.application.product.service.StockSyncService;
 import com.bristol.application.productvariant.dto.CreateProductVariantRequest;
 import com.bristol.application.productvariant.dto.ProductVariantDto;
 import com.bristol.domain.product.ProductId;
@@ -22,6 +23,7 @@ import java.util.UUID;
 public class CreateProductVariantUseCase {
 
     private final ProductVariantRepository productVariantRepository;
+    private final StockSyncService stockSyncService;
     private final ProductVariantMapper productVariantMapper;
     private final TimeProvider timeProvider;
 
@@ -44,6 +46,7 @@ public class CreateProductVariantUseCase {
         );
 
         ProductVariant savedVariant = productVariantRepository.save(variant);
+        stockSyncService.syncMerchStock(productId);
         return productVariantMapper.toDto(savedVariant);
     }
 }

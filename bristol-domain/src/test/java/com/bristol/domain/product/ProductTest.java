@@ -35,12 +35,9 @@ class ProductTest {
                 null,
                 null,
                 null,
-                null,
-                null,
-                null,
-                null,
                 10,
                 2,
+                6,
                 Instant.parse("2026-04-02T15:00:00Z")
         )).isInstanceOf(ValidationException.class);
     }

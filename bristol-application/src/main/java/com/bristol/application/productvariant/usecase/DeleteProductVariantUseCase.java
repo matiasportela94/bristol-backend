@@ -1,5 +1,6 @@
 package com.bristol.application.productvariant.usecase;
 
+import com.bristol.application.product.service.StockSyncService;
 import com.bristol.domain.product.ProductVariantId;
 import com.bristol.domain.product.ProductVariantRepository;
 import com.bristol.domain.shared.exception.NotFoundException;
@@ -17,15 +18,17 @@ import java.util.UUID;
 public class DeleteProductVariantUseCase {
 
     private final ProductVariantRepository productVariantRepository;
+    private final StockSyncService stockSyncService;
 
     @Transactional
     public void execute(String id) {
         ProductVariantId variantId = new ProductVariantId(UUID.fromString(id));
 
-        // Verify variant exists before deleting
-        productVariantRepository.findById(variantId)
+        var variant = productVariantRepository.findById(variantId)
                 .orElseThrow(() -> new NotFoundException("ProductVariant", id));
 
+        var productId = variant.getProductId();
         productVariantRepository.delete(variantId);
+        stockSyncService.syncMerchStock(productId);
     }
 }

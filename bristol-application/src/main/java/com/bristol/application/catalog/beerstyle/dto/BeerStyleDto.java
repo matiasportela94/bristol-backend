@@ -24,6 +24,10 @@ public class BeerStyleDto {
     private BeerStyleCategory category;
     private boolean active;
     private Integer displayOrder;
+    private boolean hasImage;
+    private java.math.BigDecimal abv;
+    private Integer ibu;
+    private Integer srm;
     private Instant createdAt;
     private Instant updatedAt;
 }

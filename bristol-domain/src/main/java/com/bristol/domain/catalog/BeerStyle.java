@@ -22,6 +22,12 @@ public class BeerStyle {
     private final BeerStyleCategory category; // Broad category (ALE, LAGER, STOUT, etc.)
     private final boolean active;           // Soft delete flag
     private final Integer displayOrder;     // Order for UI display (lower = first)
+    private final byte[] imageData;         // Raw image bytes stored in DB
+    private final String imageContentType;  // e.g. "image/png"
+    private final String imageFileName;     // Original file name
+    private final java.math.BigDecimal abv; // Alcohol by volume (%)
+    private final Integer ibu;             // International Bitterness Units
+    private final Integer srm;             // Standard Reference Method (color)
     private final Instant createdAt;
     private final Instant updatedAt;
 
@@ -33,6 +39,9 @@ public class BeerStyle {
             String name,
             String description,
             BeerStyleCategory category,
+            java.math.BigDecimal abv,
+            Integer ibu,
+            Integer srm,
             Instant now
     ) {
         validateBeerStyle(code, name, category);
@@ -45,6 +54,12 @@ public class BeerStyle {
                 .category(category)
                 .active(true)
                 .displayOrder(0)
+                .imageData(null)
+                .imageContentType(null)
+                .imageFileName(null)
+                .abv(abv)
+                .ibu(ibu)
+                .srm(srm)
                 .createdAt(now)
                 .updatedAt(now)
                 .build();
@@ -58,6 +73,9 @@ public class BeerStyle {
             String description,
             BeerStyleCategory category,
             Integer displayOrder,
+            java.math.BigDecimal abv,
+            Integer ibu,
+            Integer srm,
             Instant now
     ) {
         if (name == null || name.trim().isEmpty()) {
@@ -72,6 +90,9 @@ public class BeerStyle {
                 .description(description != null ? description.trim() : null)
                 .category(category)
                 .displayOrder(displayOrder != null ? displayOrder : this.displayOrder)
+                .abv(abv)
+                .ibu(ibu)
+                .srm(srm)
                 .updatedAt(now)
                 .build();
     }
@@ -94,6 +115,19 @@ public class BeerStyle {
                 .active(true)
                 .updatedAt(now)
                 .build();
+    }
+
+    public BeerStyle updateImage(byte[] imageData, String contentType, String fileName, Instant now) {
+        return this.toBuilder()
+                .imageData(imageData)
+                .imageContentType(contentType)
+                .imageFileName(fileName)
+                .updatedAt(now)
+                .build();
+    }
+
+    public boolean hasImage() {
+        return imageData != null && imageData.length > 0;
     }
 
     /**

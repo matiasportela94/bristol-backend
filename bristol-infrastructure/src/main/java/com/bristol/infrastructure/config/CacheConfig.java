@@ -26,6 +26,7 @@ public class CacheConfig {
     public static final String CACHE_DELIVERY_ZONES = "deliveryZones";
     public static final String CACHE_FEATURED_PRODUCTS = "featuredProducts";
     public static final String CACHE_ACTIVE_COUPONS = "activeCoupons";
+    public static final String CACHE_BREWERY_STOCK_MAP = "breweryStockMap";
 
     @Bean
     public CacheManager cacheManager() {
@@ -35,7 +36,8 @@ public class CacheConfig {
                 CACHE_SPECIAL_TYPES,
                 CACHE_DELIVERY_ZONES,
                 CACHE_FEATURED_PRODUCTS,
-                CACHE_ACTIVE_COUPONS
+                CACHE_ACTIVE_COUPONS,
+                CACHE_BREWERY_STOCK_MAP
         );
 
         cacheManager.setCaffeine(caffeineCacheBuilder());

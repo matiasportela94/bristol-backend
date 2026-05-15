@@ -32,6 +32,7 @@ public class BeerStyleController {
     private final GetAllBeerStylesUseCase getAllBeerStylesUseCase;
     private final GetBeerStyleByIdUseCase getBeerStyleByIdUseCase;
     private final UpdateBeerStyleUseCase updateBeerStyleUseCase;
+    private final UpdateBeerStyleImageUseCase updateBeerStyleImageUseCase;
     private final DeactivateBeerStyleUseCase deactivateBeerStyleUseCase;
 
     /**
@@ -85,6 +86,33 @@ public class BeerStyleController {
     ) {
         BeerStyleDto beerStyle = updateBeerStyleUseCase.execute(id, request);
         return ResponseEntity.ok(beerStyle);
+    }
+
+    @PatchMapping(value = "/{id}/image", consumes = org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Upload beer style image")
+    public ResponseEntity<BeerStyleDto> updateBeerStyleImage(
+            @PathVariable UUID id,
+            @RequestPart("file") org.springframework.web.multipart.MultipartFile file) throws java.io.IOException {
+        return ResponseEntity.ok(updateBeerStyleImageUseCase.execute(
+                id,
+                file.getBytes(),
+                file.getContentType(),
+                file.getOriginalFilename()
+        ));
+    }
+
+    @GetMapping("/{id}/image")
+    @Operation(summary = "Get beer style image")
+    public ResponseEntity<byte[]> getBeerStyleImage(@PathVariable UUID id) {
+        var style = getBeerStyleByIdUseCase.executeRaw(id);
+        if (!style.hasImage()) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok()
+                .header("Content-Type", style.getImageContentType())
+                .header("Content-Disposition", "inline; filename=\"" + style.getImageFileName() + "\"")
+                .body(style.getImageData());
     }
 
     /**

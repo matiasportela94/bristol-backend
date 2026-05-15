@@ -6,6 +6,7 @@ import com.bristol.domain.catalog.BeerStyleRepository;
 import com.bristol.domain.shared.exception.NotFoundException;
 import com.bristol.domain.shared.time.TimeProvider;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +23,7 @@ public class DeactivateBeerStyleUseCase {
     private final TimeProvider timeProvider;
 
     @Transactional
+    @CacheEvict(value = "beerStyles", allEntries = true)
     public void execute(UUID id) {
         // Find existing beer style
         BeerStyle beerStyle = beerStyleRepository.findById(new BeerStyleId(id))

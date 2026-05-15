@@ -23,12 +23,13 @@ public class BeerProductDto {
     private String description;
     private BigDecimal basePrice;
     private String beerStyleId;
-    private BeerStyleCategory beerCategory;
+    private com.bristol.domain.catalog.BeerStyleCategory beerCategory;
     private BigDecimal abv;
     private Integer ibu;
     private Integer srm;
     private String origin;
     private String brewery;
+    private Integer cansPerUnit;
     private Integer stockQuantity;
     private Integer lowStockThreshold;
     private boolean featured;

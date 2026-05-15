@@ -1,30 +1,21 @@
 package com.bristol.domain.product;
 
-import com.bristol.domain.catalog.BeerStyleCategory;
 import com.bristol.domain.catalog.BeerStyleId;
 import com.bristol.domain.shared.exception.ValidationException;
 import com.bristol.domain.shared.valueobject.Money;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 
-import java.math.BigDecimal;
 import java.time.Instant;
 
-/**
- * Beer product aggregate.
- * Represents beer products with specific attributes like ABV, IBU, etc.
- */
 @Getter
 @SuperBuilder(toBuilder = true)
 public class BeerProduct extends BaseProduct {
 
     private final BeerStyleId beerStyleId;        // FK to beer_styles catalog
-    private final BeerStyleCategory beerCategory;  // Denormalized for quick queries
-    private final BigDecimal abv;                  // Alcohol by volume
-    private final Integer ibu;                     // International Bitterness Units
-    private final Integer srm;                     // Standard Reference Method (color)
-    private final String origin;                   // e.g., "Bristol Brewery", "Importada"
-    private final String brewery;                  // Brewery name
+    private final String origin;
+    private final String brewery;
+    private final Integer cansPerUnit;             // How many cans this product contains (1=single, 6=six-pack, 24=case, etc.)
 
     @Override
     public ProductKind getProductKind() {
@@ -36,33 +27,18 @@ public class BeerProduct extends BaseProduct {
         if (beerStyleId == null) {
             throw new ValidationException("Beer products must have a beer style");
         }
-        if (abv != null && abv.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new ValidationException("ABV must be positive");
-        }
-        if (ibu != null && ibu < 0) {
-            throw new ValidationException("IBU cannot be negative");
-        }
-        if (srm != null && srm < 0) {
-            throw new ValidationException("SRM cannot be negative");
-        }
     }
 
-    /**
-     * Factory method to create a new beer product.
-     */
     public static BeerProduct create(
             String name,
             String description,
             Money basePrice,
             BeerStyleId beerStyleId,
-            BeerStyleCategory beerCategory,
-            BigDecimal abv,
-            Integer ibu,
-            Integer srm,
             String origin,
             String brewery,
             Integer stockQuantity,
             Integer lowStockThreshold,
+            Integer cansPerUnit,
             Instant now
     ) {
         validateCommon(name, basePrice, true);
@@ -73,14 +49,11 @@ public class BeerProduct extends BaseProduct {
                 .description(description)
                 .basePrice(basePrice)
                 .beerStyleId(beerStyleId)
-                .beerCategory(beerCategory)
-                .abv(abv)
-                .ibu(ibu)
-                .srm(srm)
                 .origin(origin)
                 .brewery(brewery)
                 .stockQuantity(stockQuantity != null ? stockQuantity : 0)
                 .lowStockThreshold(lowStockThreshold != null ? lowStockThreshold : 10)
+                .cansPerUnit(cansPerUnit != null ? cansPerUnit : 1)
                 .featured(false)
                 .createdAt(now)
                 .updatedAt(now)
@@ -129,20 +102,14 @@ public class BeerProduct extends BaseProduct {
         return this.toBuilder().basePrice(newPrice).updatedAt(now).build();
     }
 
-    /**
-     * Update beer product information.
-     */
     public BeerProduct update(
             String name,
             String description,
             Money basePrice,
             BeerStyleId beerStyleId,
-            BeerStyleCategory beerCategory,
-            BigDecimal abv,
-            Integer ibu,
-            Integer srm,
             String origin,
             String brewery,
+            Integer cansPerUnit,
             Instant now
     ) {
         validateCommon(name, basePrice, true);
@@ -152,12 +119,9 @@ public class BeerProduct extends BaseProduct {
                 .description(description)
                 .basePrice(basePrice)
                 .beerStyleId(beerStyleId)
-                .beerCategory(beerCategory)
-                .abv(abv)
-                .ibu(ibu)
-                .srm(srm)
                 .origin(origin)
                 .brewery(brewery)
+                .cansPerUnit(cansPerUnit != null ? cansPerUnit : this.cansPerUnit)
                 .updatedAt(now)
                 .build();
 
@@ -165,40 +129,8 @@ public class BeerProduct extends BaseProduct {
         return updated;
     }
 
-    // ========== Compatibility overrides for legacy code ==========
-
-    @Override
-    public BeerType getBeerType() {
-        if (beerCategory == null) return null;
-
-        return switch (beerCategory) {
-            case ALE -> BeerType.APA;
-            case LAGER -> BeerType.LAGER;
-            case STOUT -> BeerType.STOUT;
-            case WHEAT -> BeerType.WHEAT;
-            case SOUR -> BeerType.SOUR;
-            case SPECIALTY -> BeerType.OTRO;
-        };
-    }
-
-    @Override
-    public BigDecimal getAbv() {
-        return abv;
-    }
-
-    @Override
-    public BigDecimal getIbu() {
-        return ibu != null ? BigDecimal.valueOf(ibu) : null;
-    }
-
-    @Override
-    public BigDecimal getSrm() {
-        return srm != null ? BigDecimal.valueOf(srm) : null;
-    }
-
     @Override
     public ProductSubcategory getSubcategory() {
-        // Default beer subcategory - can be enhanced based on packaging type
         return ProductSubcategory.CAN;
     }
 }

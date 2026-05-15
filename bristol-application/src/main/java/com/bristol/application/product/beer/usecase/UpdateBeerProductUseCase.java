@@ -47,12 +47,9 @@ public class UpdateBeerProductUseCase {
                 request.getDescription(),
                 Money.of(request.getBasePrice()),
                 beerStyleId,
-                request.getBeerCategory(),
-                request.getAbv(),
-                request.getIbu(),
-                request.getSrm(),
                 request.getOrigin(),
                 request.getBrewery(),
+                request.getCansPerUnit(),
                 timeProvider.now()
         );
 

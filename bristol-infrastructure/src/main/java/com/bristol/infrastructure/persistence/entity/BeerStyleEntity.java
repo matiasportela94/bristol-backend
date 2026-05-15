@@ -2,6 +2,8 @@ package com.bristol.infrastructure.persistence.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -40,6 +42,25 @@ public class BeerStyleEntity {
 
     @Column(name = "display_order", nullable = false)
     private Integer displayOrder;
+
+    @JdbcTypeCode(SqlTypes.VARBINARY)
+    @Column(name = "image_data", columnDefinition = "BYTEA")
+    private byte[] imageData;
+
+    @Column(name = "image_content_type", length = 100)
+    private String imageContentType;
+
+    @Column(name = "image_file_name", length = 255)
+    private String imageFileName;
+
+    @Column(precision = 3, scale = 1)
+    private java.math.BigDecimal abv;
+
+    @Column
+    private Integer ibu;
+
+    @Column
+    private Integer srm;
 
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;

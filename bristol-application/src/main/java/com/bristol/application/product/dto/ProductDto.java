@@ -27,9 +27,14 @@ public class ProductDto {
     private ProductCategory category;
     private ProductSubcategory subcategory;
     private BeerType beerType;
+    private String beerStyleCode;
+    private String beerStyleName;
     private BigDecimal abv;
     private BigDecimal ibu;
     private BigDecimal srm;
+    private String brewery;
+    private String origin;
+    private Integer cansPerUnit;
     private BigDecimal price;
     private Integer stockQuantity;
     private Integer minStockLevel;

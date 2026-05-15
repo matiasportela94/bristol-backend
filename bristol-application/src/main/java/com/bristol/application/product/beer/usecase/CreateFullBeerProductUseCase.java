@@ -43,9 +43,9 @@ public class CreateFullBeerProductUseCase {
 
         BeerProduct saved = beerProductRepository.save(BeerProduct.create(
                 p.getName(), p.getDescription(), Money.of(p.getBasePrice()),
-                beerStyleId, p.getBeerCategory(), p.getAbv(), p.getIbu(), p.getSrm(),
+                beerStyleId,
                 p.getOrigin(), p.getBrewery(), p.getStockQuantity(), p.getLowStockThreshold(),
-                timeProvider.now()
+                p.getCansPerUnit(), timeProvider.now()
         ));
 
         saveVariants(saved.getId(), request.getVariants());

@@ -28,4 +28,13 @@ public class UpdateBeerStyleRequest {
     private BeerStyleCategory category;
 
     private Integer displayOrder;
+
+    @jakarta.validation.constraints.DecimalMin(value = "0.0", inclusive = false, message = "ABV must be positive")
+    private java.math.BigDecimal abv;
+
+    @jakarta.validation.constraints.Min(value = 0, message = "IBU cannot be negative")
+    private Integer ibu;
+
+    @jakarta.validation.constraints.Min(value = 0, message = "SRM cannot be negative")
+    private Integer srm;
 }

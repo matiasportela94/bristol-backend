@@ -7,6 +7,7 @@ import com.bristol.domain.catalog.BeerStyleRepository;
 import com.bristol.domain.shared.exception.ValidationException;
 import com.bristol.domain.shared.time.TimeProvider;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +23,7 @@ public class CreateBeerStyleUseCase {
     private final TimeProvider timeProvider;
 
     @Transactional
+    @CacheEvict(value = "beerStyles", allEntries = true)
     public BeerStyleDto execute(CreateBeerStyleRequest request) {
         // Validate code uniqueness
         if (beerStyleRepository.existsByCode(request.getCode())) {
@@ -34,6 +36,9 @@ public class CreateBeerStyleUseCase {
                 request.getName(),
                 request.getDescription(),
                 request.getCategory(),
+                request.getAbv(),
+                request.getIbu(),
+                request.getSrm(),
                 timeProvider.now()
         );
 

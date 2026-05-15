@@ -5,7 +5,9 @@ import com.bristol.application.stats.dto.AdminDashboardStatsDto;
 import com.bristol.application.stats.dto.DistributorStatsDto;
 import com.bristol.application.stats.dto.RankingResponseDto;
 import com.bristol.application.stats.dto.StockStatDto;
+import com.bristol.application.stats.dto.CatalogStatsDto;
 import com.bristol.application.stats.usecase.GetAdminDashboardStatsUseCase;
+import com.bristol.application.stats.usecase.GetCatalogStatsUseCase;
 import com.bristol.application.stats.usecase.GetDistributorStatsUseCase;
 import com.bristol.application.stats.usecase.GetMerchStockStatsUseCase;
 import com.bristol.application.stats.usecase.GetMonthlyRankingUseCase;
@@ -33,6 +35,7 @@ import java.util.List;
 public class StatsController {
 
     private final GetAdminDashboardStatsUseCase getAdminDashboardStatsUseCase;
+    private final GetCatalogStatsUseCase getCatalogStatsUseCase;
     private final GetDistributorStatsUseCase getDistributorStatsUseCase;
     private final GetMonthlyRankingUseCase getMonthlyRankingUseCase;
     private final GetProductStockStatsUseCase getProductStockStatsUseCase;
@@ -44,6 +47,13 @@ public class StatsController {
     @Operation(summary = "Get admin dashboard statistics", description = "Retrieve overview statistics for the admin dashboard")
     public ResponseEntity<AdminDashboardStatsDto> getAdminDashboardStats() {
         return ResponseEntity.ok(getAdminDashboardStatsUseCase.execute());
+    }
+
+    @GetMapping("/admin/catalog")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Get catalog stats", description = "Product count, units in stock, total value and low stock count — beer calculated from brewery inventory")
+    public ResponseEntity<CatalogStatsDto> getCatalogStats() {
+        return ResponseEntity.ok(getCatalogStatsUseCase.execute());
     }
 
     @GetMapping("/distributors/{distributorId}")

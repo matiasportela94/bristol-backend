@@ -1,0 +1,9 @@
+ALTER TABLE beer_styles
+    ADD COLUMN abv  NUMERIC(3,1),
+    ADD COLUMN ibu  INTEGER,
+    ADD COLUMN srm  INTEGER;
+
+ALTER TABLE beer_products
+    DROP COLUMN IF EXISTS abv,
+    DROP COLUMN IF EXISTS ibu,
+    DROP COLUMN IF EXISTS srm;

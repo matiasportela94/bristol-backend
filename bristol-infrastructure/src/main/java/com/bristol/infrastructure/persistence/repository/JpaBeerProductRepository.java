@@ -1,7 +1,7 @@
 package com.bristol.infrastructure.persistence.repository;
 
 import com.bristol.infrastructure.persistence.entity.BeerProductEntity;
-import com.bristol.infrastructure.persistence.entity.BeerProductEntity.BeerCategoryEnum;
+import com.bristol.infrastructure.persistence.entity.BeerStyleEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -22,8 +22,8 @@ public interface JpaBeerProductRepository extends JpaRepository<BeerProductEntit
     @Query("SELECT b FROM BeerProductEntity b WHERE b.beerStyleId = :beerStyleId AND b.deletedAt IS NULL")
     List<BeerProductEntity> findByBeerStyleId(@Param("beerStyleId") UUID beerStyleId);
 
-    @Query("SELECT b FROM BeerProductEntity b WHERE b.beerCategory = :category AND b.deletedAt IS NULL")
-    List<BeerProductEntity> findByBeerCategory(@Param("category") BeerCategoryEnum category);
+    @Query("SELECT b FROM BeerProductEntity b WHERE b.beerStyleId IN (SELECT s.id FROM BeerStyleEntity s WHERE s.category = :category) AND b.deletedAt IS NULL")
+    List<BeerProductEntity> findByBeerStyleCategory(@Param("category") BeerStyleEntity.BeerStyleCategoryEnum category);
 
     @Query("SELECT b FROM BeerProductEntity b WHERE b.isFeatured = true AND b.deletedAt IS NULL")
     List<BeerProductEntity> findFeatured();

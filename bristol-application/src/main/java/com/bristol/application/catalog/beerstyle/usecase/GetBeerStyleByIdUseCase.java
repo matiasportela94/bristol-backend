@@ -1,6 +1,7 @@
 package com.bristol.application.catalog.beerstyle.usecase;
 
 import com.bristol.application.catalog.beerstyle.dto.BeerStyleDto;
+import com.bristol.domain.catalog.BeerStyle;
 import com.bristol.domain.catalog.BeerStyleId;
 import com.bristol.domain.catalog.BeerStyleRepository;
 import com.bristol.domain.shared.exception.NotFoundException;
@@ -24,6 +25,12 @@ public class GetBeerStyleByIdUseCase {
     public BeerStyleDto execute(UUID id) {
         return beerStyleRepository.findById(new BeerStyleId(id))
                 .map(mapper::toDto)
+                .orElseThrow(() -> new NotFoundException("BeerStyle", id.toString()));
+    }
+
+    @Transactional(readOnly = true)
+    public BeerStyle executeRaw(UUID id) {
+        return beerStyleRepository.findById(new BeerStyleId(id))
                 .orElseThrow(() -> new NotFoundException("BeerStyle", id.toString()));
     }
 }

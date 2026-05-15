@@ -5,7 +5,7 @@ import com.bristol.domain.catalog.BeerStyleId;
 import com.bristol.domain.product.BeerProduct;
 import com.bristol.domain.product.BeerProductRepository;
 import com.bristol.domain.product.ProductId;
-import com.bristol.infrastructure.persistence.entity.BeerProductEntity.BeerCategoryEnum;
+import com.bristol.infrastructure.persistence.entity.BeerStyleEntity;
 import com.bristol.infrastructure.persistence.mapper.BeerProductMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -53,8 +53,8 @@ public class BeerProductRepositoryImpl implements BeerProductRepository {
 
     @Override
     public List<BeerProduct> findByCategory(BeerStyleCategory category) {
-        var entityCategory = BeerCategoryEnum.valueOf(category.name());
-        return jpaRepository.findByBeerCategory(entityCategory).stream()
+        var entityCategory = BeerStyleEntity.BeerStyleCategoryEnum.valueOf(category.name());
+        return jpaRepository.findByBeerStyleCategory(entityCategory).stream()
                 .map(mapper::toDomain)
                 .collect(Collectors.toList());
     }

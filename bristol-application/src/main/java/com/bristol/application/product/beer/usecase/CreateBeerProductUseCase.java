@@ -2,6 +2,8 @@ package com.bristol.application.product.beer.usecase;
 
 import com.bristol.application.product.beer.dto.BeerProductDto;
 import com.bristol.application.product.beer.dto.CreateBeerProductRequest;
+import com.bristol.application.product.service.StockSyncService;
+import com.bristol.domain.brewery.BreweryInventoryRepository;
 import com.bristol.domain.catalog.BeerStyleId;
 import com.bristol.domain.catalog.BeerStyleRepository;
 import com.bristol.domain.product.BeerProduct;
@@ -21,6 +23,8 @@ public class CreateBeerProductUseCase {
 
     private final BeerProductRepository beerProductRepository;
     private final BeerStyleRepository beerStyleRepository;
+    private final BreweryInventoryRepository breweryInventoryRepository;
+    private final StockSyncService stockSyncService;
     private final BeerProductApplicationMapper mapper;
     private final TimeProvider timeProvider;
 
@@ -36,17 +40,21 @@ public class CreateBeerProductUseCase {
                 request.getDescription(),
                 Money.of(request.getBasePrice()),
                 beerStyleId,
-                request.getBeerCategory(),
-                request.getAbv(),
-                request.getIbu(),
-                request.getSrm(),
                 request.getOrigin(),
                 request.getBrewery(),
-                request.getStockQuantity(),
+                0,
                 request.getLowStockThreshold(),
+                request.getCansPerUnit(),
                 timeProvider.now()
         );
 
-        return mapper.toDto(beerProductRepository.save(product));
+        BeerProduct saved = beerProductRepository.save(product);
+
+        // Sync stock from existing brewery inventory if available
+        breweryInventoryRepository.findByBeerStyleId(beerStyleId)
+                .ifPresent(inv -> stockSyncService.syncBeerStock(beerStyleId, inv.getTotalCans()));
+
+        // Re-fetch to return updated stockQuantity after sync
+        return mapper.toDto(beerProductRepository.findById(saved.getId()).orElse(saved));
     }
 }

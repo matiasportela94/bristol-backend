@@ -23,6 +23,10 @@ public class BeerStyleApplicationMapper {
                 .category(beerStyle.getCategory())
                 .active(beerStyle.isActive())
                 .displayOrder(beerStyle.getDisplayOrder())
+                .hasImage(beerStyle.hasImage())
+                .abv(beerStyle.getAbv())
+                .ibu(beerStyle.getIbu())
+                .srm(beerStyle.getSrm())
                 .createdAt(beerStyle.getCreatedAt())
                 .updatedAt(beerStyle.getUpdatedAt())
                 .build();

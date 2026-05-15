@@ -46,8 +46,8 @@ public class UpdateFullBeerProductUseCase {
 
         BeerProduct updated = product.update(
                 p.getName(), p.getDescription(), Money.of(p.getBasePrice()),
-                beerStyleId, p.getBeerCategory(), p.getAbv(), p.getIbu(), p.getSrm(),
-                p.getOrigin(), p.getBrewery(), timeProvider.now()
+                beerStyleId,
+                p.getOrigin(), p.getBrewery(), p.getCansPerUnit(), timeProvider.now()
         );
 
         boolean hasNoVariants = request.getVariants() == null || request.getVariants().isEmpty();
