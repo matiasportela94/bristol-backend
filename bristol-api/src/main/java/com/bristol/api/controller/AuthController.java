@@ -31,6 +31,9 @@ public class AuthController {
     @Value("${bristol.cookie.secure:false}")
     private boolean cookieSecure;
 
+    @Value("${bristol.cookie.same-site:Strict}")
+    private String cookieSameSite;
+
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
         AuthResponse response = loginUseCase.execute(request);
@@ -52,7 +55,7 @@ public class AuthController {
         ResponseCookie clear = ResponseCookie.from(COOKIE_NAME, "")
                 .httpOnly(true)
                 .secure(cookieSecure)
-                .sameSite("Strict")
+                .sameSite(cookieSameSite)
                 .path("/")
                 .maxAge(0)
                 .build();
@@ -70,7 +73,7 @@ public class AuthController {
         return ResponseCookie.from(COOKIE_NAME, token)
                 .httpOnly(true)
                 .secure(cookieSecure)
-                .sameSite("Strict")
+                .sameSite(cookieSameSite)
                 .path("/")
                 .maxAge(Duration.ofMillis(jwtExpirationMs))
                 .build();
