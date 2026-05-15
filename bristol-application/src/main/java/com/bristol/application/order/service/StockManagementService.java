@@ -34,6 +34,12 @@ public class StockManagementService {
                     .orElseThrow(() -> new ValidationException(
                             "Product not found: " + item.getProductId().getValue()));
 
+            // Beer stock is managed exclusively via brewery_inventory — skip product.stockQuantity check
+            if (product instanceof BeerProduct beerProduct && item.getProductVariantId() == null) {
+                breweryInventoryService.deductCansForSale(beerProduct, item.getQuantity(), order.getId().getValue());
+                continue;
+            }
+
             if (item.getProductVariantId() != null) {
                 ProductVariant variant = productVariantRepository.findById(item.getProductVariantId())
                         .orElseThrow(() -> new ValidationException(
@@ -63,10 +69,6 @@ public class StockManagementService {
             }
 
             unifiedProductService.save(product.reduceStock(item.getQuantity(), timeProvider.now()));
-
-            if (product instanceof BeerProduct beerProduct) {
-                breweryInventoryService.deductCansForSale(beerProduct, item.getQuantity());
-            }
         }
     }
 
@@ -80,6 +82,12 @@ public class StockManagementService {
             BaseProduct product = unifiedProductService.findById(item.getProductId())
                     .orElseThrow(() -> new ValidationException(
                             "Product not found: " + item.getProductId().getValue()));
+
+            // Beer stock restored exclusively via brewery_inventory
+            if (product instanceof BeerProduct beerProduct && item.getProductVariantId() == null) {
+                breweryInventoryService.restoreCansForCancellation(beerProduct, item.getQuantity(), order.getId().getValue());
+                continue;
+            }
 
             if (item.getProductVariantId() != null) {
                 ProductVariant variant = productVariantRepository.findById(item.getProductVariantId())
@@ -99,10 +107,6 @@ public class StockManagementService {
             }
 
             unifiedProductService.save(product.increaseStock(item.getQuantity(), timeProvider.now()));
-
-            if (product instanceof BeerProduct beerProduct) {
-                breweryInventoryService.restoreCansForCancellation(beerProduct, item.getQuantity());
-            }
         }
     }
 }

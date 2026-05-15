@@ -3,6 +3,7 @@ package com.bristol.infrastructure.persistence.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.UUID;
 
@@ -27,6 +28,9 @@ public class BreweryBatchEntity {
 
     @Column(name = "can_capacity_ml")
     private Integer canCapacityMl;
+
+    @Column(name = "cost_per_can", precision = 10, scale = 2)
+    private BigDecimal costPerCan;
 
     @Column(columnDefinition = "TEXT")
     private String notes;

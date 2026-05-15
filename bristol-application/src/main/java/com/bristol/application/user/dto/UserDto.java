@@ -28,6 +28,7 @@ public class UserDto {
     private boolean isDistributor;
     private String distributorId;
     private String branchId;
+    private Instant lastSignInAt;
     private Instant createdAt;
     private Instant updatedAt;
 }

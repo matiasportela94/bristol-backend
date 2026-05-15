@@ -1,6 +1,8 @@
 package com.bristol.application.order.usecase;
 
 import com.bristol.application.order.dto.OrderDto;
+import com.bristol.domain.delivery.Delivery;
+import com.bristol.domain.delivery.DeliveryRepository;
 import com.bristol.domain.distributor.DistributorRepository;
 import com.bristol.domain.order.Order;
 import com.bristol.domain.order.OrderRepository;
@@ -21,6 +23,7 @@ import java.util.stream.Collectors;
 public class GetUserOrdersUseCase {
 
     private final OrderRepository orderRepository;
+    private final DeliveryRepository deliveryRepository;
     private final DistributorRepository distributorRepository;
     private final UserRepository userRepository;
     private final OrderMapper orderMapper;
@@ -30,12 +33,16 @@ public class GetUserOrdersUseCase {
         UserId id = new UserId(userId);
         List<Order> orders = orderRepository.findByUserId(id);
         return orders.stream()
-                .map(order -> orderMapper.toDto(
-                        order,
-                        resolveCustomerName(order),
-                        resolveUserEmail(order),
-                        resolveDistributorName(order)
-                ))
+                .map(order -> {
+                    Delivery delivery = deliveryRepository.findByOrderId(order.getId()).orElse(null);
+                    return orderMapper.toDto(
+                            order,
+                            resolveCustomerName(order),
+                            resolveUserEmail(order),
+                            resolveDistributorName(order),
+                            delivery
+                    );
+                })
                 .collect(Collectors.toList());
     }
 

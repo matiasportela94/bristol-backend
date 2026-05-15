@@ -24,6 +24,7 @@ public class CartReconciliationService extends CartCommandSupport {
 
     private final UnifiedProductService unifiedProductService;
     private final ProductVariantRepository productVariantRepository;
+    private final CartStockService cartStockService;
 
     public ReconciliationResult reconcile(ShoppingCart cart, Instant now) {
         List<CartAdjustmentDto> adjustments = new ArrayList<>();
@@ -60,7 +61,7 @@ public class CartReconciliationService extends CartCommandSupport {
             }
 
             Money resolvedUnitPrice = resolveUnitPrice(product, variant);
-            int availableStock = variant.map(ProductVariant::getStockQuantity).orElse(product.getStockQuantity());
+            int availableStock = cartStockService.resolveAvailableStock(product, variant);
             if (availableStock <= 0) {
                 adjustments.add(CartAdjustmentDto.builder()
                         .type(CartAdjustmentType.ITEM_OUT_OF_STOCK)

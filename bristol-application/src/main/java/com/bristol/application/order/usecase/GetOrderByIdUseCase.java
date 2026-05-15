@@ -1,6 +1,8 @@
 package com.bristol.application.order.usecase;
 
 import com.bristol.application.order.dto.OrderDto;
+import com.bristol.domain.delivery.Delivery;
+import com.bristol.domain.delivery.DeliveryRepository;
 import com.bristol.domain.distributor.DistributorRepository;
 import com.bristol.domain.order.Order;
 import com.bristol.domain.order.OrderId;
@@ -18,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class GetOrderByIdUseCase {
 
     private final OrderRepository orderRepository;
+    private final DeliveryRepository deliveryRepository;
     private final DistributorRepository distributorRepository;
     private final UserRepository userRepository;
     private final OrderMapper orderMapper;
@@ -27,11 +30,13 @@ public class GetOrderByIdUseCase {
         OrderId id = new OrderId(orderId);
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Order not found: " + orderId));
+        Delivery delivery = deliveryRepository.findByOrderId(id).orElse(null);
         return orderMapper.toDto(
                 order,
                 resolveCustomerName(order),
                 resolveUserEmail(order),
-                resolveDistributorName(order)
+                resolveDistributorName(order),
+                delivery
         );
     }
 

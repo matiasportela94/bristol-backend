@@ -24,6 +24,7 @@ public class AddItemToCartUseCase extends CartCommandSupport {
     private final ShoppingCartRepository shoppingCartRepository;
     private final UnifiedProductService unifiedProductService;
     private final ProductVariantRepository productVariantRepository;
+    private final CartStockService cartStockService;
     private final UserRepository userRepository;
     private final CartMapper cartMapper;
     private final TimeProvider timeProvider;
@@ -41,7 +42,8 @@ public class AddItemToCartUseCase extends CartCommandSupport {
         );
 
         validateProductAvailability(product);
-        validateRequestedQuantity(product, variant, request.getQuantity(), existingCartQuantity);
+        int availableStock = cartStockService.resolveAvailableStock(product, variant);
+        validateRequestedQuantity(availableStock, product.getName(), request.getQuantity(), existingCartQuantity);
 
         ShoppingCart updatedCart = cart.addItem(
                 product.getId(),

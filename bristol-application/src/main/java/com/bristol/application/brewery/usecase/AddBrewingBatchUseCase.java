@@ -7,7 +7,10 @@ import com.bristol.application.product.service.StockSyncService;
 import com.bristol.domain.brewery.BreweryBatch;
 import com.bristol.domain.brewery.BreweryBatchRepository;
 import com.bristol.domain.brewery.BreweryInventory;
+import com.bristol.domain.brewery.BreweryInventoryMovement;
+import com.bristol.domain.brewery.BreweryInventoryMovementRepository;
 import com.bristol.domain.brewery.BreweryInventoryRepository;
+import com.bristol.domain.brewery.MovementType;
 import com.bristol.domain.catalog.BeerStyleId;
 import com.bristol.domain.catalog.BeerStyleRepository;
 import com.bristol.domain.shared.exception.NotFoundException;
@@ -25,6 +28,7 @@ public class AddBrewingBatchUseCase {
 
     private final BreweryBatchRepository batchRepository;
     private final BreweryInventoryRepository inventoryRepository;
+    private final BreweryInventoryMovementRepository movementRepository;
     private final BeerStyleRepository beerStyleRepository;
     private final StockSyncService stockSyncService;
     private final BreweryStockMapService breweryStockMapService;
@@ -40,13 +44,19 @@ public class AddBrewingBatchUseCase {
         }
 
         Instant now = timeProvider.now();
-        BreweryBatch batch = BreweryBatch.create(beerStyleId, request.getCansProduced(), request.getCanCapacityMl(), request.getNotes(), now);
+        BreweryBatch batch = BreweryBatch.create(beerStyleId, request.getCansProduced(), request.getCanCapacityMl(), request.getCostPerCan(), request.getNotes(), now);
         BreweryBatch saved = batchRepository.save(batch);
 
         BreweryInventory inventory = inventoryRepository.findByBeerStyleId(beerStyleId)
                 .orElseGet(() -> BreweryInventory.create(beerStyleId, now));
 
         BreweryInventory updated = inventoryRepository.save(inventory.addCans(request.getCansProduced(), now));
+
+        movementRepository.save(BreweryInventoryMovement.create(
+                beerStyleId, MovementType.BATCH_IN, request.getCansProduced(),
+                inventory.getTotalCans(), updated.getTotalCans(),
+                saved.getId().getValue(), "BATCH",
+                request.getNotes(), now));
 
         stockSyncService.syncBeerStock(beerStyleId, updated.getTotalCans());
         breweryStockMapService.evict();

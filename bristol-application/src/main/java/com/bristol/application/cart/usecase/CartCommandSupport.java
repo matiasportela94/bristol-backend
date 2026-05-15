@@ -86,21 +86,11 @@ abstract class CartCommandSupport {
         }
     }
 
-    protected void validateRequestedQuantity(BaseProduct product, Optional<ProductVariant> variant, Integer quantity) {
-        validateRequestedQuantity(product, variant, quantity, 0);
-    }
-
-    protected void validateRequestedQuantity(
-            BaseProduct product,
-            Optional<ProductVariant> variant,
-            Integer quantity,
-            Integer existingCartQuantity
-    ) {
-        int availableStock = variant.map(ProductVariant::getStockQuantity).orElse(product.getStockQuantity());
-        int requestedQuantity = Math.max(0, existingCartQuantity != null ? existingCartQuantity : 0) + quantity;
+    protected void validateRequestedQuantity(int availableStock, String productName, Integer quantity, int existingCartQuantity) {
+        int requestedQuantity = Math.max(0, existingCartQuantity) + quantity;
         if (availableStock < requestedQuantity) {
             throw new ValidationException(
-                    "Insufficient stock for product: " + product.getName() +
+                    "Insufficient stock for product: " + productName +
                             ". Available: " + availableStock +
                             ", Requested: " + requestedQuantity);
         }

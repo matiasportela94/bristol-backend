@@ -3,6 +3,7 @@ package com.bristol.api.controller;
 import com.bristol.application.product.dto.ProductDto;
 import com.bristol.application.product.dto.ProductImageDto;
 import com.bristol.application.product.dto.ProductImageRequest;
+import com.bristol.application.product.dto.ProductPriceHistoryDto;
 import com.bristol.application.product.dto.UpdateProductStockRequest;
 import com.bristol.application.product.usecase.*;
 import com.bristol.application.shared.dto.PagedResponse;
@@ -48,6 +49,7 @@ public class ProductController {
     private final GetProductsByCategoryPaginatedUseCase getProductsByCategoryPaginatedUseCase;
     private final GetFeaturedProductsPaginatedUseCase getFeaturedProductsPaginatedUseCase;
     private final SearchProductsPaginatedUseCase searchProductsPaginatedUseCase;
+    private final GetProductPriceHistoryUseCase getProductPriceHistoryUseCase;
     private final ProductImageService productImageService;
 
     @GetMapping
@@ -159,5 +161,13 @@ public class ProductController {
             @Valid @RequestBody UpdateProductStockRequest request
     ) {
         return ResponseEntity.ok(updateProductStockUseCase.execute(id, request));
+    }
+
+    @GetMapping("/{id}/price-history")
+    @PreAuthorize("hasRole('ADMIN')")
+    @SecurityRequirement(name = "Bearer Authentication")
+    @Operation(summary = "Get product price history", description = "Returns all price changes for a product, most recent first")
+    public ResponseEntity<List<ProductPriceHistoryDto>> getProductPriceHistory(@PathVariable String id) {
+        return ResponseEntity.ok(getProductPriceHistoryUseCase.execute(id));
     }
 }

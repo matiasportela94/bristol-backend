@@ -16,6 +16,7 @@ public class BreweryBatchMapper {
                 .beerStyleId(new BeerStyleId(entity.getBeerStyleId()))
                 .cansProduced(entity.getCansProduced())
                 .canCapacityMl(entity.getCanCapacityMl())
+                .costPerCan(entity.getCostPerCan())
                 .notes(entity.getNotes())
                 .createdAt(entity.getCreatedAt())
                 .build();
@@ -28,6 +29,7 @@ public class BreweryBatchMapper {
                 .beerStyleId(domain.getBeerStyleId().getValue())
                 .cansProduced(domain.getCansProduced())
                 .canCapacityMl(domain.getCanCapacityMl())
+                .costPerCan(domain.getCostPerCan())
                 .notes(domain.getNotes())
                 .createdAt(domain.getCreatedAt())
                 .build();

@@ -49,6 +49,7 @@ public class BreweryApplicationMapper {
                 .beerStyleCode(styleCode)
                 .cansProduced(batch.getCansProduced())
                 .canCapacityMl(batch.getCanCapacityMl())
+                .costPerCan(batch.getCostPerCan())
                 .notes(batch.getNotes())
                 .createdAt(batch.getCreatedAt())
                 .build();

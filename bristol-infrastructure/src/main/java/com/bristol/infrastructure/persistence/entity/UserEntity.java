@@ -56,6 +56,9 @@ public class UserEntity {
     @Column(name = "branch_id", columnDefinition = "UUID")
     private UUID branchId;
 
+    @Column(name = "last_sign_in_at")
+    private Instant lastSignInAt;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 

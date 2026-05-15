@@ -2,6 +2,7 @@ package com.bristol.application.product.merch.usecase;
 
 import com.bristol.application.product.merch.dto.MerchProductDto;
 import com.bristol.application.product.merch.dto.UpdateFullMerchProductRequest;
+import com.bristol.application.product.service.ProductPriceHistoryService;
 import com.bristol.application.product.usecase.ProductImageService;
 import com.bristol.application.productvariant.dto.EmbeddedVariantRequest;
 import com.bristol.domain.catalog.MerchTypeId;
@@ -29,6 +30,7 @@ public class UpdateFullMerchProductUseCase {
     private final MerchTypeRepository merchTypeRepository;
     private final ProductVariantRepository productVariantRepository;
     private final ProductImageService productImageService;
+    private final ProductPriceHistoryService priceHistoryService;
     private final MerchProductApplicationMapper mapper;
     private final TimeProvider timeProvider;
 
@@ -44,8 +46,11 @@ public class UpdateFullMerchProductUseCase {
             throw new NotFoundException("MerchType", p.getMerchTypeId());
         }
 
+        Money newPrice = Money.of(p.getBasePrice());
+        priceHistoryService.recordIfChanged(productId, product.getBasePrice(), newPrice, timeProvider.now());
+
         MerchProduct saved = merchProductRepository.save(product.update(
-                p.getName(), p.getDescription(), Money.of(p.getBasePrice()),
+                p.getName(), p.getDescription(), newPrice,
                 merchTypeId, p.getMerchCategory(), p.getMaterial(), p.getBrand(),
                 timeProvider.now()
         ));

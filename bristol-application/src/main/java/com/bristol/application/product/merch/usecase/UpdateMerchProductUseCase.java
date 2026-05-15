@@ -2,6 +2,7 @@ package com.bristol.application.product.merch.usecase;
 
 import com.bristol.application.product.merch.dto.MerchProductDto;
 import com.bristol.application.product.merch.dto.UpdateMerchProductRequest;
+import com.bristol.application.product.service.ProductPriceHistoryService;
 import com.bristol.domain.catalog.MerchTypeId;
 import com.bristol.domain.catalog.MerchTypeRepository;
 import com.bristol.domain.product.MerchProduct;
@@ -25,6 +26,7 @@ public class UpdateMerchProductUseCase {
 
     private final MerchProductRepository merchProductRepository;
     private final MerchTypeRepository merchTypeRepository;
+    private final ProductPriceHistoryService priceHistoryService;
     private final MerchProductApplicationMapper mapper;
     private final TimeProvider timeProvider;
 
@@ -41,11 +43,13 @@ public class UpdateMerchProductUseCase {
             throw new NotFoundException("MerchType", request.getMerchTypeId());
         }
 
-        // Update product
+        Money newPrice = Money.of(request.getBasePrice());
+        priceHistoryService.recordIfChanged(productId, product.getBasePrice(), newPrice, timeProvider.now());
+
         MerchProduct updated = product.update(
                 request.getName(),
                 request.getDescription(),
-                Money.of(request.getBasePrice()),
+                newPrice,
                 merchTypeId,
                 request.getMerchCategory(),
                 request.getMaterial(),

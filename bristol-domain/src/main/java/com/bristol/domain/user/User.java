@@ -29,6 +29,7 @@ public class User {
     private final DistributorId distributorId;
     /** Set when role is DISTRIBUTOR_BRANCH. */
     private final DistributorBranchId branchId;
+    private final Instant lastSignInAt;
     private final Instant createdAt;
     private final Instant updatedAt;
 
@@ -77,9 +78,12 @@ public class User {
                 .build();
     }
 
-    /**
-     * Check if user is an administrator.
-     */
+    public User recordSignIn(Instant now) {
+        return this.toBuilder()
+                .lastSignInAt(now)
+                .build();
+    }
+
     public boolean isAdmin() {
         return role == UserRole.ADMIN;
     }

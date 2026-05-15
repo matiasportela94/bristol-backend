@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.List;
 
 /**
@@ -35,6 +36,8 @@ public class OrderDto {
     private BigDecimal total;
     private boolean stockUpdated;
     private String notes;
+    private LocalDate scheduledDelivery;
+    private String deliveryStatus;
     private Instant orderDate;
     private Instant createdAt;
     private Instant updatedAt;

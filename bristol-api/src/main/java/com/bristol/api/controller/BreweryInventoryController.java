@@ -27,6 +27,7 @@ public class BreweryInventoryController {
     private final GetBreweryInventoryByStyleUseCase getBreweryInventoryByStyleUseCase;
     private final GetBreweryBatchesUseCase getBreweryBatchesUseCase;
     private final AdjustInventoryUseCase adjustInventoryUseCase;
+    private final GetBreweryInventoryMovementsUseCase getBreweryInventoryMovementsUseCase;
 
     @GetMapping("/inventory")
     @PreAuthorize("hasRole('ADMIN')")
@@ -70,6 +71,20 @@ public class BreweryInventoryController {
     @Operation(summary = "Register a new brewing batch — adds cans to inventory for the given style")
     public ResponseEntity<BreweryBatchDto> addBatch(@Valid @RequestBody AddBrewingBatchRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(addBrewingBatchUseCase.execute(request));
+    }
+
+    @GetMapping("/movements")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Get all inventory movements across all styles")
+    public ResponseEntity<List<BreweryInventoryMovementDto>> getAllMovements() {
+        return ResponseEntity.ok(getBreweryInventoryMovementsUseCase.executeAll());
+    }
+
+    @GetMapping("/movements/style/{beerStyleId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Get inventory movements for a specific beer style")
+    public ResponseEntity<List<BreweryInventoryMovementDto>> getMovementsByStyle(@PathVariable UUID beerStyleId) {
+        return ResponseEntity.ok(getBreweryInventoryMovementsUseCase.executeByStyle(beerStyleId));
     }
 
 }

@@ -27,6 +27,7 @@ public class UpdateCartItemQuantityUseCase extends CartCommandSupport {
     private final ShoppingCartRepository shoppingCartRepository;
     private final UnifiedProductService unifiedProductService;
     private final ProductVariantRepository productVariantRepository;
+    private final CartStockService cartStockService;
     private final UserRepository userRepository;
     private final CartMapper cartMapper;
     private final TimeProvider timeProvider;
@@ -51,7 +52,8 @@ public class UpdateCartItemQuantityUseCase extends CartCommandSupport {
         }
 
         validateProductAvailability(product);
-        validateRequestedQuantity(product, variant, request.getQuantity());
+        int availableStock = cartStockService.resolveAvailableStock(product, variant);
+        validateRequestedQuantity(availableStock, product.getName(), request.getQuantity(), 0);
 
         ShoppingCart updatedCart = cart.updateItemQuantity(existingItem.getId(), request.getQuantity(), timeProvider.now());
         return cartMapper.toDto(shoppingCartRepository.save(updatedCart));

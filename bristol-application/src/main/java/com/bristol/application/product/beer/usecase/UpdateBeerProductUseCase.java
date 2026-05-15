@@ -2,6 +2,7 @@ package com.bristol.application.product.beer.usecase;
 
 import com.bristol.application.product.beer.dto.BeerProductDto;
 import com.bristol.application.product.beer.dto.UpdateBeerProductRequest;
+import com.bristol.application.product.service.ProductPriceHistoryService;
 import com.bristol.domain.catalog.BeerStyleId;
 import com.bristol.domain.catalog.BeerStyleRepository;
 import com.bristol.domain.product.BeerProduct;
@@ -16,36 +17,34 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
-/**
- * Use case to update a beer product.
- */
 @Service
 @RequiredArgsConstructor
 public class UpdateBeerProductUseCase {
 
     private final BeerProductRepository beerProductRepository;
     private final BeerStyleRepository beerStyleRepository;
+    private final ProductPriceHistoryService priceHistoryService;
     private final BeerProductApplicationMapper mapper;
     private final TimeProvider timeProvider;
 
     @Transactional
     public BeerProductDto execute(String id, UpdateBeerProductRequest request) {
-        // Find existing product
         ProductId productId = new ProductId(UUID.fromString(id));
         BeerProduct product = beerProductRepository.findById(productId)
                 .orElseThrow(() -> new NotFoundException("BeerProduct", id));
 
-        // Validate beer style exists
         BeerStyleId beerStyleId = new BeerStyleId(UUID.fromString(request.getBeerStyleId()));
         if (beerStyleRepository.findById(beerStyleId).isEmpty()) {
             throw new NotFoundException("BeerStyle", request.getBeerStyleId());
         }
 
-        // Update product
+        Money newPrice = Money.of(request.getBasePrice());
+        priceHistoryService.recordIfChanged(productId, product.getBasePrice(), newPrice, timeProvider.now());
+
         BeerProduct updated = product.update(
                 request.getName(),
                 request.getDescription(),
-                Money.of(request.getBasePrice()),
+                newPrice,
                 beerStyleId,
                 request.getOrigin(),
                 request.getBrewery(),
@@ -53,7 +52,6 @@ public class UpdateBeerProductUseCase {
                 timeProvider.now()
         );
 
-        // Save and return
         BeerProduct saved = beerProductRepository.save(updated);
         return mapper.toDto(saved);
     }

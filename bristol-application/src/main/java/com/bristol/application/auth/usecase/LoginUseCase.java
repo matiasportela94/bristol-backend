@@ -3,6 +3,7 @@ package com.bristol.application.auth.usecase;
 import com.bristol.application.auth.dto.AuthResponse;
 import com.bristol.application.auth.dto.LoginRequest;
 import com.bristol.application.auth.dto.UserDto;
+import com.bristol.domain.shared.time.TimeProvider;
 import com.bristol.domain.user.User;
 import com.bristol.domain.user.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -22,10 +23,10 @@ public class LoginUseCase {
     private final AuthenticationManager authenticationManager;
     private final UserRepository userRepository;
     private final JwtTokenGenerator tokenGenerator;
+    private final TimeProvider timeProvider;
 
-    @Transactional(readOnly = true)
+    @Transactional
     public AuthResponse execute(LoginRequest request) {
-        // Authenticate user
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.getEmail(),
@@ -33,14 +34,13 @@ public class LoginUseCase {
                 )
         );
 
-        // Generate JWT token
         String token = tokenGenerator.generateToken(authentication);
 
-        // Get user details
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        // Build response
+        userRepository.save(user.recordSignIn(timeProvider.now()));
+
         UserDto userDto = UserDto.builder()
                 .id(user.getId().getValue().toString())
                 .email(user.getEmail())

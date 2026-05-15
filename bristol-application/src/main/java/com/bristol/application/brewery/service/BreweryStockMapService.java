@@ -1,5 +1,6 @@
 package com.bristol.application.brewery.service;
 
+import com.bristol.domain.brewery.BreweryInventory;
 import com.bristol.domain.brewery.BreweryInventoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
@@ -25,7 +26,7 @@ public class BreweryStockMapService {
         return breweryInventoryRepository.findAll().stream()
                 .collect(Collectors.toMap(
                         inv -> inv.getBeerStyleId().asString(),
-                        inv -> inv.getTotalCans()
+                        BreweryInventory::getTotalCans
                 ));
     }
 

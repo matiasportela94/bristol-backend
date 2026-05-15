@@ -2,6 +2,7 @@ package com.bristol.application.product.special.usecase;
 
 import com.bristol.application.product.special.dto.SpecialProductDto;
 import com.bristol.application.product.special.dto.UpdateFullSpecialProductRequest;
+import com.bristol.application.product.service.ProductPriceHistoryService;
 import com.bristol.application.product.usecase.ProductImageService;
 import com.bristol.application.productvariant.dto.EmbeddedVariantRequest;
 import com.bristol.domain.catalog.SpecialTypeId;
@@ -29,6 +30,7 @@ public class UpdateFullSpecialProductUseCase {
     private final SpecialTypeRepository specialTypeRepository;
     private final ProductVariantRepository productVariantRepository;
     private final ProductImageService productImageService;
+    private final ProductPriceHistoryService priceHistoryService;
     private final SpecialProductApplicationMapper mapper;
     private final TimeProvider timeProvider;
 
@@ -44,9 +46,12 @@ public class UpdateFullSpecialProductUseCase {
             throw new NotFoundException("SpecialType", p.getSpecialTypeId());
         }
 
+        Money newPrice = p.getBasePrice() != null ? Money.of(p.getBasePrice()) : null;
+        priceHistoryService.recordIfChanged(productId, product.getBasePrice(), newPrice, timeProvider.now());
+
         SpecialProduct saved = specialProductRepository.save(product.update(
                 p.getName(), p.getDescription(),
-                p.getBasePrice() != null ? Money.of(p.getBasePrice()) : null,
+                newPrice,
                 specialTypeId, p.getNotes(), p.getRequiresQuote(), timeProvider.now()
         ));
 

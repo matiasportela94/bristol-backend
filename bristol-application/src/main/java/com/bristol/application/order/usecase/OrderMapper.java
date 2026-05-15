@@ -3,6 +3,7 @@ package com.bristol.application.order.usecase;
 import com.bristol.application.order.dto.OrderDto;
 import com.bristol.application.order.dto.OrderItemDto;
 import com.bristol.application.order.dto.ShippingAddressDto;
+import com.bristol.domain.delivery.Delivery;
 import com.bristol.domain.order.Order;
 import com.bristol.domain.order.OrderItem;
 import org.springframework.stereotype.Component;
@@ -16,14 +17,18 @@ import java.util.stream.Collectors;
 public class OrderMapper {
 
     public OrderDto toDto(Order order) {
-        return toDto(order, null, null, null);
+        return toDto(order, null, null, null, null);
     }
 
     public OrderDto toDto(Order order, String distributorName) {
-        return toDto(order, null, null, distributorName);
+        return toDto(order, null, null, distributorName, null);
     }
 
     public OrderDto toDto(Order order, String customerName, String userEmail, String distributorName) {
+        return toDto(order, customerName, userEmail, distributorName, null);
+    }
+
+    public OrderDto toDto(Order order, String customerName, String userEmail, String distributorName, Delivery delivery) {
         return OrderDto.builder()
                 .id(order.getId().getValue().toString())
                 .orderNumber(order.getOrderNumber())
@@ -43,6 +48,8 @@ public class OrderMapper {
                 .total(order.getTotal().getAmount())
                 .stockUpdated(order.isStockUpdated())
                 .notes(order.getNotes())
+                .scheduledDelivery(delivery != null ? delivery.getScheduledDate() : null)
+                .deliveryStatus(delivery != null ? delivery.getStatus().name() : null)
                 .orderDate(order.getOrderDate())
                 .createdAt(order.getCreatedAt())
                 .updatedAt(order.getUpdatedAt())
